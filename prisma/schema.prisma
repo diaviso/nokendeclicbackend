@@ -1,0 +1,450 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== ENUMS ====================
+
+enum Role {
+  ADMIN
+  MEMBRE
+  PARTENAIRE
+}
+
+enum StatutProfessionnel {
+  NON_PRECISE
+  EN_RECHERCHE
+  EN_POSTE
+  ETUDIANT
+  FREELANCE
+  CHOMAGE
+  RECONVERSION
+}
+
+enum TypeOffre {
+  EMPLOI
+  FORMATION
+  BOURSE
+}
+
+enum TypeEmploi {
+  CDI
+  CDD
+  STAGE
+  ALTERNANCE
+  FREELANCE
+  INTERIM
+  SAISONNIER
+  TEMPS_PARTIEL
+  TEMPS_PLEIN
+}
+
+enum Secteur {
+  INFORMATIQUE
+  FINANCE
+  SANTE
+  EDUCATION
+  COMMERCE
+  INDUSTRIE
+  AGRICULTURE
+  TOURISME
+  TRANSPORT
+  COMMUNICATION
+  ADMINISTRATION
+  ARTISANAT
+  CONSTRUCTION
+  ENERGIE
+  ENVIRONNEMENT
+  JURIDIQUE
+  MARKETING
+  RESSOURCES_HUMAINES
+  RECHERCHE
+  AUTRE
+}
+
+enum NiveauExperience {
+  DEBUTANT
+  JUNIOR
+  CONFIRME
+  SENIOR
+  EXPERT
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id                  Int                  @id @default(autoincrement())
+  email               String               @unique
+  username            String
+  password            String?
+  role                Role                 @default(MEMBRE)
+  isActive            Boolean              @default(true)
+  isEmailVerified     Boolean              @default(false)
+  googleId            String?              @unique
+  pictureUrl          String?
+  firstName           String?
+  lastName            String?
+  isGoogleLogin       Boolean              @default(false)
+  statutProfessionnel StatutProfessionnel  @default(NON_PRECISE)
+  pays                String?
+  commune             String?
+  quartier            String?
+  refreshToken        String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  // Relations
+  offres              Offre[]
+  commentaires        Commentaire[]
+  retours             Retour[]
+  messages            Message[]
+  reponseMessages     ReponseMessage[]
+  reponseRetours      ReponseRetour[]
+  cv                  CV?
+  favorites           Favorite[]
+  alerts              Alert[]
+  conversations       Conversation[]
+  emailVerifications  EmailVerification[]
+  
+  // Private messaging relations
+  conversationsAsUser1  PrivateConversation[] @relation("ConversationUser1")
+  conversationsAsUser2  PrivateConversation[] @relation("ConversationUser2")
+  sentPrivateMessages   PrivateMessage[]      @relation("SentPrivateMessages")
+  
+  // Notifications
+  notifications         Notification[]
+
+  @@index([email])
+  @@index([role])
+  @@index([googleId])
+}
+
+model EmailVerification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([code])
+}
+
+model Offre {
+  id              Int               @id @default(autoincrement())
+  titre           String
+  description     String
+  url             String?
+  datePublication DateTime          @default(now())
+  dateLimite      DateTime?
+  documentUrl     String?
+  documentName    String?
+  documentType    String?
+  
+  // Categorisation
+  typeOffre       TypeOffre
+  typeEmploi      TypeEmploi?
+  secteur         Secteur?
+  niveauExperience NiveauExperience?
+  tags            String[]
+  localisation    String?
+  entreprise      String?
+  
+  // Salaire
+  salaireMin      Float?
+  salaireMax      Float?
+  devise          String            @default("FCFA")
+  
+  // Formation specifique
+  organisme       String?
+  dureeFormation  Int?
+  certification   String?
+  
+  // Bourse specifique
+  paysBourse      String?
+  niveauEtude     String?
+  montantBourse   Float?
+  estRemboursable Boolean?
+  
+  // Stats
+  viewCount       Int               @default(0)
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  auteur          User              @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId        Int
+  commentaires    Commentaire[]
+  retours         Retour[]
+  favorites       Favorite[]
+
+  @@index([typeOffre])
+  @@index([secteur])
+  @@index([localisation])
+  @@index([datePublication])
+  @@index([auteurId])
+}
+
+model CV {
+  id                Int           @id @default(autoincrement())
+  titreProfessionnel String?
+  telephone         String?
+  adresse           String?
+  ville             String?
+  codePostal        String?
+  pays              String?
+  linkedin          String?
+  siteWeb           String?
+  github            String?
+  resume            String?
+  competences       String[]
+  langues           String[]
+  certifications    String[]
+  interets          String[]
+  estPublic         Boolean       @default(false)
+  dateCreation      DateTime      @default(now())
+  dateModification  DateTime      @updatedAt
+
+  // Relations
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            Int           @unique
+  experiences       Experience[]
+  formations        Formation[]
+
+  @@index([userId])
+  @@index([estPublic])
+}
+
+model Experience {
+  id          Int       @id @default(autoincrement())
+  poste       String
+  entreprise  String
+  ville       String?
+  dateDebut   DateTime
+  dateFin     DateTime?
+  enCours     Boolean   @default(false)
+  description String?
+
+  // Relations
+  cv          CV        @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  cvId        Int
+
+  @@index([cvId])
+}
+
+model Formation {
+  id            Int       @id @default(autoincrement())
+  diplome       String
+  etablissement String
+  ville         String?
+  dateDebut     DateTime
+  dateFin       DateTime?
+  enCours       Boolean   @default(false)
+  description   String?
+
+  // Relations
+  cv            CV        @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  cvId          Int
+
+  @@index([cvId])
+}
+
+model Message {
+  id          Int              @id @default(autoincrement())
+  sujet       String
+  contenu     String
+  dateEnvoi   DateTime         @default(now())
+  estLu       Boolean          @default(false)
+
+  // Relations
+  expediteur  User             @relation(fields: [expediteurId], references: [id], onDelete: Cascade)
+  expediteurId Int
+  reponses    ReponseMessage[]
+
+  @@index([expediteurId])
+  @@index([estLu])
+}
+
+model ReponseMessage {
+  id          Int      @id @default(autoincrement())
+  contenu     String
+  dateCreation DateTime @default(now())
+
+  // Relations
+  message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId   Int
+  auteur      User     @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId    Int
+
+  @@index([messageId])
+}
+
+// Système de messagerie privée
+model PrivateConversation {
+  id            Int              @id @default(autoincrement())
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  
+  // Participants
+  user1Id       Int
+  user2Id       Int
+  
+  // Relations
+  user1         User             @relation("ConversationUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2         User             @relation("ConversationUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+  messages      PrivateMessage[]
+  
+  @@unique([user1Id, user2Id])
+  @@index([user1Id])
+  @@index([user2Id])
+}
+
+model PrivateMessage {
+  id              Int                 @id @default(autoincrement())
+  content         String
+  createdAt       DateTime            @default(now())
+  isRead          Boolean             @default(false)
+  
+  // Relations
+  conversation    PrivateConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId  Int
+  sender          User                @relation("SentPrivateMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId        Int
+  
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model Commentaire {
+  id              Int      @id @default(autoincrement())
+  contenu         String
+  datePublication DateTime @default(now())
+
+  // Relations
+  auteur          User     @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId        Int
+  offre           Offre    @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  offreId         Int
+
+  @@index([offreId])
+  @@index([auteurId])
+}
+
+model Retour {
+  id              Int             @id @default(autoincrement())
+  contenu         String
+  datePublication DateTime        @default(now())
+
+  // Relations
+  auteur          User            @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId        Int
+  offre           Offre           @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  offreId         Int
+  reponses        ReponseRetour[]
+
+  @@index([offreId])
+  @@index([auteurId])
+}
+
+model ReponseRetour {
+  id          Int      @id @default(autoincrement())
+  contenu     String
+  dateCreation DateTime @default(now())
+
+  // Relations
+  retour      Retour   @relation(fields: [retourId], references: [id], onDelete: Cascade)
+  retourId    Int
+  auteur      User     @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId    Int
+
+  @@index([retourId])
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  offre     Offre    @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  offreId   Int
+
+  @@unique([userId, offreId])
+  @@index([userId])
+}
+
+model Alert {
+  id        Int      @id @default(autoincrement())
+  criteria  Json
+  isActive  Boolean  @default(true)
+  lastSent  DateTime?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model Conversation {
+  id        String        @id @default(uuid())
+  title     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  messages  ChatMessage[]
+
+  @@index([userId])
+}
+
+model ChatMessage {
+  id           Int          @id @default(autoincrement())
+  role         String
+  content      String
+  timestamp    DateTime     @default(now())
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String
+
+  @@index([conversationId])
+}
+
+// Système de notifications
+enum NotificationType {
+  NEW_OFFRE
+  NEW_MESSAGE
+  NEW_RETOUR
+  NEW_COMMENTAIRE
+}
+
+model Notification {
+  id          Int              @id @default(autoincrement())
+  type        NotificationType
+  title       String
+  message     String
+  link        String?
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  
+  // Relations
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
