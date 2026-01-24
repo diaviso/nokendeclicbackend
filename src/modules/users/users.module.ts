@@ -1,17 +1,24 @@
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { existsSync, mkdirSync } from 'fs';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { DashboardController } from './dashboard.controller';
+
+// Ensure upload directory exists
+const uploadPath = join(process.cwd(), 'uploads', 'profiles');
+if (!existsSync(uploadPath)) {
+  mkdirSync(uploadPath, { recursive: true });
+}
 
 @Module({
   imports: [
     MulterModule.register({
       storage: diskStorage({
-        destination: './uploads/profiles',
+        destination: uploadPath,
         filename: (req, file, cb) => {
           const uniqueName = `${uuidv4()}${extname(file.originalname)}`;
           cb(null, uniqueName);
