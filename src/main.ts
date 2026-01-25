@@ -27,9 +27,12 @@ async function bootstrap() {
     }),
   );
 
-  // CORS
+  // CORS - Support multiple origins for production
+  const frontendUrl = configService.get<string>('frontend.url');
+  const corsOrigins = frontendUrl ? frontendUrl.split(',').map(url => url.trim()) : ['http://localhost:5173'];
+  
   app.enableCors({
-    origin: configService.get<string>('frontend.url'),
+    origin: corsOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   });
@@ -44,10 +47,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Start
-  const port = configService.get<number>('port') || 3000;
-  await app.listen(port);
-  console.log(`🚀 Noken Declic API running on http://localhost:${port}`);
-  console.log(`📚 Swagger docs: http://localhost:${port}/api/docs`);
+  // Start - Railway uses PORT env variable
+  const port = process.env.PORT || configService.get<number>('port') || 3000;
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 Noken Declic API running on port ${port}`);
+  console.log(`📚 Swagger docs available at /api/docs`);
 }
 bootstrap();
