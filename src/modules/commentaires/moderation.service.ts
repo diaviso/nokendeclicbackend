@@ -15,7 +15,7 @@ export class ModerationService {
   async moderateContent(content: string): Promise<{ isAppropriate: boolean; moderatedContent: string }> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
