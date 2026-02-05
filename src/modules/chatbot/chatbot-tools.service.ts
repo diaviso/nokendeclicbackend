@@ -445,6 +445,30 @@ export class ChatbotToolsService {
     };
   }
 
+  async getVolontariatsDisponibles() {
+    const volontariats = await this.prisma.offre.findMany({
+      where: { typeOffre: 'VOLONTARIAT' },
+      take: 15,
+      orderBy: { datePublication: 'desc' },
+      select: {
+        id: true,
+        titre: true,
+        typeVolontariat: true,
+        dureeVolontariat: true,
+        hebergement: true,
+        indemnite: true,
+        competencesRequises: true,
+        localisation: true,
+        description: true,
+      },
+    });
+
+    return {
+      volontariats,
+      nombreVolontariats: volontariats.length,
+    };
+  }
+
   // ==================== RECOMMANDATIONS PERSONNALISÉES ====================
 
   async getRecommandationsPersonnalisees(userId: number) {

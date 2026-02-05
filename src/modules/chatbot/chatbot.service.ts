@@ -136,13 +136,13 @@ export class ChatbotService {
         type: 'function',
         function: {
           name: 'get_offres_par_type',
-          description: "Récupère les offres par type (EMPLOI, FORMATION, BOURSE)",
+          description: "Récupère les offres par type (EMPLOI, FORMATION, BOURSE, VOLONTARIAT)",
           parameters: {
             type: 'object',
             properties: {
               typeOffre: {
                 type: 'string',
-                enum: ['EMPLOI', 'FORMATION', 'BOURSE'],
+                enum: ['EMPLOI', 'FORMATION', 'BOURSE', 'VOLONTARIAT'],
                 description: "Type d'offre",
               },
             },
@@ -179,6 +179,13 @@ export class ChatbotService {
         function: {
           name: 'get_bourses_disponibles',
           description: "Récupère toutes les bourses d'études disponibles",
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'get_volontariats_disponibles',
+          description: "Récupère toutes les offres de volontariat disponibles (service civique, missions humanitaires, bénévolat)",
         },
       },
       {
@@ -245,6 +252,9 @@ export class ChatbotService {
         break;
       case 'get_bourses_disponibles':
         result = await this.toolsService.getBoursesDisponibles();
+        break;
+      case 'get_volontariats_disponibles':
+        result = await this.toolsService.getVolontariatsDisponibles();
         break;
       case 'get_statistiques_offres':
         result = await this.toolsService.getStatistiquesOffres();

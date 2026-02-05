@@ -30,6 +30,7 @@ enum TypeOffre {
   EMPLOI
   FORMATION
   BOURSE
+  VOLONTARIAT
 }
 
 enum TypeEmploi {
@@ -172,6 +173,13 @@ model Offre {
   niveauEtude     String?
   montantBourse   Float?
   estRemboursable Boolean?
+  
+  // Volontariat specifique
+  typeVolontariat   String?
+  dureeVolontariat  Int?
+  hebergement       Boolean?
+  indemnite         Float?
+  competencesRequises String?
   
   // Stats
   viewCount       Int               @default(0)

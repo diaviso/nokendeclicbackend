@@ -133,7 +133,8 @@ export type StatutProfessionnel = (typeof StatutProfessionnel)[keyof typeof Stat
 export const TypeOffre: {
   EMPLOI: 'EMPLOI',
   FORMATION: 'FORMATION',
-  BOURSE: 'BOURSE'
+  BOURSE: 'BOURSE',
+  VOLONTARIAT: 'VOLONTARIAT'
 };
 
 export type TypeOffre = (typeof TypeOffre)[keyof typeof TypeOffre]
@@ -5681,6 +5682,8 @@ export namespace Prisma {
     salaireMax: number | null
     dureeFormation: number | null
     montantBourse: number | null
+    dureeVolontariat: number | null
+    indemnite: number | null
     viewCount: number | null
     auteurId: number | null
   }
@@ -5691,6 +5694,8 @@ export namespace Prisma {
     salaireMax: number | null
     dureeFormation: number | null
     montantBourse: number | null
+    dureeVolontariat: number | null
+    indemnite: number | null
     viewCount: number | null
     auteurId: number | null
   }
@@ -5721,6 +5726,11 @@ export namespace Prisma {
     niveauEtude: string | null
     montantBourse: number | null
     estRemboursable: boolean | null
+    typeVolontariat: string | null
+    dureeVolontariat: number | null
+    hebergement: boolean | null
+    indemnite: number | null
+    competencesRequises: string | null
     viewCount: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5753,6 +5763,11 @@ export namespace Prisma {
     niveauEtude: string | null
     montantBourse: number | null
     estRemboursable: boolean | null
+    typeVolontariat: string | null
+    dureeVolontariat: number | null
+    hebergement: boolean | null
+    indemnite: number | null
+    competencesRequises: string | null
     viewCount: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5786,6 +5801,11 @@ export namespace Prisma {
     niveauEtude: number
     montantBourse: number
     estRemboursable: number
+    typeVolontariat: number
+    dureeVolontariat: number
+    hebergement: number
+    indemnite: number
+    competencesRequises: number
     viewCount: number
     createdAt: number
     updatedAt: number
@@ -5800,6 +5820,8 @@ export namespace Prisma {
     salaireMax?: true
     dureeFormation?: true
     montantBourse?: true
+    dureeVolontariat?: true
+    indemnite?: true
     viewCount?: true
     auteurId?: true
   }
@@ -5810,6 +5832,8 @@ export namespace Prisma {
     salaireMax?: true
     dureeFormation?: true
     montantBourse?: true
+    dureeVolontariat?: true
+    indemnite?: true
     viewCount?: true
     auteurId?: true
   }
@@ -5840,6 +5864,11 @@ export namespace Prisma {
     niveauEtude?: true
     montantBourse?: true
     estRemboursable?: true
+    typeVolontariat?: true
+    dureeVolontariat?: true
+    hebergement?: true
+    indemnite?: true
+    competencesRequises?: true
     viewCount?: true
     createdAt?: true
     updatedAt?: true
@@ -5872,6 +5901,11 @@ export namespace Prisma {
     niveauEtude?: true
     montantBourse?: true
     estRemboursable?: true
+    typeVolontariat?: true
+    dureeVolontariat?: true
+    hebergement?: true
+    indemnite?: true
+    competencesRequises?: true
     viewCount?: true
     createdAt?: true
     updatedAt?: true
@@ -5905,6 +5939,11 @@ export namespace Prisma {
     niveauEtude?: true
     montantBourse?: true
     estRemboursable?: true
+    typeVolontariat?: true
+    dureeVolontariat?: true
+    hebergement?: true
+    indemnite?: true
+    competencesRequises?: true
     viewCount?: true
     createdAt?: true
     updatedAt?: true
@@ -6025,6 +6064,11 @@ export namespace Prisma {
     niveauEtude: string | null
     montantBourse: number | null
     estRemboursable: boolean | null
+    typeVolontariat: string | null
+    dureeVolontariat: number | null
+    hebergement: boolean | null
+    indemnite: number | null
+    competencesRequises: string | null
     viewCount: number
     createdAt: Date
     updatedAt: Date
@@ -6077,6 +6121,11 @@ export namespace Prisma {
     niveauEtude?: boolean
     montantBourse?: boolean
     estRemboursable?: boolean
+    typeVolontariat?: boolean
+    dureeVolontariat?: boolean
+    hebergement?: boolean
+    indemnite?: boolean
+    competencesRequises?: boolean
     viewCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6115,6 +6164,11 @@ export namespace Prisma {
     niveauEtude?: boolean
     montantBourse?: boolean
     estRemboursable?: boolean
+    typeVolontariat?: boolean
+    dureeVolontariat?: boolean
+    hebergement?: boolean
+    indemnite?: boolean
+    competencesRequises?: boolean
     viewCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6149,6 +6203,11 @@ export namespace Prisma {
     niveauEtude?: boolean
     montantBourse?: boolean
     estRemboursable?: boolean
+    typeVolontariat?: boolean
+    dureeVolontariat?: boolean
+    hebergement?: boolean
+    indemnite?: boolean
+    competencesRequises?: boolean
     viewCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6183,13 +6242,18 @@ export namespace Prisma {
     niveauEtude?: boolean
     montantBourse?: boolean
     estRemboursable?: boolean
+    typeVolontariat?: boolean
+    dureeVolontariat?: boolean
+    hebergement?: boolean
+    indemnite?: boolean
+    competencesRequises?: boolean
     viewCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     auteurId?: boolean
   }
 
-  export type OffreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "titre" | "description" | "url" | "datePublication" | "dateLimite" | "documentUrl" | "documentName" | "documentType" | "typeOffre" | "typeEmploi" | "secteur" | "niveauExperience" | "tags" | "localisation" | "entreprise" | "salaireMin" | "salaireMax" | "devise" | "organisme" | "dureeFormation" | "certification" | "paysBourse" | "niveauEtude" | "montantBourse" | "estRemboursable" | "viewCount" | "createdAt" | "updatedAt" | "auteurId", ExtArgs["result"]["offre"]>
+  export type OffreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "titre" | "description" | "url" | "datePublication" | "dateLimite" | "documentUrl" | "documentName" | "documentType" | "typeOffre" | "typeEmploi" | "secteur" | "niveauExperience" | "tags" | "localisation" | "entreprise" | "salaireMin" | "salaireMax" | "devise" | "organisme" | "dureeFormation" | "certification" | "paysBourse" | "niveauEtude" | "montantBourse" | "estRemboursable" | "typeVolontariat" | "dureeVolontariat" | "hebergement" | "indemnite" | "competencesRequises" | "viewCount" | "createdAt" | "updatedAt" | "auteurId", ExtArgs["result"]["offre"]>
   export type OffreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     auteur?: boolean | UserDefaultArgs<ExtArgs>
     commentaires?: boolean | Offre$commentairesArgs<ExtArgs>
@@ -6239,6 +6303,11 @@ export namespace Prisma {
       niveauEtude: string | null
       montantBourse: number | null
       estRemboursable: boolean | null
+      typeVolontariat: string | null
+      dureeVolontariat: number | null
+      hebergement: boolean | null
+      indemnite: number | null
+      competencesRequises: string | null
       viewCount: number
       createdAt: Date
       updatedAt: Date
@@ -6696,6 +6765,11 @@ export namespace Prisma {
     readonly niveauEtude: FieldRef<"Offre", 'String'>
     readonly montantBourse: FieldRef<"Offre", 'Float'>
     readonly estRemboursable: FieldRef<"Offre", 'Boolean'>
+    readonly typeVolontariat: FieldRef<"Offre", 'String'>
+    readonly dureeVolontariat: FieldRef<"Offre", 'Int'>
+    readonly hebergement: FieldRef<"Offre", 'Boolean'>
+    readonly indemnite: FieldRef<"Offre", 'Float'>
+    readonly competencesRequises: FieldRef<"Offre", 'String'>
     readonly viewCount: FieldRef<"Offre", 'Int'>
     readonly createdAt: FieldRef<"Offre", 'DateTime'>
     readonly updatedAt: FieldRef<"Offre", 'DateTime'>
@@ -24288,6 +24362,11 @@ export namespace Prisma {
     niveauEtude: 'niveauEtude',
     montantBourse: 'montantBourse',
     estRemboursable: 'estRemboursable',
+    typeVolontariat: 'typeVolontariat',
+    dureeVolontariat: 'dureeVolontariat',
+    hebergement: 'hebergement',
+    indemnite: 'indemnite',
+    competencesRequises: 'competencesRequises',
     viewCount: 'viewCount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -24968,6 +25047,11 @@ export namespace Prisma {
     niveauEtude?: StringNullableFilter<"Offre"> | string | null
     montantBourse?: FloatNullableFilter<"Offre"> | number | null
     estRemboursable?: BoolNullableFilter<"Offre"> | boolean | null
+    typeVolontariat?: StringNullableFilter<"Offre"> | string | null
+    dureeVolontariat?: IntNullableFilter<"Offre"> | number | null
+    hebergement?: BoolNullableFilter<"Offre"> | boolean | null
+    indemnite?: FloatNullableFilter<"Offre"> | number | null
+    competencesRequises?: StringNullableFilter<"Offre"> | string | null
     viewCount?: IntFilter<"Offre"> | number
     createdAt?: DateTimeFilter<"Offre"> | Date | string
     updatedAt?: DateTimeFilter<"Offre"> | Date | string
@@ -25005,6 +25089,11 @@ export namespace Prisma {
     niveauEtude?: SortOrderInput | SortOrder
     montantBourse?: SortOrderInput | SortOrder
     estRemboursable?: SortOrderInput | SortOrder
+    typeVolontariat?: SortOrderInput | SortOrder
+    dureeVolontariat?: SortOrderInput | SortOrder
+    hebergement?: SortOrderInput | SortOrder
+    indemnite?: SortOrderInput | SortOrder
+    competencesRequises?: SortOrderInput | SortOrder
     viewCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -25045,6 +25134,11 @@ export namespace Prisma {
     niveauEtude?: StringNullableFilter<"Offre"> | string | null
     montantBourse?: FloatNullableFilter<"Offre"> | number | null
     estRemboursable?: BoolNullableFilter<"Offre"> | boolean | null
+    typeVolontariat?: StringNullableFilter<"Offre"> | string | null
+    dureeVolontariat?: IntNullableFilter<"Offre"> | number | null
+    hebergement?: BoolNullableFilter<"Offre"> | boolean | null
+    indemnite?: FloatNullableFilter<"Offre"> | number | null
+    competencesRequises?: StringNullableFilter<"Offre"> | string | null
     viewCount?: IntFilter<"Offre"> | number
     createdAt?: DateTimeFilter<"Offre"> | Date | string
     updatedAt?: DateTimeFilter<"Offre"> | Date | string
@@ -25082,6 +25176,11 @@ export namespace Prisma {
     niveauEtude?: SortOrderInput | SortOrder
     montantBourse?: SortOrderInput | SortOrder
     estRemboursable?: SortOrderInput | SortOrder
+    typeVolontariat?: SortOrderInput | SortOrder
+    dureeVolontariat?: SortOrderInput | SortOrder
+    hebergement?: SortOrderInput | SortOrder
+    indemnite?: SortOrderInput | SortOrder
+    competencesRequises?: SortOrderInput | SortOrder
     viewCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -25123,6 +25222,11 @@ export namespace Prisma {
     niveauEtude?: StringNullableWithAggregatesFilter<"Offre"> | string | null
     montantBourse?: FloatNullableWithAggregatesFilter<"Offre"> | number | null
     estRemboursable?: BoolNullableWithAggregatesFilter<"Offre"> | boolean | null
+    typeVolontariat?: StringNullableWithAggregatesFilter<"Offre"> | string | null
+    dureeVolontariat?: IntNullableWithAggregatesFilter<"Offre"> | number | null
+    hebergement?: BoolNullableWithAggregatesFilter<"Offre"> | boolean | null
+    indemnite?: FloatNullableWithAggregatesFilter<"Offre"> | number | null
+    competencesRequises?: StringNullableWithAggregatesFilter<"Offre"> | string | null
     viewCount?: IntWithAggregatesFilter<"Offre"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Offre"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Offre"> | Date | string
@@ -26449,6 +26553,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26485,6 +26594,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26520,6 +26634,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26556,6 +26675,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26592,6 +26716,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26624,6 +26753,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26656,6 +26790,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -28170,6 +28309,11 @@ export namespace Prisma {
     niveauEtude?: SortOrder
     montantBourse?: SortOrder
     estRemboursable?: SortOrder
+    typeVolontariat?: SortOrder
+    dureeVolontariat?: SortOrder
+    hebergement?: SortOrder
+    indemnite?: SortOrder
+    competencesRequises?: SortOrder
     viewCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -28182,6 +28326,8 @@ export namespace Prisma {
     salaireMax?: SortOrder
     dureeFormation?: SortOrder
     montantBourse?: SortOrder
+    dureeVolontariat?: SortOrder
+    indemnite?: SortOrder
     viewCount?: SortOrder
     auteurId?: SortOrder
   }
@@ -28212,6 +28358,11 @@ export namespace Prisma {
     niveauEtude?: SortOrder
     montantBourse?: SortOrder
     estRemboursable?: SortOrder
+    typeVolontariat?: SortOrder
+    dureeVolontariat?: SortOrder
+    hebergement?: SortOrder
+    indemnite?: SortOrder
+    competencesRequises?: SortOrder
     viewCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -28244,6 +28395,11 @@ export namespace Prisma {
     niveauEtude?: SortOrder
     montantBourse?: SortOrder
     estRemboursable?: SortOrder
+    typeVolontariat?: SortOrder
+    dureeVolontariat?: SortOrder
+    hebergement?: SortOrder
+    indemnite?: SortOrder
+    competencesRequises?: SortOrder
     viewCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -28256,6 +28412,8 @@ export namespace Prisma {
     salaireMax?: SortOrder
     dureeFormation?: SortOrder
     montantBourse?: SortOrder
+    dureeVolontariat?: SortOrder
+    indemnite?: SortOrder
     viewCount?: SortOrder
     auteurId?: SortOrder
   }
@@ -30934,6 +31092,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -30969,6 +31132,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31403,6 +31571,11 @@ export namespace Prisma {
     niveauEtude?: StringNullableFilter<"Offre"> | string | null
     montantBourse?: FloatNullableFilter<"Offre"> | number | null
     estRemboursable?: BoolNullableFilter<"Offre"> | boolean | null
+    typeVolontariat?: StringNullableFilter<"Offre"> | string | null
+    dureeVolontariat?: IntNullableFilter<"Offre"> | number | null
+    hebergement?: BoolNullableFilter<"Offre"> | boolean | null
+    indemnite?: FloatNullableFilter<"Offre"> | number | null
+    competencesRequises?: StringNullableFilter<"Offre"> | string | null
     viewCount?: IntFilter<"Offre"> | number
     createdAt?: DateTimeFilter<"Offre"> | Date | string
     updatedAt?: DateTimeFilter<"Offre"> | Date | string
@@ -33805,6 +33978,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33840,6 +34018,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33972,6 +34155,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34007,6 +34195,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34117,6 +34310,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34152,6 +34350,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34307,6 +34510,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34342,6 +34550,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34672,6 +34885,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34707,6 +34925,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34839,6 +35062,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34874,6 +35102,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35481,6 +35714,11 @@ export namespace Prisma {
     niveauEtude?: string | null
     montantBourse?: number | null
     estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
     viewCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35608,6 +35846,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35643,6 +35886,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35678,6 +35926,11 @@ export namespace Prisma {
     niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
     montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
     estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

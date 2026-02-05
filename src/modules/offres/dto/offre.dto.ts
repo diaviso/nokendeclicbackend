@@ -16,6 +16,7 @@ export enum TypeOffre {
   EMPLOI = 'EMPLOI',
   FORMATION = 'FORMATION',
   BOURSE = 'BOURSE',
+  VOLONTARIAT = 'VOLONTARIAT',
 }
 
 export enum TypeEmploi {
@@ -174,6 +175,34 @@ export class CreateOffreDto {
   @IsBoolean()
   @IsOptional()
   estRemboursable?: boolean;
+
+  // Volontariat
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  typeVolontariat?: string;
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @IsOptional()
+  @Transform(({ value }) => value ? Number(value) : undefined)
+  dureeVolontariat?: number;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  hebergement?: boolean;
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @IsOptional()
+  @Transform(({ value }) => value ? Number(value) : undefined)
+  indemnite?: number;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  competencesRequises?: string;
 }
 
 export class UpdateOffreDto extends CreateOffreDto {}
