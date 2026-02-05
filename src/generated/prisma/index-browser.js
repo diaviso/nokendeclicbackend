@@ -189,6 +189,16 @@ exports.Prisma.OffreScalarFieldEnum = {
   auteurId: 'auteurId'
 };
 
+exports.Prisma.OffreFichierScalarFieldEnum = {
+  id: 'id',
+  nom: 'nom',
+  url: 'url',
+  type: 'type',
+  taille: 'taille',
+  createdAt: 'createdAt',
+  offreId: 'offreId'
+};
+
 exports.Prisma.CVScalarFieldEnum = {
   id: 'id',
   titreProfessionnel: 'titreProfessionnel',
@@ -437,6 +447,7 @@ exports.Prisma.ModelName = {
   User: 'User',
   EmailVerification: 'EmailVerification',
   Offre: 'Offre',
+  OffreFichier: 'OffreFichier',
   CV: 'CV',
   Experience: 'Experience',
   Formation: 'Formation',

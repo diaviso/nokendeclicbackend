@@ -193,12 +193,27 @@ model Offre {
   commentaires    Commentaire[]
   retours         Retour[]
   favorites       Favorite[]
+  fichiers        OffreFichier[]
 
   @@index([typeOffre])
   @@index([secteur])
   @@index([localisation])
   @@index([datePublication])
   @@index([auteurId])
+}
+
+model OffreFichier {
+  id          Int      @id @default(autoincrement())
+  nom         String
+  url         String
+  type        String
+  taille      Int
+  createdAt   DateTime @default(now())
+  
+  offre       Offre    @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  offreId     Int
+
+  @@index([offreId])
 }
 
 model CV {

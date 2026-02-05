@@ -29,6 +29,11 @@ export type EmailVerification = $Result.DefaultSelection<Prisma.$EmailVerificati
  */
 export type Offre = $Result.DefaultSelection<Prisma.$OffrePayload>
 /**
+ * Model OffreFichier
+ * 
+ */
+export type OffreFichier = $Result.DefaultSelection<Prisma.$OffreFichierPayload>
+/**
  * Model CV
  * 
  */
@@ -378,6 +383,16 @@ export class PrismaClient<
     * ```
     */
   get offre(): Prisma.OffreDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.offreFichier`: Exposes CRUD operations for the **OffreFichier** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OffreFichiers
+    * const offreFichiers = await prisma.offreFichier.findMany()
+    * ```
+    */
+  get offreFichier(): Prisma.OffreFichierDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.cV`: Exposes CRUD operations for the **CV** model.
@@ -972,6 +987,7 @@ export namespace Prisma {
     User: 'User',
     EmailVerification: 'EmailVerification',
     Offre: 'Offre',
+    OffreFichier: 'OffreFichier',
     CV: 'CV',
     Experience: 'Experience',
     Formation: 'Formation',
@@ -1005,7 +1021,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "emailVerification" | "offre" | "cV" | "experience" | "formation" | "message" | "reponseMessage" | "privateConversation" | "privateMessage" | "commentaire" | "retour" | "reponseRetour" | "favorite" | "alert" | "conversation" | "chatMessage" | "notification"
+      modelProps: "user" | "emailVerification" | "offre" | "offreFichier" | "cV" | "experience" | "formation" | "message" | "reponseMessage" | "privateConversation" | "privateMessage" | "commentaire" | "retour" | "reponseRetour" | "favorite" | "alert" | "conversation" | "chatMessage" | "notification"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1228,6 +1244,80 @@ export namespace Prisma {
           count: {
             args: Prisma.OffreCountArgs<ExtArgs>
             result: $Utils.Optional<OffreCountAggregateOutputType> | number
+          }
+        }
+      }
+      OffreFichier: {
+        payload: Prisma.$OffreFichierPayload<ExtArgs>
+        fields: Prisma.OffreFichierFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OffreFichierFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OffreFichierFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload>
+          }
+          findFirst: {
+            args: Prisma.OffreFichierFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OffreFichierFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload>
+          }
+          findMany: {
+            args: Prisma.OffreFichierFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload>[]
+          }
+          create: {
+            args: Prisma.OffreFichierCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload>
+          }
+          createMany: {
+            args: Prisma.OffreFichierCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OffreFichierCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload>[]
+          }
+          delete: {
+            args: Prisma.OffreFichierDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload>
+          }
+          update: {
+            args: Prisma.OffreFichierUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload>
+          }
+          deleteMany: {
+            args: Prisma.OffreFichierDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OffreFichierUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OffreFichierUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload>[]
+          }
+          upsert: {
+            args: Prisma.OffreFichierUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OffreFichierPayload>
+          }
+          aggregate: {
+            args: Prisma.OffreFichierAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOffreFichier>
+          }
+          groupBy: {
+            args: Prisma.OffreFichierGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OffreFichierGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OffreFichierCountArgs<ExtArgs>
+            result: $Utils.Optional<OffreFichierCountAggregateOutputType> | number
           }
         }
       }
@@ -2440,6 +2530,7 @@ export namespace Prisma {
     user?: UserOmit
     emailVerification?: EmailVerificationOmit
     offre?: OffreOmit
+    offreFichier?: OffreFichierOmit
     cV?: CVOmit
     experience?: ExperienceOmit
     formation?: FormationOmit
@@ -2686,12 +2777,14 @@ export namespace Prisma {
     commentaires: number
     retours: number
     favorites: number
+    fichiers: number
   }
 
   export type OffreCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     commentaires?: boolean | OffreCountOutputTypeCountCommentairesArgs
     retours?: boolean | OffreCountOutputTypeCountRetoursArgs
     favorites?: boolean | OffreCountOutputTypeCountFavoritesArgs
+    fichiers?: boolean | OffreCountOutputTypeCountFichiersArgs
   }
 
   // Custom InputTypes
@@ -2724,6 +2817,13 @@ export namespace Prisma {
    */
   export type OffreCountOutputTypeCountFavoritesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FavoriteWhereInput
+  }
+
+  /**
+   * OffreCountOutputType without action
+   */
+  export type OffreCountOutputTypeCountFichiersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OffreFichierWhereInput
   }
 
 
@@ -6134,6 +6234,7 @@ export namespace Prisma {
     commentaires?: boolean | Offre$commentairesArgs<ExtArgs>
     retours?: boolean | Offre$retoursArgs<ExtArgs>
     favorites?: boolean | Offre$favoritesArgs<ExtArgs>
+    fichiers?: boolean | Offre$fichiersArgs<ExtArgs>
     _count?: boolean | OffreCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["offre"]>
 
@@ -6259,6 +6360,7 @@ export namespace Prisma {
     commentaires?: boolean | Offre$commentairesArgs<ExtArgs>
     retours?: boolean | Offre$retoursArgs<ExtArgs>
     favorites?: boolean | Offre$favoritesArgs<ExtArgs>
+    fichiers?: boolean | Offre$fichiersArgs<ExtArgs>
     _count?: boolean | OffreCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OffreIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6275,6 +6377,7 @@ export namespace Prisma {
       commentaires: Prisma.$CommentairePayload<ExtArgs>[]
       retours: Prisma.$RetourPayload<ExtArgs>[]
       favorites: Prisma.$FavoritePayload<ExtArgs>[]
+      fichiers: Prisma.$OffreFichierPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -6710,6 +6813,7 @@ export namespace Prisma {
     commentaires<T extends Offre$commentairesArgs<ExtArgs> = {}>(args?: Subset<T, Offre$commentairesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CommentairePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     retours<T extends Offre$retoursArgs<ExtArgs> = {}>(args?: Subset<T, Offre$retoursArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RetourPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     favorites<T extends Offre$favoritesArgs<ExtArgs> = {}>(args?: Subset<T, Offre$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    fichiers<T extends Offre$fichiersArgs<ExtArgs> = {}>(args?: Subset<T, Offre$fichiersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7242,6 +7346,30 @@ export namespace Prisma {
   }
 
   /**
+   * Offre.fichiers
+   */
+  export type Offre$fichiersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
+    where?: OffreFichierWhereInput
+    orderBy?: OffreFichierOrderByWithRelationInput | OffreFichierOrderByWithRelationInput[]
+    cursor?: OffreFichierWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OffreFichierScalarFieldEnum | OffreFichierScalarFieldEnum[]
+  }
+
+  /**
    * Offre without action
    */
   export type OffreDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7257,6 +7385,1132 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OffreInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OffreFichier
+   */
+
+  export type AggregateOffreFichier = {
+    _count: OffreFichierCountAggregateOutputType | null
+    _avg: OffreFichierAvgAggregateOutputType | null
+    _sum: OffreFichierSumAggregateOutputType | null
+    _min: OffreFichierMinAggregateOutputType | null
+    _max: OffreFichierMaxAggregateOutputType | null
+  }
+
+  export type OffreFichierAvgAggregateOutputType = {
+    id: number | null
+    taille: number | null
+    offreId: number | null
+  }
+
+  export type OffreFichierSumAggregateOutputType = {
+    id: number | null
+    taille: number | null
+    offreId: number | null
+  }
+
+  export type OffreFichierMinAggregateOutputType = {
+    id: number | null
+    nom: string | null
+    url: string | null
+    type: string | null
+    taille: number | null
+    createdAt: Date | null
+    offreId: number | null
+  }
+
+  export type OffreFichierMaxAggregateOutputType = {
+    id: number | null
+    nom: string | null
+    url: string | null
+    type: string | null
+    taille: number | null
+    createdAt: Date | null
+    offreId: number | null
+  }
+
+  export type OffreFichierCountAggregateOutputType = {
+    id: number
+    nom: number
+    url: number
+    type: number
+    taille: number
+    createdAt: number
+    offreId: number
+    _all: number
+  }
+
+
+  export type OffreFichierAvgAggregateInputType = {
+    id?: true
+    taille?: true
+    offreId?: true
+  }
+
+  export type OffreFichierSumAggregateInputType = {
+    id?: true
+    taille?: true
+    offreId?: true
+  }
+
+  export type OffreFichierMinAggregateInputType = {
+    id?: true
+    nom?: true
+    url?: true
+    type?: true
+    taille?: true
+    createdAt?: true
+    offreId?: true
+  }
+
+  export type OffreFichierMaxAggregateInputType = {
+    id?: true
+    nom?: true
+    url?: true
+    type?: true
+    taille?: true
+    createdAt?: true
+    offreId?: true
+  }
+
+  export type OffreFichierCountAggregateInputType = {
+    id?: true
+    nom?: true
+    url?: true
+    type?: true
+    taille?: true
+    createdAt?: true
+    offreId?: true
+    _all?: true
+  }
+
+  export type OffreFichierAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OffreFichier to aggregate.
+     */
+    where?: OffreFichierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OffreFichiers to fetch.
+     */
+    orderBy?: OffreFichierOrderByWithRelationInput | OffreFichierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OffreFichierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OffreFichiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OffreFichiers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OffreFichiers
+    **/
+    _count?: true | OffreFichierCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OffreFichierAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OffreFichierSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OffreFichierMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OffreFichierMaxAggregateInputType
+  }
+
+  export type GetOffreFichierAggregateType<T extends OffreFichierAggregateArgs> = {
+        [P in keyof T & keyof AggregateOffreFichier]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOffreFichier[P]>
+      : GetScalarType<T[P], AggregateOffreFichier[P]>
+  }
+
+
+
+
+  export type OffreFichierGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OffreFichierWhereInput
+    orderBy?: OffreFichierOrderByWithAggregationInput | OffreFichierOrderByWithAggregationInput[]
+    by: OffreFichierScalarFieldEnum[] | OffreFichierScalarFieldEnum
+    having?: OffreFichierScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OffreFichierCountAggregateInputType | true
+    _avg?: OffreFichierAvgAggregateInputType
+    _sum?: OffreFichierSumAggregateInputType
+    _min?: OffreFichierMinAggregateInputType
+    _max?: OffreFichierMaxAggregateInputType
+  }
+
+  export type OffreFichierGroupByOutputType = {
+    id: number
+    nom: string
+    url: string
+    type: string
+    taille: number
+    createdAt: Date
+    offreId: number
+    _count: OffreFichierCountAggregateOutputType | null
+    _avg: OffreFichierAvgAggregateOutputType | null
+    _sum: OffreFichierSumAggregateOutputType | null
+    _min: OffreFichierMinAggregateOutputType | null
+    _max: OffreFichierMaxAggregateOutputType | null
+  }
+
+  type GetOffreFichierGroupByPayload<T extends OffreFichierGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OffreFichierGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OffreFichierGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OffreFichierGroupByOutputType[P]>
+            : GetScalarType<T[P], OffreFichierGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OffreFichierSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nom?: boolean
+    url?: boolean
+    type?: boolean
+    taille?: boolean
+    createdAt?: boolean
+    offreId?: boolean
+    offre?: boolean | OffreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["offreFichier"]>
+
+  export type OffreFichierSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nom?: boolean
+    url?: boolean
+    type?: boolean
+    taille?: boolean
+    createdAt?: boolean
+    offreId?: boolean
+    offre?: boolean | OffreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["offreFichier"]>
+
+  export type OffreFichierSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nom?: boolean
+    url?: boolean
+    type?: boolean
+    taille?: boolean
+    createdAt?: boolean
+    offreId?: boolean
+    offre?: boolean | OffreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["offreFichier"]>
+
+  export type OffreFichierSelectScalar = {
+    id?: boolean
+    nom?: boolean
+    url?: boolean
+    type?: boolean
+    taille?: boolean
+    createdAt?: boolean
+    offreId?: boolean
+  }
+
+  export type OffreFichierOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nom" | "url" | "type" | "taille" | "createdAt" | "offreId", ExtArgs["result"]["offreFichier"]>
+  export type OffreFichierInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    offre?: boolean | OffreDefaultArgs<ExtArgs>
+  }
+  export type OffreFichierIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    offre?: boolean | OffreDefaultArgs<ExtArgs>
+  }
+  export type OffreFichierIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    offre?: boolean | OffreDefaultArgs<ExtArgs>
+  }
+
+  export type $OffreFichierPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OffreFichier"
+    objects: {
+      offre: Prisma.$OffrePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      nom: string
+      url: string
+      type: string
+      taille: number
+      createdAt: Date
+      offreId: number
+    }, ExtArgs["result"]["offreFichier"]>
+    composites: {}
+  }
+
+  type OffreFichierGetPayload<S extends boolean | null | undefined | OffreFichierDefaultArgs> = $Result.GetResult<Prisma.$OffreFichierPayload, S>
+
+  type OffreFichierCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OffreFichierFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OffreFichierCountAggregateInputType | true
+    }
+
+  export interface OffreFichierDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OffreFichier'], meta: { name: 'OffreFichier' } }
+    /**
+     * Find zero or one OffreFichier that matches the filter.
+     * @param {OffreFichierFindUniqueArgs} args - Arguments to find a OffreFichier
+     * @example
+     * // Get one OffreFichier
+     * const offreFichier = await prisma.offreFichier.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OffreFichierFindUniqueArgs>(args: SelectSubset<T, OffreFichierFindUniqueArgs<ExtArgs>>): Prisma__OffreFichierClient<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OffreFichier that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OffreFichierFindUniqueOrThrowArgs} args - Arguments to find a OffreFichier
+     * @example
+     * // Get one OffreFichier
+     * const offreFichier = await prisma.offreFichier.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OffreFichierFindUniqueOrThrowArgs>(args: SelectSubset<T, OffreFichierFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OffreFichierClient<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OffreFichier that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OffreFichierFindFirstArgs} args - Arguments to find a OffreFichier
+     * @example
+     * // Get one OffreFichier
+     * const offreFichier = await prisma.offreFichier.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OffreFichierFindFirstArgs>(args?: SelectSubset<T, OffreFichierFindFirstArgs<ExtArgs>>): Prisma__OffreFichierClient<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OffreFichier that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OffreFichierFindFirstOrThrowArgs} args - Arguments to find a OffreFichier
+     * @example
+     * // Get one OffreFichier
+     * const offreFichier = await prisma.offreFichier.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OffreFichierFindFirstOrThrowArgs>(args?: SelectSubset<T, OffreFichierFindFirstOrThrowArgs<ExtArgs>>): Prisma__OffreFichierClient<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OffreFichiers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OffreFichierFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OffreFichiers
+     * const offreFichiers = await prisma.offreFichier.findMany()
+     * 
+     * // Get first 10 OffreFichiers
+     * const offreFichiers = await prisma.offreFichier.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const offreFichierWithIdOnly = await prisma.offreFichier.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OffreFichierFindManyArgs>(args?: SelectSubset<T, OffreFichierFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OffreFichier.
+     * @param {OffreFichierCreateArgs} args - Arguments to create a OffreFichier.
+     * @example
+     * // Create one OffreFichier
+     * const OffreFichier = await prisma.offreFichier.create({
+     *   data: {
+     *     // ... data to create a OffreFichier
+     *   }
+     * })
+     * 
+     */
+    create<T extends OffreFichierCreateArgs>(args: SelectSubset<T, OffreFichierCreateArgs<ExtArgs>>): Prisma__OffreFichierClient<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OffreFichiers.
+     * @param {OffreFichierCreateManyArgs} args - Arguments to create many OffreFichiers.
+     * @example
+     * // Create many OffreFichiers
+     * const offreFichier = await prisma.offreFichier.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OffreFichierCreateManyArgs>(args?: SelectSubset<T, OffreFichierCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OffreFichiers and returns the data saved in the database.
+     * @param {OffreFichierCreateManyAndReturnArgs} args - Arguments to create many OffreFichiers.
+     * @example
+     * // Create many OffreFichiers
+     * const offreFichier = await prisma.offreFichier.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OffreFichiers and only return the `id`
+     * const offreFichierWithIdOnly = await prisma.offreFichier.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OffreFichierCreateManyAndReturnArgs>(args?: SelectSubset<T, OffreFichierCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OffreFichier.
+     * @param {OffreFichierDeleteArgs} args - Arguments to delete one OffreFichier.
+     * @example
+     * // Delete one OffreFichier
+     * const OffreFichier = await prisma.offreFichier.delete({
+     *   where: {
+     *     // ... filter to delete one OffreFichier
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OffreFichierDeleteArgs>(args: SelectSubset<T, OffreFichierDeleteArgs<ExtArgs>>): Prisma__OffreFichierClient<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OffreFichier.
+     * @param {OffreFichierUpdateArgs} args - Arguments to update one OffreFichier.
+     * @example
+     * // Update one OffreFichier
+     * const offreFichier = await prisma.offreFichier.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OffreFichierUpdateArgs>(args: SelectSubset<T, OffreFichierUpdateArgs<ExtArgs>>): Prisma__OffreFichierClient<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OffreFichiers.
+     * @param {OffreFichierDeleteManyArgs} args - Arguments to filter OffreFichiers to delete.
+     * @example
+     * // Delete a few OffreFichiers
+     * const { count } = await prisma.offreFichier.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OffreFichierDeleteManyArgs>(args?: SelectSubset<T, OffreFichierDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OffreFichiers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OffreFichierUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OffreFichiers
+     * const offreFichier = await prisma.offreFichier.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OffreFichierUpdateManyArgs>(args: SelectSubset<T, OffreFichierUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OffreFichiers and returns the data updated in the database.
+     * @param {OffreFichierUpdateManyAndReturnArgs} args - Arguments to update many OffreFichiers.
+     * @example
+     * // Update many OffreFichiers
+     * const offreFichier = await prisma.offreFichier.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OffreFichiers and only return the `id`
+     * const offreFichierWithIdOnly = await prisma.offreFichier.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OffreFichierUpdateManyAndReturnArgs>(args: SelectSubset<T, OffreFichierUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OffreFichier.
+     * @param {OffreFichierUpsertArgs} args - Arguments to update or create a OffreFichier.
+     * @example
+     * // Update or create a OffreFichier
+     * const offreFichier = await prisma.offreFichier.upsert({
+     *   create: {
+     *     // ... data to create a OffreFichier
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OffreFichier we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OffreFichierUpsertArgs>(args: SelectSubset<T, OffreFichierUpsertArgs<ExtArgs>>): Prisma__OffreFichierClient<$Result.GetResult<Prisma.$OffreFichierPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OffreFichiers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OffreFichierCountArgs} args - Arguments to filter OffreFichiers to count.
+     * @example
+     * // Count the number of OffreFichiers
+     * const count = await prisma.offreFichier.count({
+     *   where: {
+     *     // ... the filter for the OffreFichiers we want to count
+     *   }
+     * })
+    **/
+    count<T extends OffreFichierCountArgs>(
+      args?: Subset<T, OffreFichierCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OffreFichierCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OffreFichier.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OffreFichierAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OffreFichierAggregateArgs>(args: Subset<T, OffreFichierAggregateArgs>): Prisma.PrismaPromise<GetOffreFichierAggregateType<T>>
+
+    /**
+     * Group by OffreFichier.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OffreFichierGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OffreFichierGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OffreFichierGroupByArgs['orderBy'] }
+        : { orderBy?: OffreFichierGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OffreFichierGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOffreFichierGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OffreFichier model
+   */
+  readonly fields: OffreFichierFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OffreFichier.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OffreFichierClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    offre<T extends OffreDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OffreDefaultArgs<ExtArgs>>): Prisma__OffreClient<$Result.GetResult<Prisma.$OffrePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OffreFichier model
+   */
+  interface OffreFichierFieldRefs {
+    readonly id: FieldRef<"OffreFichier", 'Int'>
+    readonly nom: FieldRef<"OffreFichier", 'String'>
+    readonly url: FieldRef<"OffreFichier", 'String'>
+    readonly type: FieldRef<"OffreFichier", 'String'>
+    readonly taille: FieldRef<"OffreFichier", 'Int'>
+    readonly createdAt: FieldRef<"OffreFichier", 'DateTime'>
+    readonly offreId: FieldRef<"OffreFichier", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OffreFichier findUnique
+   */
+  export type OffreFichierFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
+    /**
+     * Filter, which OffreFichier to fetch.
+     */
+    where: OffreFichierWhereUniqueInput
+  }
+
+  /**
+   * OffreFichier findUniqueOrThrow
+   */
+  export type OffreFichierFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
+    /**
+     * Filter, which OffreFichier to fetch.
+     */
+    where: OffreFichierWhereUniqueInput
+  }
+
+  /**
+   * OffreFichier findFirst
+   */
+  export type OffreFichierFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
+    /**
+     * Filter, which OffreFichier to fetch.
+     */
+    where?: OffreFichierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OffreFichiers to fetch.
+     */
+    orderBy?: OffreFichierOrderByWithRelationInput | OffreFichierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OffreFichiers.
+     */
+    cursor?: OffreFichierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OffreFichiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OffreFichiers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OffreFichiers.
+     */
+    distinct?: OffreFichierScalarFieldEnum | OffreFichierScalarFieldEnum[]
+  }
+
+  /**
+   * OffreFichier findFirstOrThrow
+   */
+  export type OffreFichierFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
+    /**
+     * Filter, which OffreFichier to fetch.
+     */
+    where?: OffreFichierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OffreFichiers to fetch.
+     */
+    orderBy?: OffreFichierOrderByWithRelationInput | OffreFichierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OffreFichiers.
+     */
+    cursor?: OffreFichierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OffreFichiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OffreFichiers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OffreFichiers.
+     */
+    distinct?: OffreFichierScalarFieldEnum | OffreFichierScalarFieldEnum[]
+  }
+
+  /**
+   * OffreFichier findMany
+   */
+  export type OffreFichierFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
+    /**
+     * Filter, which OffreFichiers to fetch.
+     */
+    where?: OffreFichierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OffreFichiers to fetch.
+     */
+    orderBy?: OffreFichierOrderByWithRelationInput | OffreFichierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OffreFichiers.
+     */
+    cursor?: OffreFichierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OffreFichiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OffreFichiers.
+     */
+    skip?: number
+    distinct?: OffreFichierScalarFieldEnum | OffreFichierScalarFieldEnum[]
+  }
+
+  /**
+   * OffreFichier create
+   */
+  export type OffreFichierCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OffreFichier.
+     */
+    data: XOR<OffreFichierCreateInput, OffreFichierUncheckedCreateInput>
+  }
+
+  /**
+   * OffreFichier createMany
+   */
+  export type OffreFichierCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OffreFichiers.
+     */
+    data: OffreFichierCreateManyInput | OffreFichierCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OffreFichier createManyAndReturn
+   */
+  export type OffreFichierCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * The data used to create many OffreFichiers.
+     */
+    data: OffreFichierCreateManyInput | OffreFichierCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OffreFichier update
+   */
+  export type OffreFichierUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OffreFichier.
+     */
+    data: XOR<OffreFichierUpdateInput, OffreFichierUncheckedUpdateInput>
+    /**
+     * Choose, which OffreFichier to update.
+     */
+    where: OffreFichierWhereUniqueInput
+  }
+
+  /**
+   * OffreFichier updateMany
+   */
+  export type OffreFichierUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OffreFichiers.
+     */
+    data: XOR<OffreFichierUpdateManyMutationInput, OffreFichierUncheckedUpdateManyInput>
+    /**
+     * Filter which OffreFichiers to update
+     */
+    where?: OffreFichierWhereInput
+    /**
+     * Limit how many OffreFichiers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OffreFichier updateManyAndReturn
+   */
+  export type OffreFichierUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * The data used to update OffreFichiers.
+     */
+    data: XOR<OffreFichierUpdateManyMutationInput, OffreFichierUncheckedUpdateManyInput>
+    /**
+     * Filter which OffreFichiers to update
+     */
+    where?: OffreFichierWhereInput
+    /**
+     * Limit how many OffreFichiers to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OffreFichier upsert
+   */
+  export type OffreFichierUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OffreFichier to update in case it exists.
+     */
+    where: OffreFichierWhereUniqueInput
+    /**
+     * In case the OffreFichier found by the `where` argument doesn't exist, create a new OffreFichier with this data.
+     */
+    create: XOR<OffreFichierCreateInput, OffreFichierUncheckedCreateInput>
+    /**
+     * In case the OffreFichier was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OffreFichierUpdateInput, OffreFichierUncheckedUpdateInput>
+  }
+
+  /**
+   * OffreFichier delete
+   */
+  export type OffreFichierDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
+    /**
+     * Filter which OffreFichier to delete.
+     */
+    where: OffreFichierWhereUniqueInput
+  }
+
+  /**
+   * OffreFichier deleteMany
+   */
+  export type OffreFichierDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OffreFichiers to delete
+     */
+    where?: OffreFichierWhereInput
+    /**
+     * Limit how many OffreFichiers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OffreFichier without action
+   */
+  export type OffreFichierDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OffreFichier
+     */
+    select?: OffreFichierSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OffreFichier
+     */
+    omit?: OffreFichierOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OffreFichierInclude<ExtArgs> | null
   }
 
 
@@ -24376,6 +25630,19 @@ export namespace Prisma {
   export type OffreScalarFieldEnum = (typeof OffreScalarFieldEnum)[keyof typeof OffreScalarFieldEnum]
 
 
+  export const OffreFichierScalarFieldEnum: {
+    id: 'id',
+    nom: 'nom',
+    url: 'url',
+    type: 'type',
+    taille: 'taille',
+    createdAt: 'createdAt',
+    offreId: 'offreId'
+  };
+
+  export type OffreFichierScalarFieldEnum = (typeof OffreFichierScalarFieldEnum)[keyof typeof OffreFichierScalarFieldEnum]
+
+
   export const CVScalarFieldEnum: {
     id: 'id',
     titreProfessionnel: 'titreProfessionnel',
@@ -25060,6 +26327,7 @@ export namespace Prisma {
     commentaires?: CommentaireListRelationFilter
     retours?: RetourListRelationFilter
     favorites?: FavoriteListRelationFilter
+    fichiers?: OffreFichierListRelationFilter
   }
 
   export type OffreOrderByWithRelationInput = {
@@ -25102,6 +26370,7 @@ export namespace Prisma {
     commentaires?: CommentaireOrderByRelationAggregateInput
     retours?: RetourOrderByRelationAggregateInput
     favorites?: FavoriteOrderByRelationAggregateInput
+    fichiers?: OffreFichierOrderByRelationAggregateInput
   }
 
   export type OffreWhereUniqueInput = Prisma.AtLeast<{
@@ -25147,6 +26416,7 @@ export namespace Prisma {
     commentaires?: CommentaireListRelationFilter
     retours?: RetourListRelationFilter
     favorites?: FavoriteListRelationFilter
+    fichiers?: OffreFichierListRelationFilter
   }, "id">
 
   export type OffreOrderByWithAggregationInput = {
@@ -25231,6 +26501,73 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Offre"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Offre"> | Date | string
     auteurId?: IntWithAggregatesFilter<"Offre"> | number
+  }
+
+  export type OffreFichierWhereInput = {
+    AND?: OffreFichierWhereInput | OffreFichierWhereInput[]
+    OR?: OffreFichierWhereInput[]
+    NOT?: OffreFichierWhereInput | OffreFichierWhereInput[]
+    id?: IntFilter<"OffreFichier"> | number
+    nom?: StringFilter<"OffreFichier"> | string
+    url?: StringFilter<"OffreFichier"> | string
+    type?: StringFilter<"OffreFichier"> | string
+    taille?: IntFilter<"OffreFichier"> | number
+    createdAt?: DateTimeFilter<"OffreFichier"> | Date | string
+    offreId?: IntFilter<"OffreFichier"> | number
+    offre?: XOR<OffreScalarRelationFilter, OffreWhereInput>
+  }
+
+  export type OffreFichierOrderByWithRelationInput = {
+    id?: SortOrder
+    nom?: SortOrder
+    url?: SortOrder
+    type?: SortOrder
+    taille?: SortOrder
+    createdAt?: SortOrder
+    offreId?: SortOrder
+    offre?: OffreOrderByWithRelationInput
+  }
+
+  export type OffreFichierWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: OffreFichierWhereInput | OffreFichierWhereInput[]
+    OR?: OffreFichierWhereInput[]
+    NOT?: OffreFichierWhereInput | OffreFichierWhereInput[]
+    nom?: StringFilter<"OffreFichier"> | string
+    url?: StringFilter<"OffreFichier"> | string
+    type?: StringFilter<"OffreFichier"> | string
+    taille?: IntFilter<"OffreFichier"> | number
+    createdAt?: DateTimeFilter<"OffreFichier"> | Date | string
+    offreId?: IntFilter<"OffreFichier"> | number
+    offre?: XOR<OffreScalarRelationFilter, OffreWhereInput>
+  }, "id">
+
+  export type OffreFichierOrderByWithAggregationInput = {
+    id?: SortOrder
+    nom?: SortOrder
+    url?: SortOrder
+    type?: SortOrder
+    taille?: SortOrder
+    createdAt?: SortOrder
+    offreId?: SortOrder
+    _count?: OffreFichierCountOrderByAggregateInput
+    _avg?: OffreFichierAvgOrderByAggregateInput
+    _max?: OffreFichierMaxOrderByAggregateInput
+    _min?: OffreFichierMinOrderByAggregateInput
+    _sum?: OffreFichierSumOrderByAggregateInput
+  }
+
+  export type OffreFichierScalarWhereWithAggregatesInput = {
+    AND?: OffreFichierScalarWhereWithAggregatesInput | OffreFichierScalarWhereWithAggregatesInput[]
+    OR?: OffreFichierScalarWhereWithAggregatesInput[]
+    NOT?: OffreFichierScalarWhereWithAggregatesInput | OffreFichierScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"OffreFichier"> | number
+    nom?: StringWithAggregatesFilter<"OffreFichier"> | string
+    url?: StringWithAggregatesFilter<"OffreFichier"> | string
+    type?: StringWithAggregatesFilter<"OffreFichier"> | string
+    taille?: IntWithAggregatesFilter<"OffreFichier"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"OffreFichier"> | Date | string
+    offreId?: IntWithAggregatesFilter<"OffreFichier"> | number
   }
 
   export type CVWhereInput = {
@@ -26565,6 +27902,7 @@ export namespace Prisma {
     commentaires?: CommentaireCreateNestedManyWithoutOffreInput
     retours?: RetourCreateNestedManyWithoutOffreInput
     favorites?: FavoriteCreateNestedManyWithoutOffreInput
+    fichiers?: OffreFichierCreateNestedManyWithoutOffreInput
   }
 
   export type OffreUncheckedCreateInput = {
@@ -26606,6 +27944,7 @@ export namespace Prisma {
     commentaires?: CommentaireUncheckedCreateNestedManyWithoutOffreInput
     retours?: RetourUncheckedCreateNestedManyWithoutOffreInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutOffreInput
+    fichiers?: OffreFichierUncheckedCreateNestedManyWithoutOffreInput
   }
 
   export type OffreUpdateInput = {
@@ -26646,6 +27985,7 @@ export namespace Prisma {
     commentaires?: CommentaireUpdateManyWithoutOffreNestedInput
     retours?: RetourUpdateManyWithoutOffreNestedInput
     favorites?: FavoriteUpdateManyWithoutOffreNestedInput
+    fichiers?: OffreFichierUpdateManyWithoutOffreNestedInput
   }
 
   export type OffreUncheckedUpdateInput = {
@@ -26687,6 +28027,7 @@ export namespace Prisma {
     commentaires?: CommentaireUncheckedUpdateManyWithoutOffreNestedInput
     retours?: RetourUncheckedUpdateManyWithoutOffreNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutOffreNestedInput
+    fichiers?: OffreFichierUncheckedUpdateManyWithoutOffreNestedInput
   }
 
   export type OffreCreateManyInput = {
@@ -26799,6 +28140,72 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteurId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type OffreFichierCreateInput = {
+    nom: string
+    url: string
+    type: string
+    taille: number
+    createdAt?: Date | string
+    offre: OffreCreateNestedOneWithoutFichiersInput
+  }
+
+  export type OffreFichierUncheckedCreateInput = {
+    id?: number
+    nom: string
+    url: string
+    type: string
+    taille: number
+    createdAt?: Date | string
+    offreId: number
+  }
+
+  export type OffreFichierUpdateInput = {
+    nom?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    taille?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    offre?: OffreUpdateOneRequiredWithoutFichiersNestedInput
+  }
+
+  export type OffreFichierUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nom?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    taille?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    offreId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type OffreFichierCreateManyInput = {
+    id?: number
+    nom: string
+    url: string
+    type: string
+    taille: number
+    createdAt?: Date | string
+    offreId: number
+  }
+
+  export type OffreFichierUpdateManyMutationInput = {
+    nom?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    taille?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OffreFichierUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nom?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    taille?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    offreId?: IntFieldUpdateOperationsInput | number
   }
 
   export type CVCreateInput = {
@@ -28282,6 +29689,16 @@ export namespace Prisma {
     not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
   }
 
+  export type OffreFichierListRelationFilter = {
+    every?: OffreFichierWhereInput
+    some?: OffreFichierWhereInput
+    none?: OffreFichierWhereInput
+  }
+
+  export type OffreFichierOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type OffreCountOrderByAggregateInput = {
     id?: SortOrder
     titre?: SortOrder
@@ -28510,6 +29927,53 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedBoolNullableFilter<$PrismaModel>
     _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
+  export type OffreScalarRelationFilter = {
+    is?: OffreWhereInput
+    isNot?: OffreWhereInput
+  }
+
+  export type OffreFichierCountOrderByAggregateInput = {
+    id?: SortOrder
+    nom?: SortOrder
+    url?: SortOrder
+    type?: SortOrder
+    taille?: SortOrder
+    createdAt?: SortOrder
+    offreId?: SortOrder
+  }
+
+  export type OffreFichierAvgOrderByAggregateInput = {
+    id?: SortOrder
+    taille?: SortOrder
+    offreId?: SortOrder
+  }
+
+  export type OffreFichierMaxOrderByAggregateInput = {
+    id?: SortOrder
+    nom?: SortOrder
+    url?: SortOrder
+    type?: SortOrder
+    taille?: SortOrder
+    createdAt?: SortOrder
+    offreId?: SortOrder
+  }
+
+  export type OffreFichierMinOrderByAggregateInput = {
+    id?: SortOrder
+    nom?: SortOrder
+    url?: SortOrder
+    type?: SortOrder
+    taille?: SortOrder
+    createdAt?: SortOrder
+    offreId?: SortOrder
+  }
+
+  export type OffreFichierSumOrderByAggregateInput = {
+    id?: SortOrder
+    taille?: SortOrder
+    offreId?: SortOrder
   }
 
   export type ExperienceListRelationFilter = {
@@ -28858,11 +30322,6 @@ export namespace Prisma {
     id?: SortOrder
     conversationId?: SortOrder
     senderId?: SortOrder
-  }
-
-  export type OffreScalarRelationFilter = {
-    is?: OffreWhereInput
-    isNot?: OffreWhereInput
   }
 
   export type CommentaireCountOrderByAggregateInput = {
@@ -29936,6 +31395,13 @@ export namespace Prisma {
     connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
   }
 
+  export type OffreFichierCreateNestedManyWithoutOffreInput = {
+    create?: XOR<OffreFichierCreateWithoutOffreInput, OffreFichierUncheckedCreateWithoutOffreInput> | OffreFichierCreateWithoutOffreInput[] | OffreFichierUncheckedCreateWithoutOffreInput[]
+    connectOrCreate?: OffreFichierCreateOrConnectWithoutOffreInput | OffreFichierCreateOrConnectWithoutOffreInput[]
+    createMany?: OffreFichierCreateManyOffreInputEnvelope
+    connect?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
+  }
+
   export type CommentaireUncheckedCreateNestedManyWithoutOffreInput = {
     create?: XOR<CommentaireCreateWithoutOffreInput, CommentaireUncheckedCreateWithoutOffreInput> | CommentaireCreateWithoutOffreInput[] | CommentaireUncheckedCreateWithoutOffreInput[]
     connectOrCreate?: CommentaireCreateOrConnectWithoutOffreInput | CommentaireCreateOrConnectWithoutOffreInput[]
@@ -29955,6 +31421,13 @@ export namespace Prisma {
     connectOrCreate?: FavoriteCreateOrConnectWithoutOffreInput | FavoriteCreateOrConnectWithoutOffreInput[]
     createMany?: FavoriteCreateManyOffreInputEnvelope
     connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+  }
+
+  export type OffreFichierUncheckedCreateNestedManyWithoutOffreInput = {
+    create?: XOR<OffreFichierCreateWithoutOffreInput, OffreFichierUncheckedCreateWithoutOffreInput> | OffreFichierCreateWithoutOffreInput[] | OffreFichierUncheckedCreateWithoutOffreInput[]
+    connectOrCreate?: OffreFichierCreateOrConnectWithoutOffreInput | OffreFichierCreateOrConnectWithoutOffreInput[]
+    createMany?: OffreFichierCreateManyOffreInputEnvelope
+    connect?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -30052,6 +31525,20 @@ export namespace Prisma {
     deleteMany?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
   }
 
+  export type OffreFichierUpdateManyWithoutOffreNestedInput = {
+    create?: XOR<OffreFichierCreateWithoutOffreInput, OffreFichierUncheckedCreateWithoutOffreInput> | OffreFichierCreateWithoutOffreInput[] | OffreFichierUncheckedCreateWithoutOffreInput[]
+    connectOrCreate?: OffreFichierCreateOrConnectWithoutOffreInput | OffreFichierCreateOrConnectWithoutOffreInput[]
+    upsert?: OffreFichierUpsertWithWhereUniqueWithoutOffreInput | OffreFichierUpsertWithWhereUniqueWithoutOffreInput[]
+    createMany?: OffreFichierCreateManyOffreInputEnvelope
+    set?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
+    disconnect?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
+    delete?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
+    connect?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
+    update?: OffreFichierUpdateWithWhereUniqueWithoutOffreInput | OffreFichierUpdateWithWhereUniqueWithoutOffreInput[]
+    updateMany?: OffreFichierUpdateManyWithWhereWithoutOffreInput | OffreFichierUpdateManyWithWhereWithoutOffreInput[]
+    deleteMany?: OffreFichierScalarWhereInput | OffreFichierScalarWhereInput[]
+  }
+
   export type CommentaireUncheckedUpdateManyWithoutOffreNestedInput = {
     create?: XOR<CommentaireCreateWithoutOffreInput, CommentaireUncheckedCreateWithoutOffreInput> | CommentaireCreateWithoutOffreInput[] | CommentaireUncheckedCreateWithoutOffreInput[]
     connectOrCreate?: CommentaireCreateOrConnectWithoutOffreInput | CommentaireCreateOrConnectWithoutOffreInput[]
@@ -30092,6 +31579,34 @@ export namespace Prisma {
     update?: FavoriteUpdateWithWhereUniqueWithoutOffreInput | FavoriteUpdateWithWhereUniqueWithoutOffreInput[]
     updateMany?: FavoriteUpdateManyWithWhereWithoutOffreInput | FavoriteUpdateManyWithWhereWithoutOffreInput[]
     deleteMany?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
+  }
+
+  export type OffreFichierUncheckedUpdateManyWithoutOffreNestedInput = {
+    create?: XOR<OffreFichierCreateWithoutOffreInput, OffreFichierUncheckedCreateWithoutOffreInput> | OffreFichierCreateWithoutOffreInput[] | OffreFichierUncheckedCreateWithoutOffreInput[]
+    connectOrCreate?: OffreFichierCreateOrConnectWithoutOffreInput | OffreFichierCreateOrConnectWithoutOffreInput[]
+    upsert?: OffreFichierUpsertWithWhereUniqueWithoutOffreInput | OffreFichierUpsertWithWhereUniqueWithoutOffreInput[]
+    createMany?: OffreFichierCreateManyOffreInputEnvelope
+    set?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
+    disconnect?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
+    delete?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
+    connect?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
+    update?: OffreFichierUpdateWithWhereUniqueWithoutOffreInput | OffreFichierUpdateWithWhereUniqueWithoutOffreInput[]
+    updateMany?: OffreFichierUpdateManyWithWhereWithoutOffreInput | OffreFichierUpdateManyWithWhereWithoutOffreInput[]
+    deleteMany?: OffreFichierScalarWhereInput | OffreFichierScalarWhereInput[]
+  }
+
+  export type OffreCreateNestedOneWithoutFichiersInput = {
+    create?: XOR<OffreCreateWithoutFichiersInput, OffreUncheckedCreateWithoutFichiersInput>
+    connectOrCreate?: OffreCreateOrConnectWithoutFichiersInput
+    connect?: OffreWhereUniqueInput
+  }
+
+  export type OffreUpdateOneRequiredWithoutFichiersNestedInput = {
+    create?: XOR<OffreCreateWithoutFichiersInput, OffreUncheckedCreateWithoutFichiersInput>
+    connectOrCreate?: OffreCreateOrConnectWithoutFichiersInput
+    upsert?: OffreUpsertWithoutFichiersInput
+    connect?: OffreWhereUniqueInput
+    update?: XOR<XOR<OffreUpdateToOneWithWhereWithoutFichiersInput, OffreUpdateWithoutFichiersInput>, OffreUncheckedUpdateWithoutFichiersInput>
   }
 
   export type CVCreatecompetencesInput = {
@@ -31103,6 +32618,7 @@ export namespace Prisma {
     commentaires?: CommentaireCreateNestedManyWithoutOffreInput
     retours?: RetourCreateNestedManyWithoutOffreInput
     favorites?: FavoriteCreateNestedManyWithoutOffreInput
+    fichiers?: OffreFichierCreateNestedManyWithoutOffreInput
   }
 
   export type OffreUncheckedCreateWithoutAuteurInput = {
@@ -31143,6 +32659,7 @@ export namespace Prisma {
     commentaires?: CommentaireUncheckedCreateNestedManyWithoutOffreInput
     retours?: RetourUncheckedCreateNestedManyWithoutOffreInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutOffreInput
+    fichiers?: OffreFichierUncheckedCreateNestedManyWithoutOffreInput
   }
 
   export type OffreCreateOrConnectWithoutAuteurInput = {
@@ -32286,6 +33803,33 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type OffreFichierCreateWithoutOffreInput = {
+    nom: string
+    url: string
+    type: string
+    taille: number
+    createdAt?: Date | string
+  }
+
+  export type OffreFichierUncheckedCreateWithoutOffreInput = {
+    id?: number
+    nom: string
+    url: string
+    type: string
+    taille: number
+    createdAt?: Date | string
+  }
+
+  export type OffreFichierCreateOrConnectWithoutOffreInput = {
+    where: OffreFichierWhereUniqueInput
+    create: XOR<OffreFichierCreateWithoutOffreInput, OffreFichierUncheckedCreateWithoutOffreInput>
+  }
+
+  export type OffreFichierCreateManyOffreInputEnvelope = {
+    data: OffreFichierCreateManyOffreInput | OffreFichierCreateManyOffreInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutOffresInput = {
     update: XOR<UserUpdateWithoutOffresInput, UserUncheckedUpdateWithoutOffresInput>
     create: XOR<UserCreateWithoutOffresInput, UserUncheckedCreateWithoutOffresInput>
@@ -32414,6 +33958,213 @@ export namespace Prisma {
   export type FavoriteUpdateManyWithWhereWithoutOffreInput = {
     where: FavoriteScalarWhereInput
     data: XOR<FavoriteUpdateManyMutationInput, FavoriteUncheckedUpdateManyWithoutOffreInput>
+  }
+
+  export type OffreFichierUpsertWithWhereUniqueWithoutOffreInput = {
+    where: OffreFichierWhereUniqueInput
+    update: XOR<OffreFichierUpdateWithoutOffreInput, OffreFichierUncheckedUpdateWithoutOffreInput>
+    create: XOR<OffreFichierCreateWithoutOffreInput, OffreFichierUncheckedCreateWithoutOffreInput>
+  }
+
+  export type OffreFichierUpdateWithWhereUniqueWithoutOffreInput = {
+    where: OffreFichierWhereUniqueInput
+    data: XOR<OffreFichierUpdateWithoutOffreInput, OffreFichierUncheckedUpdateWithoutOffreInput>
+  }
+
+  export type OffreFichierUpdateManyWithWhereWithoutOffreInput = {
+    where: OffreFichierScalarWhereInput
+    data: XOR<OffreFichierUpdateManyMutationInput, OffreFichierUncheckedUpdateManyWithoutOffreInput>
+  }
+
+  export type OffreFichierScalarWhereInput = {
+    AND?: OffreFichierScalarWhereInput | OffreFichierScalarWhereInput[]
+    OR?: OffreFichierScalarWhereInput[]
+    NOT?: OffreFichierScalarWhereInput | OffreFichierScalarWhereInput[]
+    id?: IntFilter<"OffreFichier"> | number
+    nom?: StringFilter<"OffreFichier"> | string
+    url?: StringFilter<"OffreFichier"> | string
+    type?: StringFilter<"OffreFichier"> | string
+    taille?: IntFilter<"OffreFichier"> | number
+    createdAt?: DateTimeFilter<"OffreFichier"> | Date | string
+    offreId?: IntFilter<"OffreFichier"> | number
+  }
+
+  export type OffreCreateWithoutFichiersInput = {
+    titre: string
+    description: string
+    url?: string | null
+    datePublication?: Date | string
+    dateLimite?: Date | string | null
+    documentUrl?: string | null
+    documentName?: string | null
+    documentType?: string | null
+    typeOffre: $Enums.TypeOffre
+    typeEmploi?: $Enums.TypeEmploi | null
+    secteur?: $Enums.Secteur | null
+    niveauExperience?: $Enums.NiveauExperience | null
+    tags?: OffreCreatetagsInput | string[]
+    localisation?: string | null
+    entreprise?: string | null
+    salaireMin?: number | null
+    salaireMax?: number | null
+    devise?: string
+    organisme?: string | null
+    dureeFormation?: number | null
+    certification?: string | null
+    paysBourse?: string | null
+    niveauEtude?: string | null
+    montantBourse?: number | null
+    estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
+    viewCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    auteur: UserCreateNestedOneWithoutOffresInput
+    commentaires?: CommentaireCreateNestedManyWithoutOffreInput
+    retours?: RetourCreateNestedManyWithoutOffreInput
+    favorites?: FavoriteCreateNestedManyWithoutOffreInput
+  }
+
+  export type OffreUncheckedCreateWithoutFichiersInput = {
+    id?: number
+    titre: string
+    description: string
+    url?: string | null
+    datePublication?: Date | string
+    dateLimite?: Date | string | null
+    documentUrl?: string | null
+    documentName?: string | null
+    documentType?: string | null
+    typeOffre: $Enums.TypeOffre
+    typeEmploi?: $Enums.TypeEmploi | null
+    secteur?: $Enums.Secteur | null
+    niveauExperience?: $Enums.NiveauExperience | null
+    tags?: OffreCreatetagsInput | string[]
+    localisation?: string | null
+    entreprise?: string | null
+    salaireMin?: number | null
+    salaireMax?: number | null
+    devise?: string
+    organisme?: string | null
+    dureeFormation?: number | null
+    certification?: string | null
+    paysBourse?: string | null
+    niveauEtude?: string | null
+    montantBourse?: number | null
+    estRemboursable?: boolean | null
+    typeVolontariat?: string | null
+    dureeVolontariat?: number | null
+    hebergement?: boolean | null
+    indemnite?: number | null
+    competencesRequises?: string | null
+    viewCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    auteurId: number
+    commentaires?: CommentaireUncheckedCreateNestedManyWithoutOffreInput
+    retours?: RetourUncheckedCreateNestedManyWithoutOffreInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutOffreInput
+  }
+
+  export type OffreCreateOrConnectWithoutFichiersInput = {
+    where: OffreWhereUniqueInput
+    create: XOR<OffreCreateWithoutFichiersInput, OffreUncheckedCreateWithoutFichiersInput>
+  }
+
+  export type OffreUpsertWithoutFichiersInput = {
+    update: XOR<OffreUpdateWithoutFichiersInput, OffreUncheckedUpdateWithoutFichiersInput>
+    create: XOR<OffreCreateWithoutFichiersInput, OffreUncheckedCreateWithoutFichiersInput>
+    where?: OffreWhereInput
+  }
+
+  export type OffreUpdateToOneWithWhereWithoutFichiersInput = {
+    where?: OffreWhereInput
+    data: XOR<OffreUpdateWithoutFichiersInput, OffreUncheckedUpdateWithoutFichiersInput>
+  }
+
+  export type OffreUpdateWithoutFichiersInput = {
+    titre?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    datePublication?: DateTimeFieldUpdateOperationsInput | Date | string
+    dateLimite?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentName?: NullableStringFieldUpdateOperationsInput | string | null
+    documentType?: NullableStringFieldUpdateOperationsInput | string | null
+    typeOffre?: EnumTypeOffreFieldUpdateOperationsInput | $Enums.TypeOffre
+    typeEmploi?: NullableEnumTypeEmploiFieldUpdateOperationsInput | $Enums.TypeEmploi | null
+    secteur?: NullableEnumSecteurFieldUpdateOperationsInput | $Enums.Secteur | null
+    niveauExperience?: NullableEnumNiveauExperienceFieldUpdateOperationsInput | $Enums.NiveauExperience | null
+    tags?: OffreUpdatetagsInput | string[]
+    localisation?: NullableStringFieldUpdateOperationsInput | string | null
+    entreprise?: NullableStringFieldUpdateOperationsInput | string | null
+    salaireMin?: NullableFloatFieldUpdateOperationsInput | number | null
+    salaireMax?: NullableFloatFieldUpdateOperationsInput | number | null
+    devise?: StringFieldUpdateOperationsInput | string
+    organisme?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeFormation?: NullableIntFieldUpdateOperationsInput | number | null
+    certification?: NullableStringFieldUpdateOperationsInput | string | null
+    paysBourse?: NullableStringFieldUpdateOperationsInput | string | null
+    niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
+    montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
+    estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
+    viewCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    auteur?: UserUpdateOneRequiredWithoutOffresNestedInput
+    commentaires?: CommentaireUpdateManyWithoutOffreNestedInput
+    retours?: RetourUpdateManyWithoutOffreNestedInput
+    favorites?: FavoriteUpdateManyWithoutOffreNestedInput
+  }
+
+  export type OffreUncheckedUpdateWithoutFichiersInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    titre?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    datePublication?: DateTimeFieldUpdateOperationsInput | Date | string
+    dateLimite?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    documentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentName?: NullableStringFieldUpdateOperationsInput | string | null
+    documentType?: NullableStringFieldUpdateOperationsInput | string | null
+    typeOffre?: EnumTypeOffreFieldUpdateOperationsInput | $Enums.TypeOffre
+    typeEmploi?: NullableEnumTypeEmploiFieldUpdateOperationsInput | $Enums.TypeEmploi | null
+    secteur?: NullableEnumSecteurFieldUpdateOperationsInput | $Enums.Secteur | null
+    niveauExperience?: NullableEnumNiveauExperienceFieldUpdateOperationsInput | $Enums.NiveauExperience | null
+    tags?: OffreUpdatetagsInput | string[]
+    localisation?: NullableStringFieldUpdateOperationsInput | string | null
+    entreprise?: NullableStringFieldUpdateOperationsInput | string | null
+    salaireMin?: NullableFloatFieldUpdateOperationsInput | number | null
+    salaireMax?: NullableFloatFieldUpdateOperationsInput | number | null
+    devise?: StringFieldUpdateOperationsInput | string
+    organisme?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeFormation?: NullableIntFieldUpdateOperationsInput | number | null
+    certification?: NullableStringFieldUpdateOperationsInput | string | null
+    paysBourse?: NullableStringFieldUpdateOperationsInput | string | null
+    niveauEtude?: NullableStringFieldUpdateOperationsInput | string | null
+    montantBourse?: NullableFloatFieldUpdateOperationsInput | number | null
+    estRemboursable?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    typeVolontariat?: NullableStringFieldUpdateOperationsInput | string | null
+    dureeVolontariat?: NullableIntFieldUpdateOperationsInput | number | null
+    hebergement?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
+    competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
+    viewCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    auteurId?: IntFieldUpdateOperationsInput | number
+    commentaires?: CommentaireUncheckedUpdateManyWithoutOffreNestedInput
+    retours?: RetourUncheckedUpdateManyWithoutOffreNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutOffreNestedInput
   }
 
   export type UserCreateWithoutCvInput = {
@@ -33989,6 +35740,7 @@ export namespace Prisma {
     auteur: UserCreateNestedOneWithoutOffresInput
     retours?: RetourCreateNestedManyWithoutOffreInput
     favorites?: FavoriteCreateNestedManyWithoutOffreInput
+    fichiers?: OffreFichierCreateNestedManyWithoutOffreInput
   }
 
   export type OffreUncheckedCreateWithoutCommentairesInput = {
@@ -34029,6 +35781,7 @@ export namespace Prisma {
     auteurId: number
     retours?: RetourUncheckedCreateNestedManyWithoutOffreInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutOffreInput
+    fichiers?: OffreFichierUncheckedCreateNestedManyWithoutOffreInput
   }
 
   export type OffreCreateOrConnectWithoutCommentairesInput = {
@@ -34166,6 +35919,7 @@ export namespace Prisma {
     auteur?: UserUpdateOneRequiredWithoutOffresNestedInput
     retours?: RetourUpdateManyWithoutOffreNestedInput
     favorites?: FavoriteUpdateManyWithoutOffreNestedInput
+    fichiers?: OffreFichierUpdateManyWithoutOffreNestedInput
   }
 
   export type OffreUncheckedUpdateWithoutCommentairesInput = {
@@ -34206,6 +35960,7 @@ export namespace Prisma {
     auteurId?: IntFieldUpdateOperationsInput | number
     retours?: RetourUncheckedUpdateManyWithoutOffreNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutOffreNestedInput
+    fichiers?: OffreFichierUncheckedUpdateManyWithoutOffreNestedInput
   }
 
   export type UserCreateWithoutRetoursInput = {
@@ -34321,6 +36076,7 @@ export namespace Prisma {
     auteur: UserCreateNestedOneWithoutOffresInput
     commentaires?: CommentaireCreateNestedManyWithoutOffreInput
     favorites?: FavoriteCreateNestedManyWithoutOffreInput
+    fichiers?: OffreFichierCreateNestedManyWithoutOffreInput
   }
 
   export type OffreUncheckedCreateWithoutRetoursInput = {
@@ -34361,6 +36117,7 @@ export namespace Prisma {
     auteurId: number
     commentaires?: CommentaireUncheckedCreateNestedManyWithoutOffreInput
     favorites?: FavoriteUncheckedCreateNestedManyWithoutOffreInput
+    fichiers?: OffreFichierUncheckedCreateNestedManyWithoutOffreInput
   }
 
   export type OffreCreateOrConnectWithoutRetoursInput = {
@@ -34521,6 +36278,7 @@ export namespace Prisma {
     auteur?: UserUpdateOneRequiredWithoutOffresNestedInput
     commentaires?: CommentaireUpdateManyWithoutOffreNestedInput
     favorites?: FavoriteUpdateManyWithoutOffreNestedInput
+    fichiers?: OffreFichierUpdateManyWithoutOffreNestedInput
   }
 
   export type OffreUncheckedUpdateWithoutRetoursInput = {
@@ -34561,6 +36319,7 @@ export namespace Prisma {
     auteurId?: IntFieldUpdateOperationsInput | number
     commentaires?: CommentaireUncheckedUpdateManyWithoutOffreNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutOffreNestedInput
+    fichiers?: OffreFichierUncheckedUpdateManyWithoutOffreNestedInput
   }
 
   export type ReponseRetourUpsertWithWhereUniqueWithoutRetourInput = {
@@ -34896,6 +36655,7 @@ export namespace Prisma {
     auteur: UserCreateNestedOneWithoutOffresInput
     commentaires?: CommentaireCreateNestedManyWithoutOffreInput
     retours?: RetourCreateNestedManyWithoutOffreInput
+    fichiers?: OffreFichierCreateNestedManyWithoutOffreInput
   }
 
   export type OffreUncheckedCreateWithoutFavoritesInput = {
@@ -34936,6 +36696,7 @@ export namespace Prisma {
     auteurId: number
     commentaires?: CommentaireUncheckedCreateNestedManyWithoutOffreInput
     retours?: RetourUncheckedCreateNestedManyWithoutOffreInput
+    fichiers?: OffreFichierUncheckedCreateNestedManyWithoutOffreInput
   }
 
   export type OffreCreateOrConnectWithoutFavoritesInput = {
@@ -35073,6 +36834,7 @@ export namespace Prisma {
     auteur?: UserUpdateOneRequiredWithoutOffresNestedInput
     commentaires?: CommentaireUpdateManyWithoutOffreNestedInput
     retours?: RetourUpdateManyWithoutOffreNestedInput
+    fichiers?: OffreFichierUpdateManyWithoutOffreNestedInput
   }
 
   export type OffreUncheckedUpdateWithoutFavoritesInput = {
@@ -35113,6 +36875,7 @@ export namespace Prisma {
     auteurId?: IntFieldUpdateOperationsInput | number
     commentaires?: CommentaireUncheckedUpdateManyWithoutOffreNestedInput
     retours?: RetourUncheckedUpdateManyWithoutOffreNestedInput
+    fichiers?: OffreFichierUncheckedUpdateManyWithoutOffreNestedInput
   }
 
   export type UserCreateWithoutAlertsInput = {
@@ -35857,6 +37620,7 @@ export namespace Prisma {
     commentaires?: CommentaireUpdateManyWithoutOffreNestedInput
     retours?: RetourUpdateManyWithoutOffreNestedInput
     favorites?: FavoriteUpdateManyWithoutOffreNestedInput
+    fichiers?: OffreFichierUpdateManyWithoutOffreNestedInput
   }
 
   export type OffreUncheckedUpdateWithoutAuteurInput = {
@@ -35897,6 +37661,7 @@ export namespace Prisma {
     commentaires?: CommentaireUncheckedUpdateManyWithoutOffreNestedInput
     retours?: RetourUncheckedUpdateManyWithoutOffreNestedInput
     favorites?: FavoriteUncheckedUpdateManyWithoutOffreNestedInput
+    fichiers?: OffreFichierUncheckedUpdateManyWithoutOffreNestedInput
   }
 
   export type OffreUncheckedUpdateManyWithoutAuteurInput = {
@@ -36242,6 +38007,15 @@ export namespace Prisma {
     userId: number
   }
 
+  export type OffreFichierCreateManyOffreInput = {
+    id?: number
+    nom: string
+    url: string
+    type: string
+    taille: number
+    createdAt?: Date | string
+  }
+
   export type CommentaireUpdateWithoutOffreInput = {
     contenu?: StringFieldUpdateOperationsInput | string
     datePublication?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36299,6 +38073,32 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type OffreFichierUpdateWithoutOffreInput = {
+    nom?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    taille?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OffreFichierUncheckedUpdateWithoutOffreInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nom?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    taille?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OffreFichierUncheckedUpdateManyWithoutOffreInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nom?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    taille?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExperienceCreateManyCvInput = {

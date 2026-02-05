@@ -20,6 +20,9 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
 import { MailModule } from './mail/mail.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { UploadModule } from './modules/upload/upload.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -45,6 +48,11 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     MailModule,
     MessagingModule,
     NotificationsModule,
+    UploadModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
+    }),
   ],
   providers: [
     {

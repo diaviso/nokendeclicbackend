@@ -108,6 +108,9 @@ export class OffresService {
           },
           orderBy: { datePublication: 'desc' },
         },
+        fichiers: {
+          orderBy: { createdAt: 'desc' },
+        },
         _count: {
           select: { commentaires: true, retours: true },
         },
