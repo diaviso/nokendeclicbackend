@@ -1,4 +1,5 @@
 import { IsString, IsOptional, IsEnum, IsBoolean, IsDateString } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum Role {
@@ -73,6 +74,7 @@ export class UpdateUserDto {
   @ApiPropertyOptional()
   @IsDateString()
   @IsOptional()
+  @Transform(({ value }) => value === '' ? undefined : value)
   dateNaissance?: string;
 
   @ApiPropertyOptional()
