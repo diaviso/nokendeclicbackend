@@ -33,17 +33,52 @@ if (!existsSync(uploadDir)) {
         },
       }),
       fileFilter: (req, file, cb) => {
+        // Extended list of allowed MIME types including variations
         const allowedMimes = [
+          // Images
           'image/jpeg',
+          'image/jpg',
           'image/png',
           'image/gif',
           'image/webp',
+          'image/bmp',
+          'image/svg+xml',
+          'image/tiff',
+          'image/x-icon',
+          'image/vnd.microsoft.icon',
+          // PDF
           'application/pdf',
+          // Documents
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.ms-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-powerpoint',
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          // Text
+          'text/plain',
+          'text/csv',
+          // Archives (optional)
+          'application/zip',
+          'application/x-zip-compressed',
+          'application/x-rar-compressed',
+          // Fallback for unknown binary
+          'application/octet-stream',
         ];
-        if (allowedMimes.includes(file.mimetype)) {
+        
+        // Also check by file extension as fallback
+        const allowedExtensions = [
+          '.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.ico', '.tiff',
+          '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+          '.txt', '.csv', '.zip', '.rar'
+        ];
+        
+        const ext = extname(file.originalname).toLowerCase();
+        
+        if (allowedMimes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
           cb(null, true);
         } else {
-          cb(new Error('Type de fichier non autorisé'), false);
+          cb(new Error(`Type de fichier non autorisé: ${file.mimetype} (${ext})`), false);
         }
       },
       limits: {
