@@ -197,6 +197,16 @@ export const NiveauExperience: {
 export type NiveauExperience = (typeof NiveauExperience)[keyof typeof NiveauExperience]
 
 
+export const Sexe: {
+  HOMME: 'HOMME',
+  FEMME: 'FEMME',
+  AUTRE: 'AUTRE',
+  NON_PRECISE: 'NON_PRECISE'
+};
+
+export type Sexe = (typeof Sexe)[keyof typeof Sexe]
+
+
 export const NotificationType: {
   NEW_OFFRE: 'NEW_OFFRE',
   NEW_MESSAGE: 'NEW_MESSAGE',
@@ -231,6 +241,10 @@ export const Secteur: typeof $Enums.Secteur
 export type NiveauExperience = $Enums.NiveauExperience
 
 export const NiveauExperience: typeof $Enums.NiveauExperience
+
+export type Sexe = $Enums.Sexe
+
+export const Sexe: typeof $Enums.Sexe
 
 export type NotificationType = $Enums.NotificationType
 
@@ -3032,6 +3046,12 @@ export namespace Prisma {
     pays: string | null
     commune: string | null
     quartier: string | null
+    sexe: $Enums.Sexe | null
+    dateNaissance: Date | null
+    adresse: string | null
+    telephone: string | null
+    handicap: boolean | null
+    typeHandicap: string | null
     refreshToken: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3054,6 +3074,12 @@ export namespace Prisma {
     pays: string | null
     commune: string | null
     quartier: string | null
+    sexe: $Enums.Sexe | null
+    dateNaissance: Date | null
+    adresse: string | null
+    telephone: string | null
+    handicap: boolean | null
+    typeHandicap: string | null
     refreshToken: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3076,6 +3102,12 @@ export namespace Prisma {
     pays: number
     commune: number
     quartier: number
+    sexe: number
+    dateNaissance: number
+    adresse: number
+    telephone: number
+    handicap: number
+    typeHandicap: number
     refreshToken: number
     createdAt: number
     updatedAt: number
@@ -3108,6 +3140,12 @@ export namespace Prisma {
     pays?: true
     commune?: true
     quartier?: true
+    sexe?: true
+    dateNaissance?: true
+    adresse?: true
+    telephone?: true
+    handicap?: true
+    typeHandicap?: true
     refreshToken?: true
     createdAt?: true
     updatedAt?: true
@@ -3130,6 +3168,12 @@ export namespace Prisma {
     pays?: true
     commune?: true
     quartier?: true
+    sexe?: true
+    dateNaissance?: true
+    adresse?: true
+    telephone?: true
+    handicap?: true
+    typeHandicap?: true
     refreshToken?: true
     createdAt?: true
     updatedAt?: true
@@ -3152,6 +3196,12 @@ export namespace Prisma {
     pays?: true
     commune?: true
     quartier?: true
+    sexe?: true
+    dateNaissance?: true
+    adresse?: true
+    telephone?: true
+    handicap?: true
+    typeHandicap?: true
     refreshToken?: true
     createdAt?: true
     updatedAt?: true
@@ -3261,6 +3311,12 @@ export namespace Prisma {
     pays: string | null
     commune: string | null
     quartier: string | null
+    sexe: $Enums.Sexe
+    dateNaissance: Date | null
+    adresse: string | null
+    telephone: string | null
+    handicap: boolean
+    typeHandicap: string | null
     refreshToken: string | null
     createdAt: Date
     updatedAt: Date
@@ -3302,6 +3358,12 @@ export namespace Prisma {
     pays?: boolean
     commune?: boolean
     quartier?: boolean
+    sexe?: boolean
+    dateNaissance?: boolean
+    adresse?: boolean
+    telephone?: boolean
+    handicap?: boolean
+    typeHandicap?: boolean
     refreshToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3340,6 +3402,12 @@ export namespace Prisma {
     pays?: boolean
     commune?: boolean
     quartier?: boolean
+    sexe?: boolean
+    dateNaissance?: boolean
+    adresse?: boolean
+    telephone?: boolean
+    handicap?: boolean
+    typeHandicap?: boolean
     refreshToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3362,6 +3430,12 @@ export namespace Prisma {
     pays?: boolean
     commune?: boolean
     quartier?: boolean
+    sexe?: boolean
+    dateNaissance?: boolean
+    adresse?: boolean
+    telephone?: boolean
+    handicap?: boolean
+    typeHandicap?: boolean
     refreshToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3384,12 +3458,18 @@ export namespace Prisma {
     pays?: boolean
     commune?: boolean
     quartier?: boolean
+    sexe?: boolean
+    dateNaissance?: boolean
+    adresse?: boolean
+    telephone?: boolean
+    handicap?: boolean
+    typeHandicap?: boolean
     refreshToken?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "username" | "password" | "role" | "isActive" | "isEmailVerified" | "googleId" | "pictureUrl" | "firstName" | "lastName" | "isGoogleLogin" | "statutProfessionnel" | "pays" | "commune" | "quartier" | "refreshToken" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "username" | "password" | "role" | "isActive" | "isEmailVerified" | "googleId" | "pictureUrl" | "firstName" | "lastName" | "isGoogleLogin" | "statutProfessionnel" | "pays" | "commune" | "quartier" | "sexe" | "dateNaissance" | "adresse" | "telephone" | "handicap" | "typeHandicap" | "refreshToken" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     offres?: boolean | User$offresArgs<ExtArgs>
     commentaires?: boolean | User$commentairesArgs<ExtArgs>
@@ -3447,6 +3527,12 @@ export namespace Prisma {
       pays: string | null
       commune: string | null
       quartier: string | null
+      sexe: $Enums.Sexe
+      dateNaissance: Date | null
+      adresse: string | null
+      telephone: string | null
+      handicap: boolean
+      typeHandicap: string | null
       refreshToken: string | null
       createdAt: Date
       updatedAt: Date
@@ -3904,6 +3990,12 @@ export namespace Prisma {
     readonly pays: FieldRef<"User", 'String'>
     readonly commune: FieldRef<"User", 'String'>
     readonly quartier: FieldRef<"User", 'String'>
+    readonly sexe: FieldRef<"User", 'Sexe'>
+    readonly dateNaissance: FieldRef<"User", 'DateTime'>
+    readonly adresse: FieldRef<"User", 'String'>
+    readonly telephone: FieldRef<"User", 'String'>
+    readonly handicap: FieldRef<"User", 'Boolean'>
+    readonly typeHandicap: FieldRef<"User", 'String'>
     readonly refreshToken: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
@@ -25570,6 +25662,12 @@ export namespace Prisma {
     pays: 'pays',
     commune: 'commune',
     quartier: 'quartier',
+    sexe: 'sexe',
+    dateNaissance: 'dateNaissance',
+    adresse: 'adresse',
+    telephone: 'telephone',
+    handicap: 'handicap',
+    typeHandicap: 'typeHandicap',
     refreshToken: 'refreshToken',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -25944,6 +26042,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Sexe'
+   */
+  export type EnumSexeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Sexe'>
+    
+
+
+  /**
+   * Reference to a field of type 'Sexe[]'
+   */
+  export type ListEnumSexeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Sexe[]'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -26078,6 +26190,12 @@ export namespace Prisma {
     pays?: StringNullableFilter<"User"> | string | null
     commune?: StringNullableFilter<"User"> | string | null
     quartier?: StringNullableFilter<"User"> | string | null
+    sexe?: EnumSexeFilter<"User"> | $Enums.Sexe
+    dateNaissance?: DateTimeNullableFilter<"User"> | Date | string | null
+    adresse?: StringNullableFilter<"User"> | string | null
+    telephone?: StringNullableFilter<"User"> | string | null
+    handicap?: BoolFilter<"User"> | boolean
+    typeHandicap?: StringNullableFilter<"User"> | string | null
     refreshToken?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -26115,6 +26233,12 @@ export namespace Prisma {
     pays?: SortOrderInput | SortOrder
     commune?: SortOrderInput | SortOrder
     quartier?: SortOrderInput | SortOrder
+    sexe?: SortOrder
+    dateNaissance?: SortOrderInput | SortOrder
+    adresse?: SortOrderInput | SortOrder
+    telephone?: SortOrderInput | SortOrder
+    handicap?: SortOrder
+    typeHandicap?: SortOrderInput | SortOrder
     refreshToken?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -26155,6 +26279,12 @@ export namespace Prisma {
     pays?: StringNullableFilter<"User"> | string | null
     commune?: StringNullableFilter<"User"> | string | null
     quartier?: StringNullableFilter<"User"> | string | null
+    sexe?: EnumSexeFilter<"User"> | $Enums.Sexe
+    dateNaissance?: DateTimeNullableFilter<"User"> | Date | string | null
+    adresse?: StringNullableFilter<"User"> | string | null
+    telephone?: StringNullableFilter<"User"> | string | null
+    handicap?: BoolFilter<"User"> | boolean
+    typeHandicap?: StringNullableFilter<"User"> | string | null
     refreshToken?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -26192,6 +26322,12 @@ export namespace Prisma {
     pays?: SortOrderInput | SortOrder
     commune?: SortOrderInput | SortOrder
     quartier?: SortOrderInput | SortOrder
+    sexe?: SortOrder
+    dateNaissance?: SortOrderInput | SortOrder
+    adresse?: SortOrderInput | SortOrder
+    telephone?: SortOrderInput | SortOrder
+    handicap?: SortOrder
+    typeHandicap?: SortOrderInput | SortOrder
     refreshToken?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -26222,6 +26358,12 @@ export namespace Prisma {
     pays?: StringNullableWithAggregatesFilter<"User"> | string | null
     commune?: StringNullableWithAggregatesFilter<"User"> | string | null
     quartier?: StringNullableWithAggregatesFilter<"User"> | string | null
+    sexe?: EnumSexeWithAggregatesFilter<"User"> | $Enums.Sexe
+    dateNaissance?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    adresse?: StringNullableWithAggregatesFilter<"User"> | string | null
+    telephone?: StringNullableWithAggregatesFilter<"User"> | string | null
+    handicap?: BoolWithAggregatesFilter<"User"> | boolean
+    typeHandicap?: StringNullableWithAggregatesFilter<"User"> | string | null
     refreshToken?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -27617,6 +27759,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -27654,6 +27802,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -27690,6 +27844,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27727,6 +27887,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27764,6 +27930,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -27785,6 +27957,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27807,6 +27985,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29257,6 +29441,24 @@ export namespace Prisma {
     not?: NestedEnumStatutProfessionnelFilter<$PrismaModel> | $Enums.StatutProfessionnel
   }
 
+  export type EnumSexeFilter<$PrismaModel = never> = {
+    equals?: $Enums.Sexe | EnumSexeFieldRefInput<$PrismaModel>
+    in?: $Enums.Sexe[] | ListEnumSexeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Sexe[] | ListEnumSexeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSexeFilter<$PrismaModel> | $Enums.Sexe
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -29425,6 +29627,12 @@ export namespace Prisma {
     pays?: SortOrder
     commune?: SortOrder
     quartier?: SortOrder
+    sexe?: SortOrder
+    dateNaissance?: SortOrder
+    adresse?: SortOrder
+    telephone?: SortOrder
+    handicap?: SortOrder
+    typeHandicap?: SortOrder
     refreshToken?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -29451,6 +29659,12 @@ export namespace Prisma {
     pays?: SortOrder
     commune?: SortOrder
     quartier?: SortOrder
+    sexe?: SortOrder
+    dateNaissance?: SortOrder
+    adresse?: SortOrder
+    telephone?: SortOrder
+    handicap?: SortOrder
+    typeHandicap?: SortOrder
     refreshToken?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -29473,6 +29687,12 @@ export namespace Prisma {
     pays?: SortOrder
     commune?: SortOrder
     quartier?: SortOrder
+    sexe?: SortOrder
+    dateNaissance?: SortOrder
+    adresse?: SortOrder
+    telephone?: SortOrder
+    handicap?: SortOrder
+    typeHandicap?: SortOrder
     refreshToken?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -29562,6 +29782,30 @@ export namespace Prisma {
     _max?: NestedEnumStatutProfessionnelFilter<$PrismaModel>
   }
 
+  export type EnumSexeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Sexe | EnumSexeFieldRefInput<$PrismaModel>
+    in?: $Enums.Sexe[] | ListEnumSexeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Sexe[] | ListEnumSexeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSexeWithAggregatesFilter<$PrismaModel> | $Enums.Sexe
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSexeFilter<$PrismaModel>
+    _max?: NestedEnumSexeFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -29613,17 +29857,6 @@ export namespace Prisma {
   export type EmailVerificationSumOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type EnumTypeOffreFilter<$PrismaModel = never> = {
@@ -29833,20 +30066,6 @@ export namespace Prisma {
     indemnite?: SortOrder
     viewCount?: SortOrder
     auteurId?: SortOrder
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type EnumTypeOffreWithAggregatesFilter<$PrismaModel = never> = {
@@ -30926,6 +31145,14 @@ export namespace Prisma {
     set?: $Enums.StatutProfessionnel
   }
 
+  export type EnumSexeFieldUpdateOperationsInput = {
+    set?: $Enums.Sexe
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -31428,10 +31655,6 @@ export namespace Prisma {
     connectOrCreate?: OffreFichierCreateOrConnectWithoutOffreInput | OffreFichierCreateOrConnectWithoutOffreInput[]
     createMany?: OffreFichierCreateManyOffreInputEnvelope
     connect?: OffreFichierWhereUniqueInput | OffreFichierWhereUniqueInput[]
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type EnumTypeOffreFieldUpdateOperationsInput = {
@@ -32267,6 +32490,24 @@ export namespace Prisma {
     not?: NestedEnumStatutProfessionnelFilter<$PrismaModel> | $Enums.StatutProfessionnel
   }
 
+  export type NestedEnumSexeFilter<$PrismaModel = never> = {
+    equals?: $Enums.Sexe | EnumSexeFieldRefInput<$PrismaModel>
+    in?: $Enums.Sexe[] | ListEnumSexeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Sexe[] | ListEnumSexeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSexeFilter<$PrismaModel> | $Enums.Sexe
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -32378,6 +32619,30 @@ export namespace Prisma {
     _max?: NestedEnumStatutProfessionnelFilter<$PrismaModel>
   }
 
+  export type NestedEnumSexeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Sexe | EnumSexeFieldRefInput<$PrismaModel>
+    in?: $Enums.Sexe[] | ListEnumSexeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Sexe[] | ListEnumSexeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSexeWithAggregatesFilter<$PrismaModel> | $Enums.Sexe
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSexeFilter<$PrismaModel>
+    _max?: NestedEnumSexeFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -32390,17 +32655,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedEnumTypeOffreFilter<$PrismaModel = never> = {
@@ -32445,20 +32699,6 @@ export namespace Prisma {
   export type NestedBoolNullableFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
     not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumTypeOffreWithAggregatesFilter<$PrismaModel = never> = {
@@ -33516,6 +33756,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33552,6 +33798,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33603,6 +33855,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33639,6 +33897,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33674,6 +33938,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33710,6 +33980,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33857,6 +34133,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33893,6 +34175,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34183,6 +34471,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34219,6 +34513,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34332,6 +34632,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34368,6 +34674,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34677,6 +34989,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34713,6 +35031,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34787,6 +35111,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34823,6 +35153,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34896,6 +35232,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34932,6 +35274,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35011,6 +35359,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35047,6 +35401,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35082,6 +35442,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35118,6 +35484,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35158,6 +35530,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35194,6 +35572,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35270,6 +35654,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35306,6 +35696,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35352,6 +35748,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35388,6 +35790,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35459,6 +35867,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35495,6 +35909,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35572,6 +35992,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35608,6 +36034,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35643,6 +36075,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35679,6 +36117,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -35816,6 +36260,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35852,6 +36302,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35979,6 +36435,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36015,6 +36477,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36175,6 +36643,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36211,6 +36685,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36374,6 +36854,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36410,6 +36896,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36487,6 +36979,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36523,6 +37021,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36558,6 +37062,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36594,6 +37104,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36731,6 +37247,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36767,6 +37289,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36894,6 +37422,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36930,6 +37464,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36981,6 +37521,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37017,6 +37563,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37052,6 +37604,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -37088,6 +37646,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -37162,6 +37726,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37198,6 +37768,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37308,6 +37884,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -37344,6 +37926,12 @@ export namespace Prisma {
     pays?: string | null
     commune?: string | null
     quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
     refreshToken?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -37395,6 +37983,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37431,6 +38025,12 @@ export namespace Prisma {
     pays?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
     quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
     refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

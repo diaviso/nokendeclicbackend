@@ -30,6 +30,12 @@ export class AdminController {
     return this.adminService.getStatistics();
   }
 
+  @Get('statistics/disaggregation')
+  @ApiOperation({ summary: 'Statistiques désagrégées des utilisateurs (genre, âge, handicap)' })
+  async getUsersDisaggregation() {
+    return this.adminService.getUsersDisaggregation();
+  }
+
   // ==================== USERS ====================
 
   @Get('users')

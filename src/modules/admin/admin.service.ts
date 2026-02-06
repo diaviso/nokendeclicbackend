@@ -265,4 +265,95 @@ export class AdminService {
       },
     };
   }
+
+  async getUsersDisaggregation() {
+    const now = new Date();
+    
+    // Gender distribution
+    const [hommes, femmes, autresSexe, nonPreciseSexe] = await Promise.all([
+      this.prisma.user.count({ where: { sexe: 'HOMME' } }),
+      this.prisma.user.count({ where: { sexe: 'FEMME' } }),
+      this.prisma.user.count({ where: { sexe: 'AUTRE' } }),
+      this.prisma.user.count({ where: { sexe: 'NON_PRECISE' } }),
+    ]);
+
+    // Disability status
+    const [avecHandicap, sansHandicap] = await Promise.all([
+      this.prisma.user.count({ where: { handicap: true } }),
+      this.prisma.user.count({ where: { handicap: false } }),
+    ]);
+
+    // Age ranges - calculate from dateNaissance
+    const usersWithBirthdate = await this.prisma.user.findMany({
+      where: { dateNaissance: { not: null } },
+      select: { dateNaissance: true },
+    });
+
+    const ageRanges = {
+      '0-17': 0,
+      '18-25': 0,
+      '26-35': 0,
+      '36-45': 0,
+      '46-55': 0,
+      '56-65': 0,
+      '65+': 0,
+      'Non précisé': 0,
+    };
+
+    const totalUsers = await this.prisma.user.count();
+    ageRanges['Non précisé'] = totalUsers - usersWithBirthdate.length;
+
+    usersWithBirthdate.forEach((user) => {
+      if (user.dateNaissance) {
+        const birthDate = new Date(user.dateNaissance);
+        const age = Math.floor((now.getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+        
+        if (age < 18) ageRanges['0-17']++;
+        else if (age <= 25) ageRanges['18-25']++;
+        else if (age <= 35) ageRanges['26-35']++;
+        else if (age <= 45) ageRanges['36-45']++;
+        else if (age <= 55) ageRanges['46-55']++;
+        else if (age <= 65) ageRanges['56-65']++;
+        else ageRanges['65+']++;
+      }
+    });
+
+    // Professional status distribution
+    const statutProfessionnelStats = await this.prisma.user.groupBy({
+      by: ['statutProfessionnel'],
+      _count: { statutProfessionnel: true },
+    });
+
+    // Geographic distribution (by pays)
+    const paysStats = await this.prisma.user.groupBy({
+      by: ['pays'],
+      _count: { pays: true },
+      orderBy: { _count: { pays: 'desc' } },
+      take: 10,
+    });
+
+    return {
+      gender: {
+        hommes,
+        femmes,
+        autres: autresSexe,
+        nonPrecise: nonPreciseSexe,
+        total: hommes + femmes + autresSexe + nonPreciseSexe,
+      },
+      handicap: {
+        avec: avecHandicap,
+        sans: sansHandicap,
+        total: avecHandicap + sansHandicap,
+      },
+      ageRanges,
+      statutProfessionnel: statutProfessionnelStats.reduce((acc, item) => {
+        acc[item.statutProfessionnel] = item._count.statutProfessionnel;
+        return acc;
+      }, {} as Record<string, number>),
+      geographic: paysStats.map((item) => ({
+        pays: item.pays || 'Non précisé',
+        count: item._count.pays,
+      })),
+    };
+  }
 }

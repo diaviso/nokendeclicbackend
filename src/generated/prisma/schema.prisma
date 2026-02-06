@@ -76,6 +76,13 @@ enum NiveauExperience {
   EXPERT
 }
 
+enum Sexe {
+  HOMME
+  FEMME
+  AUTRE
+  NON_PRECISE
+}
+
 // ==================== MODELS ====================
 
 model User {
@@ -95,6 +102,13 @@ model User {
   pays                String?
   commune             String?
   quartier            String?
+  // New profile fields
+  sexe                Sexe                @default(NON_PRECISE)
+  dateNaissance       DateTime?
+  adresse             String?
+  telephone           String?
+  handicap            Boolean             @default(false)
+  typeHandicap        String?
   refreshToken        String?
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt

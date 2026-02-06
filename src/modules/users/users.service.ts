@@ -18,6 +18,15 @@ export class UsersService {
         firstName: true,
         lastName: true,
         statutProfessionnel: true,
+        pays: true,
+        commune: true,
+        quartier: true,
+        sexe: true,
+        dateNaissance: true,
+        adresse: true,
+        telephone: true,
+        handicap: true,
+        typeHandicap: true,
         createdAt: true,
         isGoogleLogin: true,
       },
@@ -38,6 +47,15 @@ export class UsersService {
         firstName: true,
         lastName: true,
         statutProfessionnel: true,
+        pays: true,
+        commune: true,
+        quartier: true,
+        sexe: true,
+        dateNaissance: true,
+        adresse: true,
+        telephone: true,
+        handicap: true,
+        typeHandicap: true,
         createdAt: true,
         isGoogleLogin: true,
       },
@@ -67,9 +85,15 @@ export class UsersService {
       throw new ForbiddenException('Vous ne pouvez modifier que votre propre profil');
     }
 
+    // Handle dateNaissance conversion if provided
+    const updateData: any = { ...dto };
+    if (dto.dateNaissance) {
+      updateData.dateNaissance = new Date(dto.dateNaissance);
+    }
+
     return this.prisma.user.update({
       where: { id },
-      data: dto,
+      data: updateData,
       select: {
         id: true,
         email: true,
@@ -80,6 +104,15 @@ export class UsersService {
         firstName: true,
         lastName: true,
         statutProfessionnel: true,
+        pays: true,
+        commune: true,
+        quartier: true,
+        sexe: true,
+        dateNaissance: true,
+        adresse: true,
+        telephone: true,
+        handicap: true,
+        typeHandicap: true,
       },
     });
   }

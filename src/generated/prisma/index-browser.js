@@ -138,6 +138,12 @@ exports.Prisma.UserScalarFieldEnum = {
   pays: 'pays',
   commune: 'commune',
   quartier: 'quartier',
+  sexe: 'sexe',
+  dateNaissance: 'dateNaissance',
+  adresse: 'adresse',
+  telephone: 'telephone',
+  handicap: 'handicap',
+  typeHandicap: 'typeHandicap',
   refreshToken: 'refreshToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -384,6 +390,13 @@ exports.StatutProfessionnel = exports.$Enums.StatutProfessionnel = {
   FREELANCE: 'FREELANCE',
   CHOMAGE: 'CHOMAGE',
   RECONVERSION: 'RECONVERSION'
+};
+
+exports.Sexe = exports.$Enums.Sexe = {
+  HOMME: 'HOMME',
+  FEMME: 'FEMME',
+  AUTRE: 'AUTRE',
+  NON_PRECISE: 'NON_PRECISE'
 };
 
 exports.TypeOffre = exports.$Enums.TypeOffre = {
