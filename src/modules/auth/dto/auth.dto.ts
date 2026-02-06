@@ -92,3 +92,29 @@ export class ResendCodeDto {
   @IsNotEmpty()
   email: string;
 }
+
+export class ForgotPasswordDto {
+  @ApiProperty({ example: 'user@example.com' })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+}
+
+export class ResetPasswordDto {
+  @ApiProperty({ example: 'abc123token...' })
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+
+  @ApiProperty({ example: 'newPassword123' })
+  @IsString()
+  @MinLength(6)
+  password: string;
+}
+
+export class ValidateResetTokenDto {
+  @ApiProperty({ example: 'abc123token...' })
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+}

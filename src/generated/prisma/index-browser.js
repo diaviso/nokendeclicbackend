@@ -157,6 +157,14 @@ exports.Prisma.EmailVerificationScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.PasswordResetScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.OffreScalarFieldEnum = {
   id: 'id',
   titre: 'titre',
@@ -459,6 +467,7 @@ exports.NotificationType = exports.$Enums.NotificationType = {
 exports.Prisma.ModelName = {
   User: 'User',
   EmailVerification: 'EmailVerification',
+  PasswordReset: 'PasswordReset',
   Offre: 'Offre',
   OffreFichier: 'OffreFichier',
   CV: 'CV',

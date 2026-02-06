@@ -14,7 +14,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto, RefreshTokenDto, TokensResponse, VerifyEmailDto, ResendCodeDto } from './dto';
+import { LoginDto, RegisterDto, RefreshTokenDto, TokensResponse, VerifyEmailDto, ResendCodeDto, ForgotPasswordDto, ResetPasswordDto, ValidateResetTokenDto } from './dto';
 import { Public, CurrentUser } from '../../common';
 
 @ApiTags('Auth')
@@ -103,6 +103,30 @@ export class AuthController {
   }
 
   @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Demander un lien de réinitialisation de mot de passe' })
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Réinitialiser le mot de passe avec le token' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto.token, dto.password);
+  }
+
+  @Public()
+  @Post('validate-reset-token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Valider un token de réinitialisation' })
+  async validateResetToken(@Body() dto: ValidateResetTokenDto) {
+    return this.authService.validateResetToken(dto.token);
+  }
+
+  @Public()
   @Get('info')
   @ApiOperation({ summary: 'Informations sur l\'authentification' })
   getAuthInfo() {
@@ -114,6 +138,8 @@ export class AuthController {
         login: 'POST /auth/login',
         verifyEmail: 'POST /auth/verify-email',
         resendCode: 'POST /auth/resend-code',
+        forgotPassword: 'POST /auth/forgot-password',
+        resetPassword: 'POST /auth/reset-password',
         google: 'GET /auth/google',
         refresh: 'POST /auth/refresh',
         logout: 'POST /auth/logout',

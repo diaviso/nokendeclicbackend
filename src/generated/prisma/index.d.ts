@@ -24,6 +24,11 @@ export type User = $Result.DefaultSelection<Prisma.$UserPayload>
  */
 export type EmailVerification = $Result.DefaultSelection<Prisma.$EmailVerificationPayload>
 /**
+ * Model PasswordReset
+ * 
+ */
+export type PasswordReset = $Result.DefaultSelection<Prisma.$PasswordResetPayload>
+/**
  * Model Offre
  * 
  */
@@ -387,6 +392,16 @@ export class PrismaClient<
     * ```
     */
   get emailVerification(): Prisma.EmailVerificationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.passwordReset`: Exposes CRUD operations for the **PasswordReset** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PasswordResets
+    * const passwordResets = await prisma.passwordReset.findMany()
+    * ```
+    */
+  get passwordReset(): Prisma.PasswordResetDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.offre`: Exposes CRUD operations for the **Offre** model.
@@ -1000,6 +1015,7 @@ export namespace Prisma {
   export const ModelName: {
     User: 'User',
     EmailVerification: 'EmailVerification',
+    PasswordReset: 'PasswordReset',
     Offre: 'Offre',
     OffreFichier: 'OffreFichier',
     CV: 'CV',
@@ -1035,7 +1051,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "emailVerification" | "offre" | "offreFichier" | "cV" | "experience" | "formation" | "message" | "reponseMessage" | "privateConversation" | "privateMessage" | "commentaire" | "retour" | "reponseRetour" | "favorite" | "alert" | "conversation" | "chatMessage" | "notification"
+      modelProps: "user" | "emailVerification" | "passwordReset" | "offre" | "offreFichier" | "cV" | "experience" | "formation" | "message" | "reponseMessage" | "privateConversation" | "privateMessage" | "commentaire" | "retour" | "reponseRetour" | "favorite" | "alert" | "conversation" | "chatMessage" | "notification"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1184,6 +1200,80 @@ export namespace Prisma {
           count: {
             args: Prisma.EmailVerificationCountArgs<ExtArgs>
             result: $Utils.Optional<EmailVerificationCountAggregateOutputType> | number
+          }
+        }
+      }
+      PasswordReset: {
+        payload: Prisma.$PasswordResetPayload<ExtArgs>
+        fields: Prisma.PasswordResetFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PasswordResetFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PasswordResetFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload>
+          }
+          findFirst: {
+            args: Prisma.PasswordResetFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PasswordResetFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload>
+          }
+          findMany: {
+            args: Prisma.PasswordResetFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload>[]
+          }
+          create: {
+            args: Prisma.PasswordResetCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload>
+          }
+          createMany: {
+            args: Prisma.PasswordResetCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PasswordResetCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload>[]
+          }
+          delete: {
+            args: Prisma.PasswordResetDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload>
+          }
+          update: {
+            args: Prisma.PasswordResetUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload>
+          }
+          deleteMany: {
+            args: Prisma.PasswordResetDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PasswordResetUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PasswordResetUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload>[]
+          }
+          upsert: {
+            args: Prisma.PasswordResetUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PasswordResetPayload>
+          }
+          aggregate: {
+            args: Prisma.PasswordResetAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePasswordReset>
+          }
+          groupBy: {
+            args: Prisma.PasswordResetGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PasswordResetGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PasswordResetCountArgs<ExtArgs>
+            result: $Utils.Optional<PasswordResetCountAggregateOutputType> | number
           }
         }
       }
@@ -2543,6 +2633,7 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     user?: UserOmit
     emailVerification?: EmailVerificationOmit
+    passwordReset?: PasswordResetOmit
     offre?: OffreOmit
     offreFichier?: OffreFichierOmit
     cV?: CVOmit
@@ -2650,6 +2741,7 @@ export namespace Prisma {
     alerts: number
     conversations: number
     emailVerifications: number
+    passwordResets: number
     conversationsAsUser1: number
     conversationsAsUser2: number
     sentPrivateMessages: number
@@ -2667,6 +2759,7 @@ export namespace Prisma {
     alerts?: boolean | UserCountOutputTypeCountAlertsArgs
     conversations?: boolean | UserCountOutputTypeCountConversationsArgs
     emailVerifications?: boolean | UserCountOutputTypeCountEmailVerificationsArgs
+    passwordResets?: boolean | UserCountOutputTypeCountPasswordResetsArgs
     conversationsAsUser1?: boolean | UserCountOutputTypeCountConversationsAsUser1Args
     conversationsAsUser2?: boolean | UserCountOutputTypeCountConversationsAsUser2Args
     sentPrivateMessages?: boolean | UserCountOutputTypeCountSentPrivateMessagesArgs
@@ -2752,6 +2845,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountEmailVerificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: EmailVerificationWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountPasswordResetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PasswordResetWhereInput
   }
 
   /**
@@ -3378,6 +3478,7 @@ export namespace Prisma {
     alerts?: boolean | User$alertsArgs<ExtArgs>
     conversations?: boolean | User$conversationsArgs<ExtArgs>
     emailVerifications?: boolean | User$emailVerificationsArgs<ExtArgs>
+    passwordResets?: boolean | User$passwordResetsArgs<ExtArgs>
     conversationsAsUser1?: boolean | User$conversationsAsUser1Args<ExtArgs>
     conversationsAsUser2?: boolean | User$conversationsAsUser2Args<ExtArgs>
     sentPrivateMessages?: boolean | User$sentPrivateMessagesArgs<ExtArgs>
@@ -3482,6 +3583,7 @@ export namespace Prisma {
     alerts?: boolean | User$alertsArgs<ExtArgs>
     conversations?: boolean | User$conversationsArgs<ExtArgs>
     emailVerifications?: boolean | User$emailVerificationsArgs<ExtArgs>
+    passwordResets?: boolean | User$passwordResetsArgs<ExtArgs>
     conversationsAsUser1?: boolean | User$conversationsAsUser1Args<ExtArgs>
     conversationsAsUser2?: boolean | User$conversationsAsUser2Args<ExtArgs>
     sentPrivateMessages?: boolean | User$sentPrivateMessagesArgs<ExtArgs>
@@ -3505,6 +3607,7 @@ export namespace Prisma {
       alerts: Prisma.$AlertPayload<ExtArgs>[]
       conversations: Prisma.$ConversationPayload<ExtArgs>[]
       emailVerifications: Prisma.$EmailVerificationPayload<ExtArgs>[]
+      passwordResets: Prisma.$PasswordResetPayload<ExtArgs>[]
       conversationsAsUser1: Prisma.$PrivateConversationPayload<ExtArgs>[]
       conversationsAsUser2: Prisma.$PrivateConversationPayload<ExtArgs>[]
       sentPrivateMessages: Prisma.$PrivateMessagePayload<ExtArgs>[]
@@ -3941,6 +4044,7 @@ export namespace Prisma {
     alerts<T extends User$alertsArgs<ExtArgs> = {}>(args?: Subset<T, User$alertsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     conversations<T extends User$conversationsArgs<ExtArgs> = {}>(args?: Subset<T, User$conversationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     emailVerifications<T extends User$emailVerificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$emailVerificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailVerificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    passwordResets<T extends User$passwordResetsArgs<ExtArgs> = {}>(args?: Subset<T, User$passwordResetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     conversationsAsUser1<T extends User$conversationsAsUser1Args<ExtArgs> = {}>(args?: Subset<T, User$conversationsAsUser1Args<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PrivateConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     conversationsAsUser2<T extends User$conversationsAsUser2Args<ExtArgs> = {}>(args?: Subset<T, User$conversationsAsUser2Args<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PrivateConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sentPrivateMessages<T extends User$sentPrivateMessagesArgs<ExtArgs> = {}>(args?: Subset<T, User$sentPrivateMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PrivateMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4643,6 +4747,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: EmailVerificationScalarFieldEnum | EmailVerificationScalarFieldEnum[]
+  }
+
+  /**
+   * User.passwordResets
+   */
+  export type User$passwordResetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
+    where?: PasswordResetWhereInput
+    orderBy?: PasswordResetOrderByWithRelationInput | PasswordResetOrderByWithRelationInput[]
+    cursor?: PasswordResetWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PasswordResetScalarFieldEnum | PasswordResetScalarFieldEnum[]
   }
 
   /**
@@ -5853,6 +5981,1102 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: EmailVerificationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PasswordReset
+   */
+
+  export type AggregatePasswordReset = {
+    _count: PasswordResetCountAggregateOutputType | null
+    _avg: PasswordResetAvgAggregateOutputType | null
+    _sum: PasswordResetSumAggregateOutputType | null
+    _min: PasswordResetMinAggregateOutputType | null
+    _max: PasswordResetMaxAggregateOutputType | null
+  }
+
+  export type PasswordResetAvgAggregateOutputType = {
+    id: number | null
+    userId: number | null
+  }
+
+  export type PasswordResetSumAggregateOutputType = {
+    id: number | null
+    userId: number | null
+  }
+
+  export type PasswordResetMinAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    token: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type PasswordResetMaxAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    token: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type PasswordResetCountAggregateOutputType = {
+    id: number
+    userId: number
+    token: number
+    expiresAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type PasswordResetAvgAggregateInputType = {
+    id?: true
+    userId?: true
+  }
+
+  export type PasswordResetSumAggregateInputType = {
+    id?: true
+    userId?: true
+  }
+
+  export type PasswordResetMinAggregateInputType = {
+    id?: true
+    userId?: true
+    token?: true
+    expiresAt?: true
+    createdAt?: true
+  }
+
+  export type PasswordResetMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    token?: true
+    expiresAt?: true
+    createdAt?: true
+  }
+
+  export type PasswordResetCountAggregateInputType = {
+    id?: true
+    userId?: true
+    token?: true
+    expiresAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type PasswordResetAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PasswordReset to aggregate.
+     */
+    where?: PasswordResetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PasswordResets to fetch.
+     */
+    orderBy?: PasswordResetOrderByWithRelationInput | PasswordResetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PasswordResetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PasswordResets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PasswordResets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PasswordResets
+    **/
+    _count?: true | PasswordResetCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PasswordResetAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PasswordResetSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PasswordResetMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PasswordResetMaxAggregateInputType
+  }
+
+  export type GetPasswordResetAggregateType<T extends PasswordResetAggregateArgs> = {
+        [P in keyof T & keyof AggregatePasswordReset]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePasswordReset[P]>
+      : GetScalarType<T[P], AggregatePasswordReset[P]>
+  }
+
+
+
+
+  export type PasswordResetGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PasswordResetWhereInput
+    orderBy?: PasswordResetOrderByWithAggregationInput | PasswordResetOrderByWithAggregationInput[]
+    by: PasswordResetScalarFieldEnum[] | PasswordResetScalarFieldEnum
+    having?: PasswordResetScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PasswordResetCountAggregateInputType | true
+    _avg?: PasswordResetAvgAggregateInputType
+    _sum?: PasswordResetSumAggregateInputType
+    _min?: PasswordResetMinAggregateInputType
+    _max?: PasswordResetMaxAggregateInputType
+  }
+
+  export type PasswordResetGroupByOutputType = {
+    id: number
+    userId: number
+    token: string
+    expiresAt: Date
+    createdAt: Date
+    _count: PasswordResetCountAggregateOutputType | null
+    _avg: PasswordResetAvgAggregateOutputType | null
+    _sum: PasswordResetSumAggregateOutputType | null
+    _min: PasswordResetMinAggregateOutputType | null
+    _max: PasswordResetMaxAggregateOutputType | null
+  }
+
+  type GetPasswordResetGroupByPayload<T extends PasswordResetGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PasswordResetGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PasswordResetGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PasswordResetGroupByOutputType[P]>
+            : GetScalarType<T[P], PasswordResetGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PasswordResetSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["passwordReset"]>
+
+  export type PasswordResetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["passwordReset"]>
+
+  export type PasswordResetSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["passwordReset"]>
+
+  export type PasswordResetSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type PasswordResetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "token" | "expiresAt" | "createdAt", ExtArgs["result"]["passwordReset"]>
+  export type PasswordResetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type PasswordResetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type PasswordResetIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $PasswordResetPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PasswordReset"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      userId: number
+      token: string
+      expiresAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["passwordReset"]>
+    composites: {}
+  }
+
+  type PasswordResetGetPayload<S extends boolean | null | undefined | PasswordResetDefaultArgs> = $Result.GetResult<Prisma.$PasswordResetPayload, S>
+
+  type PasswordResetCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PasswordResetFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PasswordResetCountAggregateInputType | true
+    }
+
+  export interface PasswordResetDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PasswordReset'], meta: { name: 'PasswordReset' } }
+    /**
+     * Find zero or one PasswordReset that matches the filter.
+     * @param {PasswordResetFindUniqueArgs} args - Arguments to find a PasswordReset
+     * @example
+     * // Get one PasswordReset
+     * const passwordReset = await prisma.passwordReset.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PasswordResetFindUniqueArgs>(args: SelectSubset<T, PasswordResetFindUniqueArgs<ExtArgs>>): Prisma__PasswordResetClient<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PasswordReset that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PasswordResetFindUniqueOrThrowArgs} args - Arguments to find a PasswordReset
+     * @example
+     * // Get one PasswordReset
+     * const passwordReset = await prisma.passwordReset.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PasswordResetFindUniqueOrThrowArgs>(args: SelectSubset<T, PasswordResetFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PasswordResetClient<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PasswordReset that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PasswordResetFindFirstArgs} args - Arguments to find a PasswordReset
+     * @example
+     * // Get one PasswordReset
+     * const passwordReset = await prisma.passwordReset.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PasswordResetFindFirstArgs>(args?: SelectSubset<T, PasswordResetFindFirstArgs<ExtArgs>>): Prisma__PasswordResetClient<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PasswordReset that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PasswordResetFindFirstOrThrowArgs} args - Arguments to find a PasswordReset
+     * @example
+     * // Get one PasswordReset
+     * const passwordReset = await prisma.passwordReset.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PasswordResetFindFirstOrThrowArgs>(args?: SelectSubset<T, PasswordResetFindFirstOrThrowArgs<ExtArgs>>): Prisma__PasswordResetClient<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PasswordResets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PasswordResetFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PasswordResets
+     * const passwordResets = await prisma.passwordReset.findMany()
+     * 
+     * // Get first 10 PasswordResets
+     * const passwordResets = await prisma.passwordReset.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const passwordResetWithIdOnly = await prisma.passwordReset.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PasswordResetFindManyArgs>(args?: SelectSubset<T, PasswordResetFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PasswordReset.
+     * @param {PasswordResetCreateArgs} args - Arguments to create a PasswordReset.
+     * @example
+     * // Create one PasswordReset
+     * const PasswordReset = await prisma.passwordReset.create({
+     *   data: {
+     *     // ... data to create a PasswordReset
+     *   }
+     * })
+     * 
+     */
+    create<T extends PasswordResetCreateArgs>(args: SelectSubset<T, PasswordResetCreateArgs<ExtArgs>>): Prisma__PasswordResetClient<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PasswordResets.
+     * @param {PasswordResetCreateManyArgs} args - Arguments to create many PasswordResets.
+     * @example
+     * // Create many PasswordResets
+     * const passwordReset = await prisma.passwordReset.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PasswordResetCreateManyArgs>(args?: SelectSubset<T, PasswordResetCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PasswordResets and returns the data saved in the database.
+     * @param {PasswordResetCreateManyAndReturnArgs} args - Arguments to create many PasswordResets.
+     * @example
+     * // Create many PasswordResets
+     * const passwordReset = await prisma.passwordReset.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PasswordResets and only return the `id`
+     * const passwordResetWithIdOnly = await prisma.passwordReset.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PasswordResetCreateManyAndReturnArgs>(args?: SelectSubset<T, PasswordResetCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PasswordReset.
+     * @param {PasswordResetDeleteArgs} args - Arguments to delete one PasswordReset.
+     * @example
+     * // Delete one PasswordReset
+     * const PasswordReset = await prisma.passwordReset.delete({
+     *   where: {
+     *     // ... filter to delete one PasswordReset
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PasswordResetDeleteArgs>(args: SelectSubset<T, PasswordResetDeleteArgs<ExtArgs>>): Prisma__PasswordResetClient<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PasswordReset.
+     * @param {PasswordResetUpdateArgs} args - Arguments to update one PasswordReset.
+     * @example
+     * // Update one PasswordReset
+     * const passwordReset = await prisma.passwordReset.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PasswordResetUpdateArgs>(args: SelectSubset<T, PasswordResetUpdateArgs<ExtArgs>>): Prisma__PasswordResetClient<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PasswordResets.
+     * @param {PasswordResetDeleteManyArgs} args - Arguments to filter PasswordResets to delete.
+     * @example
+     * // Delete a few PasswordResets
+     * const { count } = await prisma.passwordReset.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PasswordResetDeleteManyArgs>(args?: SelectSubset<T, PasswordResetDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PasswordResets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PasswordResetUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PasswordResets
+     * const passwordReset = await prisma.passwordReset.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PasswordResetUpdateManyArgs>(args: SelectSubset<T, PasswordResetUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PasswordResets and returns the data updated in the database.
+     * @param {PasswordResetUpdateManyAndReturnArgs} args - Arguments to update many PasswordResets.
+     * @example
+     * // Update many PasswordResets
+     * const passwordReset = await prisma.passwordReset.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PasswordResets and only return the `id`
+     * const passwordResetWithIdOnly = await prisma.passwordReset.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PasswordResetUpdateManyAndReturnArgs>(args: SelectSubset<T, PasswordResetUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PasswordReset.
+     * @param {PasswordResetUpsertArgs} args - Arguments to update or create a PasswordReset.
+     * @example
+     * // Update or create a PasswordReset
+     * const passwordReset = await prisma.passwordReset.upsert({
+     *   create: {
+     *     // ... data to create a PasswordReset
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PasswordReset we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PasswordResetUpsertArgs>(args: SelectSubset<T, PasswordResetUpsertArgs<ExtArgs>>): Prisma__PasswordResetClient<$Result.GetResult<Prisma.$PasswordResetPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PasswordResets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PasswordResetCountArgs} args - Arguments to filter PasswordResets to count.
+     * @example
+     * // Count the number of PasswordResets
+     * const count = await prisma.passwordReset.count({
+     *   where: {
+     *     // ... the filter for the PasswordResets we want to count
+     *   }
+     * })
+    **/
+    count<T extends PasswordResetCountArgs>(
+      args?: Subset<T, PasswordResetCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PasswordResetCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PasswordReset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PasswordResetAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PasswordResetAggregateArgs>(args: Subset<T, PasswordResetAggregateArgs>): Prisma.PrismaPromise<GetPasswordResetAggregateType<T>>
+
+    /**
+     * Group by PasswordReset.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PasswordResetGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PasswordResetGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PasswordResetGroupByArgs['orderBy'] }
+        : { orderBy?: PasswordResetGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PasswordResetGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPasswordResetGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PasswordReset model
+   */
+  readonly fields: PasswordResetFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PasswordReset.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PasswordResetClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PasswordReset model
+   */
+  interface PasswordResetFieldRefs {
+    readonly id: FieldRef<"PasswordReset", 'Int'>
+    readonly userId: FieldRef<"PasswordReset", 'Int'>
+    readonly token: FieldRef<"PasswordReset", 'String'>
+    readonly expiresAt: FieldRef<"PasswordReset", 'DateTime'>
+    readonly createdAt: FieldRef<"PasswordReset", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PasswordReset findUnique
+   */
+  export type PasswordResetFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
+    /**
+     * Filter, which PasswordReset to fetch.
+     */
+    where: PasswordResetWhereUniqueInput
+  }
+
+  /**
+   * PasswordReset findUniqueOrThrow
+   */
+  export type PasswordResetFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
+    /**
+     * Filter, which PasswordReset to fetch.
+     */
+    where: PasswordResetWhereUniqueInput
+  }
+
+  /**
+   * PasswordReset findFirst
+   */
+  export type PasswordResetFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
+    /**
+     * Filter, which PasswordReset to fetch.
+     */
+    where?: PasswordResetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PasswordResets to fetch.
+     */
+    orderBy?: PasswordResetOrderByWithRelationInput | PasswordResetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PasswordResets.
+     */
+    cursor?: PasswordResetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PasswordResets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PasswordResets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PasswordResets.
+     */
+    distinct?: PasswordResetScalarFieldEnum | PasswordResetScalarFieldEnum[]
+  }
+
+  /**
+   * PasswordReset findFirstOrThrow
+   */
+  export type PasswordResetFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
+    /**
+     * Filter, which PasswordReset to fetch.
+     */
+    where?: PasswordResetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PasswordResets to fetch.
+     */
+    orderBy?: PasswordResetOrderByWithRelationInput | PasswordResetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PasswordResets.
+     */
+    cursor?: PasswordResetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PasswordResets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PasswordResets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PasswordResets.
+     */
+    distinct?: PasswordResetScalarFieldEnum | PasswordResetScalarFieldEnum[]
+  }
+
+  /**
+   * PasswordReset findMany
+   */
+  export type PasswordResetFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
+    /**
+     * Filter, which PasswordResets to fetch.
+     */
+    where?: PasswordResetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PasswordResets to fetch.
+     */
+    orderBy?: PasswordResetOrderByWithRelationInput | PasswordResetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PasswordResets.
+     */
+    cursor?: PasswordResetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PasswordResets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PasswordResets.
+     */
+    skip?: number
+    distinct?: PasswordResetScalarFieldEnum | PasswordResetScalarFieldEnum[]
+  }
+
+  /**
+   * PasswordReset create
+   */
+  export type PasswordResetCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PasswordReset.
+     */
+    data: XOR<PasswordResetCreateInput, PasswordResetUncheckedCreateInput>
+  }
+
+  /**
+   * PasswordReset createMany
+   */
+  export type PasswordResetCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PasswordResets.
+     */
+    data: PasswordResetCreateManyInput | PasswordResetCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PasswordReset createManyAndReturn
+   */
+  export type PasswordResetCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * The data used to create many PasswordResets.
+     */
+    data: PasswordResetCreateManyInput | PasswordResetCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PasswordReset update
+   */
+  export type PasswordResetUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PasswordReset.
+     */
+    data: XOR<PasswordResetUpdateInput, PasswordResetUncheckedUpdateInput>
+    /**
+     * Choose, which PasswordReset to update.
+     */
+    where: PasswordResetWhereUniqueInput
+  }
+
+  /**
+   * PasswordReset updateMany
+   */
+  export type PasswordResetUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PasswordResets.
+     */
+    data: XOR<PasswordResetUpdateManyMutationInput, PasswordResetUncheckedUpdateManyInput>
+    /**
+     * Filter which PasswordResets to update
+     */
+    where?: PasswordResetWhereInput
+    /**
+     * Limit how many PasswordResets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PasswordReset updateManyAndReturn
+   */
+  export type PasswordResetUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * The data used to update PasswordResets.
+     */
+    data: XOR<PasswordResetUpdateManyMutationInput, PasswordResetUncheckedUpdateManyInput>
+    /**
+     * Filter which PasswordResets to update
+     */
+    where?: PasswordResetWhereInput
+    /**
+     * Limit how many PasswordResets to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PasswordReset upsert
+   */
+  export type PasswordResetUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PasswordReset to update in case it exists.
+     */
+    where: PasswordResetWhereUniqueInput
+    /**
+     * In case the PasswordReset found by the `where` argument doesn't exist, create a new PasswordReset with this data.
+     */
+    create: XOR<PasswordResetCreateInput, PasswordResetUncheckedCreateInput>
+    /**
+     * In case the PasswordReset was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PasswordResetUpdateInput, PasswordResetUncheckedUpdateInput>
+  }
+
+  /**
+   * PasswordReset delete
+   */
+  export type PasswordResetDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
+    /**
+     * Filter which PasswordReset to delete.
+     */
+    where: PasswordResetWhereUniqueInput
+  }
+
+  /**
+   * PasswordReset deleteMany
+   */
+  export type PasswordResetDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PasswordResets to delete
+     */
+    where?: PasswordResetWhereInput
+    /**
+     * Limit how many PasswordResets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PasswordReset without action
+   */
+  export type PasswordResetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PasswordReset
+     */
+    select?: PasswordResetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PasswordReset
+     */
+    omit?: PasswordResetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PasswordResetInclude<ExtArgs> | null
   }
 
 
@@ -25687,6 +26911,17 @@ export namespace Prisma {
   export type EmailVerificationScalarFieldEnum = (typeof EmailVerificationScalarFieldEnum)[keyof typeof EmailVerificationScalarFieldEnum]
 
 
+  export const PasswordResetScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    token: 'token',
+    expiresAt: 'expiresAt',
+    createdAt: 'createdAt'
+  };
+
+  export type PasswordResetScalarFieldEnum = (typeof PasswordResetScalarFieldEnum)[keyof typeof PasswordResetScalarFieldEnum]
+
+
   export const OffreScalarFieldEnum: {
     id: 'id',
     titre: 'titre',
@@ -26210,6 +27445,7 @@ export namespace Prisma {
     alerts?: AlertListRelationFilter
     conversations?: ConversationListRelationFilter
     emailVerifications?: EmailVerificationListRelationFilter
+    passwordResets?: PasswordResetListRelationFilter
     conversationsAsUser1?: PrivateConversationListRelationFilter
     conversationsAsUser2?: PrivateConversationListRelationFilter
     sentPrivateMessages?: PrivateMessageListRelationFilter
@@ -26253,6 +27489,7 @@ export namespace Prisma {
     alerts?: AlertOrderByRelationAggregateInput
     conversations?: ConversationOrderByRelationAggregateInput
     emailVerifications?: EmailVerificationOrderByRelationAggregateInput
+    passwordResets?: PasswordResetOrderByRelationAggregateInput
     conversationsAsUser1?: PrivateConversationOrderByRelationAggregateInput
     conversationsAsUser2?: PrivateConversationOrderByRelationAggregateInput
     sentPrivateMessages?: PrivateMessageOrderByRelationAggregateInput
@@ -26299,6 +27536,7 @@ export namespace Prisma {
     alerts?: AlertListRelationFilter
     conversations?: ConversationListRelationFilter
     emailVerifications?: EmailVerificationListRelationFilter
+    passwordResets?: PasswordResetListRelationFilter
     conversationsAsUser1?: PrivateConversationListRelationFilter
     conversationsAsUser2?: PrivateConversationListRelationFilter
     sentPrivateMessages?: PrivateMessageListRelationFilter
@@ -26424,6 +27662,63 @@ export namespace Prisma {
     code?: StringWithAggregatesFilter<"EmailVerification"> | string
     expiresAt?: DateTimeWithAggregatesFilter<"EmailVerification"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"EmailVerification"> | Date | string
+  }
+
+  export type PasswordResetWhereInput = {
+    AND?: PasswordResetWhereInput | PasswordResetWhereInput[]
+    OR?: PasswordResetWhereInput[]
+    NOT?: PasswordResetWhereInput | PasswordResetWhereInput[]
+    id?: IntFilter<"PasswordReset"> | number
+    userId?: IntFilter<"PasswordReset"> | number
+    token?: StringFilter<"PasswordReset"> | string
+    expiresAt?: DateTimeFilter<"PasswordReset"> | Date | string
+    createdAt?: DateTimeFilter<"PasswordReset"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type PasswordResetOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type PasswordResetWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    token?: string
+    AND?: PasswordResetWhereInput | PasswordResetWhereInput[]
+    OR?: PasswordResetWhereInput[]
+    NOT?: PasswordResetWhereInput | PasswordResetWhereInput[]
+    userId?: IntFilter<"PasswordReset"> | number
+    expiresAt?: DateTimeFilter<"PasswordReset"> | Date | string
+    createdAt?: DateTimeFilter<"PasswordReset"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "token">
+
+  export type PasswordResetOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: PasswordResetCountOrderByAggregateInput
+    _avg?: PasswordResetAvgOrderByAggregateInput
+    _max?: PasswordResetMaxOrderByAggregateInput
+    _min?: PasswordResetMinOrderByAggregateInput
+    _sum?: PasswordResetSumOrderByAggregateInput
+  }
+
+  export type PasswordResetScalarWhereWithAggregatesInput = {
+    AND?: PasswordResetScalarWhereWithAggregatesInput | PasswordResetScalarWhereWithAggregatesInput[]
+    OR?: PasswordResetScalarWhereWithAggregatesInput[]
+    NOT?: PasswordResetScalarWhereWithAggregatesInput | PasswordResetScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"PasswordReset"> | number
+    userId?: IntWithAggregatesFilter<"PasswordReset"> | number
+    token?: StringWithAggregatesFilter<"PasswordReset"> | string
+    expiresAt?: DateTimeWithAggregatesFilter<"PasswordReset"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"PasswordReset"> | Date | string
   }
 
   export type OffreWhereInput = {
@@ -27779,6 +29074,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -27822,6 +29118,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -27864,6 +29161,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -27907,6 +29205,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -28044,6 +29343,58 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     userId?: IntFieldUpdateOperationsInput | number
     code?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PasswordResetCreateInput = {
+    token: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutPasswordResetsInput
+  }
+
+  export type PasswordResetUncheckedCreateInput = {
+    id?: number
+    userId: number
+    token: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type PasswordResetUpdateInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutPasswordResetsNestedInput
+  }
+
+  export type PasswordResetUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PasswordResetCreateManyInput = {
+    id?: number
+    userId: number
+    token: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type PasswordResetUpdateManyMutationInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PasswordResetUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    token?: StringFieldUpdateOperationsInput | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29535,6 +30886,12 @@ export namespace Prisma {
     none?: EmailVerificationWhereInput
   }
 
+  export type PasswordResetListRelationFilter = {
+    every?: PasswordResetWhereInput
+    some?: PasswordResetWhereInput
+    none?: PasswordResetWhereInput
+  }
+
   export type PrivateConversationListRelationFilter = {
     every?: PrivateConversationWhereInput
     some?: PrivateConversationWhereInput
@@ -29595,6 +30952,10 @@ export namespace Prisma {
   }
 
   export type EmailVerificationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PasswordResetOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -29855,6 +31216,40 @@ export namespace Prisma {
   }
 
   export type EmailVerificationSumOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type PasswordResetCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PasswordResetAvgOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type PasswordResetMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PasswordResetMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PasswordResetSumOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
   }
@@ -30993,6 +32388,13 @@ export namespace Prisma {
     connect?: EmailVerificationWhereUniqueInput | EmailVerificationWhereUniqueInput[]
   }
 
+  export type PasswordResetCreateNestedManyWithoutUserInput = {
+    create?: XOR<PasswordResetCreateWithoutUserInput, PasswordResetUncheckedCreateWithoutUserInput> | PasswordResetCreateWithoutUserInput[] | PasswordResetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PasswordResetCreateOrConnectWithoutUserInput | PasswordResetCreateOrConnectWithoutUserInput[]
+    createMany?: PasswordResetCreateManyUserInputEnvelope
+    connect?: PasswordResetWhereUniqueInput | PasswordResetWhereUniqueInput[]
+  }
+
   export type PrivateConversationCreateNestedManyWithoutUser1Input = {
     create?: XOR<PrivateConversationCreateWithoutUser1Input, PrivateConversationUncheckedCreateWithoutUser1Input> | PrivateConversationCreateWithoutUser1Input[] | PrivateConversationUncheckedCreateWithoutUser1Input[]
     connectOrCreate?: PrivateConversationCreateOrConnectWithoutUser1Input | PrivateConversationCreateOrConnectWithoutUser1Input[]
@@ -31095,6 +32497,13 @@ export namespace Prisma {
     connectOrCreate?: EmailVerificationCreateOrConnectWithoutUserInput | EmailVerificationCreateOrConnectWithoutUserInput[]
     createMany?: EmailVerificationCreateManyUserInputEnvelope
     connect?: EmailVerificationWhereUniqueInput | EmailVerificationWhereUniqueInput[]
+  }
+
+  export type PasswordResetUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<PasswordResetCreateWithoutUserInput, PasswordResetUncheckedCreateWithoutUserInput> | PasswordResetCreateWithoutUserInput[] | PasswordResetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PasswordResetCreateOrConnectWithoutUserInput | PasswordResetCreateOrConnectWithoutUserInput[]
+    createMany?: PasswordResetCreateManyUserInputEnvelope
+    connect?: PasswordResetWhereUniqueInput | PasswordResetWhereUniqueInput[]
   }
 
   export type PrivateConversationUncheckedCreateNestedManyWithoutUser1Input = {
@@ -31305,6 +32714,20 @@ export namespace Prisma {
     update?: EmailVerificationUpdateWithWhereUniqueWithoutUserInput | EmailVerificationUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: EmailVerificationUpdateManyWithWhereWithoutUserInput | EmailVerificationUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: EmailVerificationScalarWhereInput | EmailVerificationScalarWhereInput[]
+  }
+
+  export type PasswordResetUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PasswordResetCreateWithoutUserInput, PasswordResetUncheckedCreateWithoutUserInput> | PasswordResetCreateWithoutUserInput[] | PasswordResetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PasswordResetCreateOrConnectWithoutUserInput | PasswordResetCreateOrConnectWithoutUserInput[]
+    upsert?: PasswordResetUpsertWithWhereUniqueWithoutUserInput | PasswordResetUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PasswordResetCreateManyUserInputEnvelope
+    set?: PasswordResetWhereUniqueInput | PasswordResetWhereUniqueInput[]
+    disconnect?: PasswordResetWhereUniqueInput | PasswordResetWhereUniqueInput[]
+    delete?: PasswordResetWhereUniqueInput | PasswordResetWhereUniqueInput[]
+    connect?: PasswordResetWhereUniqueInput | PasswordResetWhereUniqueInput[]
+    update?: PasswordResetUpdateWithWhereUniqueWithoutUserInput | PasswordResetUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PasswordResetUpdateManyWithWhereWithoutUserInput | PasswordResetUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PasswordResetScalarWhereInput | PasswordResetScalarWhereInput[]
   }
 
   export type PrivateConversationUpdateManyWithoutUser1NestedInput = {
@@ -31521,6 +32944,20 @@ export namespace Prisma {
     deleteMany?: EmailVerificationScalarWhereInput | EmailVerificationScalarWhereInput[]
   }
 
+  export type PasswordResetUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PasswordResetCreateWithoutUserInput, PasswordResetUncheckedCreateWithoutUserInput> | PasswordResetCreateWithoutUserInput[] | PasswordResetUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PasswordResetCreateOrConnectWithoutUserInput | PasswordResetCreateOrConnectWithoutUserInput[]
+    upsert?: PasswordResetUpsertWithWhereUniqueWithoutUserInput | PasswordResetUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PasswordResetCreateManyUserInputEnvelope
+    set?: PasswordResetWhereUniqueInput | PasswordResetWhereUniqueInput[]
+    disconnect?: PasswordResetWhereUniqueInput | PasswordResetWhereUniqueInput[]
+    delete?: PasswordResetWhereUniqueInput | PasswordResetWhereUniqueInput[]
+    connect?: PasswordResetWhereUniqueInput | PasswordResetWhereUniqueInput[]
+    update?: PasswordResetUpdateWithWhereUniqueWithoutUserInput | PasswordResetUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PasswordResetUpdateManyWithWhereWithoutUserInput | PasswordResetUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PasswordResetScalarWhereInput | PasswordResetScalarWhereInput[]
+  }
+
   export type PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput = {
     create?: XOR<PrivateConversationCreateWithoutUser1Input, PrivateConversationUncheckedCreateWithoutUser1Input> | PrivateConversationCreateWithoutUser1Input[] | PrivateConversationUncheckedCreateWithoutUser1Input[]
     connectOrCreate?: PrivateConversationCreateOrConnectWithoutUser1Input | PrivateConversationCreateOrConnectWithoutUser1Input[]
@@ -31589,6 +33026,20 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutEmailVerificationsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutEmailVerificationsInput, UserUpdateWithoutEmailVerificationsInput>, UserUncheckedUpdateWithoutEmailVerificationsInput>
+  }
+
+  export type UserCreateNestedOneWithoutPasswordResetsInput = {
+    create?: XOR<UserCreateWithoutPasswordResetsInput, UserUncheckedCreateWithoutPasswordResetsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPasswordResetsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutPasswordResetsNestedInput = {
+    create?: XOR<UserCreateWithoutPasswordResetsInput, UserUncheckedCreateWithoutPasswordResetsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPasswordResetsInput
+    upsert?: UserUpsertWithoutPasswordResetsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPasswordResetsInput, UserUpdateWithoutPasswordResetsInput>, UserUncheckedUpdateWithoutPasswordResetsInput>
   }
 
   export type OffreCreatetagsInput = {
@@ -33178,6 +34629,29 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PasswordResetCreateWithoutUserInput = {
+    token: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type PasswordResetUncheckedCreateWithoutUserInput = {
+    id?: number
+    token: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type PasswordResetCreateOrConnectWithoutUserInput = {
+    where: PasswordResetWhereUniqueInput
+    create: XOR<PasswordResetCreateWithoutUserInput, PasswordResetUncheckedCreateWithoutUserInput>
+  }
+
+  export type PasswordResetCreateManyUserInputEnvelope = {
+    data: PasswordResetCreateManyUserInput | PasswordResetCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type PrivateConversationCreateWithoutUser1Input = {
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33639,6 +35113,33 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"EmailVerification"> | Date | string
   }
 
+  export type PasswordResetUpsertWithWhereUniqueWithoutUserInput = {
+    where: PasswordResetWhereUniqueInput
+    update: XOR<PasswordResetUpdateWithoutUserInput, PasswordResetUncheckedUpdateWithoutUserInput>
+    create: XOR<PasswordResetCreateWithoutUserInput, PasswordResetUncheckedCreateWithoutUserInput>
+  }
+
+  export type PasswordResetUpdateWithWhereUniqueWithoutUserInput = {
+    where: PasswordResetWhereUniqueInput
+    data: XOR<PasswordResetUpdateWithoutUserInput, PasswordResetUncheckedUpdateWithoutUserInput>
+  }
+
+  export type PasswordResetUpdateManyWithWhereWithoutUserInput = {
+    where: PasswordResetScalarWhereInput
+    data: XOR<PasswordResetUpdateManyMutationInput, PasswordResetUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type PasswordResetScalarWhereInput = {
+    AND?: PasswordResetScalarWhereInput | PasswordResetScalarWhereInput[]
+    OR?: PasswordResetScalarWhereInput[]
+    NOT?: PasswordResetScalarWhereInput | PasswordResetScalarWhereInput[]
+    id?: IntFilter<"PasswordReset"> | number
+    userId?: IntFilter<"PasswordReset"> | number
+    token?: StringFilter<"PasswordReset"> | string
+    expiresAt?: DateTimeFilter<"PasswordReset"> | Date | string
+    createdAt?: DateTimeFilter<"PasswordReset"> | Date | string
+  }
+
   export type PrivateConversationUpsertWithWhereUniqueWithoutUser1Input = {
     where: PrivateConversationWhereUniqueInput
     update: XOR<PrivateConversationUpdateWithoutUser1Input, PrivateConversationUncheckedUpdateWithoutUser1Input>
@@ -33775,6 +35276,7 @@ export namespace Prisma {
     favorites?: FavoriteCreateNestedManyWithoutUserInput
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -33817,6 +35319,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -33874,6 +35377,7 @@ export namespace Prisma {
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -33916,6 +35420,193 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
+    conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
+    conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
+    sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutPasswordResetsInput = {
+    email: string
+    username: string
+    password?: string | null
+    role?: $Enums.Role
+    isActive?: boolean
+    isEmailVerified?: boolean
+    googleId?: string | null
+    pictureUrl?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    isGoogleLogin?: boolean
+    statutProfessionnel?: $Enums.StatutProfessionnel
+    pays?: string | null
+    commune?: string | null
+    quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
+    refreshToken?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    offres?: OffreCreateNestedManyWithoutAuteurInput
+    commentaires?: CommentaireCreateNestedManyWithoutAuteurInput
+    retours?: RetourCreateNestedManyWithoutAuteurInput
+    messages?: MessageCreateNestedManyWithoutExpediteurInput
+    reponseMessages?: ReponseMessageCreateNestedManyWithoutAuteurInput
+    reponseRetours?: ReponseRetourCreateNestedManyWithoutAuteurInput
+    cv?: CVCreateNestedOneWithoutUserInput
+    favorites?: FavoriteCreateNestedManyWithoutUserInput
+    alerts?: AlertCreateNestedManyWithoutUserInput
+    conversations?: ConversationCreateNestedManyWithoutUserInput
+    emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
+    conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
+    sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutPasswordResetsInput = {
+    id?: number
+    email: string
+    username: string
+    password?: string | null
+    role?: $Enums.Role
+    isActive?: boolean
+    isEmailVerified?: boolean
+    googleId?: string | null
+    pictureUrl?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    isGoogleLogin?: boolean
+    statutProfessionnel?: $Enums.StatutProfessionnel
+    pays?: string | null
+    commune?: string | null
+    quartier?: string | null
+    sexe?: $Enums.Sexe
+    dateNaissance?: Date | string | null
+    adresse?: string | null
+    telephone?: string | null
+    handicap?: boolean
+    typeHandicap?: string | null
+    refreshToken?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    offres?: OffreUncheckedCreateNestedManyWithoutAuteurInput
+    commentaires?: CommentaireUncheckedCreateNestedManyWithoutAuteurInput
+    retours?: RetourUncheckedCreateNestedManyWithoutAuteurInput
+    messages?: MessageUncheckedCreateNestedManyWithoutExpediteurInput
+    reponseMessages?: ReponseMessageUncheckedCreateNestedManyWithoutAuteurInput
+    reponseRetours?: ReponseRetourUncheckedCreateNestedManyWithoutAuteurInput
+    cv?: CVUncheckedCreateNestedOneWithoutUserInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
+    alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
+    conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
+    emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
+    conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
+    sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutPasswordResetsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPasswordResetsInput, UserUncheckedCreateWithoutPasswordResetsInput>
+  }
+
+  export type UserUpsertWithoutPasswordResetsInput = {
+    update: XOR<UserUpdateWithoutPasswordResetsInput, UserUncheckedUpdateWithoutPasswordResetsInput>
+    create: XOR<UserCreateWithoutPasswordResetsInput, UserUncheckedCreateWithoutPasswordResetsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutPasswordResetsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutPasswordResetsInput, UserUncheckedUpdateWithoutPasswordResetsInput>
+  }
+
+  export type UserUpdateWithoutPasswordResetsInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
+    googleId?: NullableStringFieldUpdateOperationsInput | string | null
+    pictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
+    statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
+    pays?: NullableStringFieldUpdateOperationsInput | string | null
+    commune?: NullableStringFieldUpdateOperationsInput | string | null
+    quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    offres?: OffreUpdateManyWithoutAuteurNestedInput
+    commentaires?: CommentaireUpdateManyWithoutAuteurNestedInput
+    retours?: RetourUpdateManyWithoutAuteurNestedInput
+    messages?: MessageUpdateManyWithoutExpediteurNestedInput
+    reponseMessages?: ReponseMessageUpdateManyWithoutAuteurNestedInput
+    reponseRetours?: ReponseRetourUpdateManyWithoutAuteurNestedInput
+    cv?: CVUpdateOneWithoutUserNestedInput
+    favorites?: FavoriteUpdateManyWithoutUserNestedInput
+    alerts?: AlertUpdateManyWithoutUserNestedInput
+    conversations?: ConversationUpdateManyWithoutUserNestedInput
+    emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
+    conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
+    sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPasswordResetsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
+    googleId?: NullableStringFieldUpdateOperationsInput | string | null
+    pictureUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
+    statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
+    pays?: NullableStringFieldUpdateOperationsInput | string | null
+    commune?: NullableStringFieldUpdateOperationsInput | string | null
+    quartier?: NullableStringFieldUpdateOperationsInput | string | null
+    sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
+    dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    adresse?: NullableStringFieldUpdateOperationsInput | string | null
+    telephone?: NullableStringFieldUpdateOperationsInput | string | null
+    handicap?: BoolFieldUpdateOperationsInput | boolean
+    typeHandicap?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    offres?: OffreUncheckedUpdateManyWithoutAuteurNestedInput
+    commentaires?: CommentaireUncheckedUpdateManyWithoutAuteurNestedInput
+    retours?: RetourUncheckedUpdateManyWithoutAuteurNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutExpediteurNestedInput
+    reponseMessages?: ReponseMessageUncheckedUpdateManyWithoutAuteurNestedInput
+    reponseRetours?: ReponseRetourUncheckedUpdateManyWithoutAuteurNestedInput
+    cv?: CVUncheckedUpdateOneWithoutUserNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
+    alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
+    conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
+    emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -33957,6 +35648,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -33999,6 +35691,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -34152,6 +35845,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -34194,6 +35888,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -34490,6 +36185,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -34532,6 +36228,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -34651,6 +36348,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -34693,6 +36391,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -35008,6 +36707,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -35050,6 +36750,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -35130,6 +36831,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -35172,6 +36874,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -35251,6 +36954,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -35293,6 +36997,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -35378,6 +37083,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -35420,6 +37126,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -35462,6 +37169,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -35504,6 +37212,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -35550,6 +37259,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -35592,6 +37302,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -35674,6 +37385,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -35716,6 +37428,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -35768,6 +37481,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -35810,6 +37524,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -35887,6 +37602,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -35929,6 +37645,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -36012,6 +37729,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -36054,6 +37772,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -36094,6 +37813,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -36136,6 +37856,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -36279,6 +38000,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -36321,6 +38043,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -36454,6 +38177,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -36496,6 +38220,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -36662,6 +38387,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -36704,6 +38430,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -36873,6 +38600,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -36915,6 +38643,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -36998,6 +38727,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -37040,6 +38770,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -37081,6 +38812,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -37123,6 +38855,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -37266,6 +38999,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -37308,6 +39042,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -37441,6 +39176,7 @@ export namespace Prisma {
     favorites?: FavoriteCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -37483,6 +39219,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -37540,6 +39277,7 @@ export namespace Prisma {
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -37582,6 +39320,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -37623,6 +39362,7 @@ export namespace Prisma {
     favorites?: FavoriteCreateNestedManyWithoutUserInput
     alerts?: AlertCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -37665,6 +39405,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -37745,6 +39486,7 @@ export namespace Prisma {
     favorites?: FavoriteUpdateManyWithoutUserNestedInput
     alerts?: AlertUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -37787,6 +39529,7 @@ export namespace Prisma {
     favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -37904,6 +39647,7 @@ export namespace Prisma {
     alerts?: AlertCreateNestedManyWithoutUserInput
     conversations?: ConversationCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageCreateNestedManyWithoutSenderInput
@@ -37946,6 +39690,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedCreateNestedManyWithoutUserInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutUserInput
     emailVerifications?: EmailVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResets?: PasswordResetUncheckedCreateNestedManyWithoutUserInput
     conversationsAsUser1?: PrivateConversationUncheckedCreateNestedManyWithoutUser1Input
     conversationsAsUser2?: PrivateConversationUncheckedCreateNestedManyWithoutUser2Input
     sentPrivateMessages?: PrivateMessageUncheckedCreateNestedManyWithoutSenderInput
@@ -38003,6 +39748,7 @@ export namespace Prisma {
     alerts?: AlertUpdateManyWithoutUserNestedInput
     conversations?: ConversationUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUpdateManyWithoutSenderNestedInput
@@ -38045,6 +39791,7 @@ export namespace Prisma {
     alerts?: AlertUncheckedUpdateManyWithoutUserNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutUserNestedInput
     emailVerifications?: EmailVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResets?: PasswordResetUncheckedUpdateManyWithoutUserNestedInput
     conversationsAsUser1?: PrivateConversationUncheckedUpdateManyWithoutUser1NestedInput
     conversationsAsUser2?: PrivateConversationUncheckedUpdateManyWithoutUser2NestedInput
     sentPrivateMessages?: PrivateMessageUncheckedUpdateManyWithoutSenderNestedInput
@@ -38147,6 +39894,13 @@ export namespace Prisma {
   export type EmailVerificationCreateManyUserInput = {
     id?: number
     code: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type PasswordResetCreateManyUserInput = {
+    id?: number
+    token: string
     expiresAt: Date | string
     createdAt?: Date | string
   }
@@ -38487,6 +40241,26 @@ export namespace Prisma {
   export type EmailVerificationUncheckedUpdateManyWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
     code?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PasswordResetUpdateWithoutUserInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PasswordResetUncheckedUpdateWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PasswordResetUncheckedUpdateManyWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    token?: StringFieldUpdateOperationsInput | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

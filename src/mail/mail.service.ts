@@ -17,6 +17,84 @@ export class MailService {
     });
   }
 
+  async sendPasswordResetEmail(to: string, resetLink: string) {
+    await this.mailerService.sendMail({
+      to,
+      subject: '🔑 Réinitialisation de votre mot de passe Noken',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 40px 20px;">
+            <tr>
+              <td align="center">
+                <table width="100%" max-width="500" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                  <!-- Header -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center;">
+                      <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">
+                        🔑 Noken
+                      </h1>
+                      <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">
+                        Réinitialisation de mot de passe
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Content -->
+                  <tr>
+                    <td style="padding: 40px 30px;">
+                      <h2 style="color: #1f2937; margin: 0 0 16px 0; font-size: 22px; text-align: center;">
+                        Mot de passe oublié ?
+                      </h2>
+                      <p style="color: #6b7280; margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; text-align: center;">
+                        Pas de panique ! Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe.
+                      </p>
+                      
+                      <!-- Button -->
+                      <div style="text-align: center; margin-bottom: 30px;">
+                        <a href="${resetLink}" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                          Réinitialiser mon mot de passe
+                        </a>
+                      </div>
+                      
+                      <p style="color: #9ca3af; margin: 0 0 16px 0; font-size: 14px; text-align: center;">
+                        Ou copiez ce lien dans votre navigateur :
+                      </p>
+                      <p style="color: #6b7280; margin: 0; font-size: 12px; text-align: center; word-break: break-all; background-color: #f3f4f6; padding: 12px; border-radius: 8px;">
+                        ${resetLink}
+                      </p>
+                      
+                      <p style="color: #9ca3af; margin: 24px 0 0 0; font-size: 14px; text-align: center;">
+                        ⏱️ Ce lien expire dans <strong>1 heure</strong>
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #f9fafb; padding: 24px 30px; border-top: 1px solid #e5e7eb;">
+                      <p style="color: #9ca3af; margin: 0; font-size: 12px; text-align: center; line-height: 1.6;">
+                        Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.<br>
+                        Votre mot de passe restera inchangé.<br>
+                        © 2024 Noken - Made with ❤️ in Casamance
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `,
+    });
+  }
+
   async sendVerificationCode(to: string, code: string) {
     await this.mailerService.sendMail({
       to,
