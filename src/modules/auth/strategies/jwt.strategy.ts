@@ -36,6 +36,17 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         lastName: true,
         pictureUrl: true,
         statutProfessionnel: true,
+        pays: true,
+        commune: true,
+        quartier: true,
+        sexe: true,
+        dateNaissance: true,
+        adresse: true,
+        telephone: true,
+        handicap: true,
+        typeHandicap: true,
+        createdAt: true,
+        isGoogleLogin: true,
       },
     });
 
