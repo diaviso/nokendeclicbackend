@@ -58,9 +58,15 @@ export class AdminService {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
-        cv: true,
-        retours: { take: 5, orderBy: { datePublication: 'desc' } },
+        cv: {
+          include: {
+            experiences: true,
+            formations: true,
+          },
+        },
+        retours: { take: 5, orderBy: { datePublication: 'desc' }, include: { offre: { select: { titre: true } } } },
         offres: { take: 5, orderBy: { datePublication: 'desc' } },
+        favorites: { take: 5, orderBy: { createdAt: 'desc' }, include: { offre: { select: { id: true, titre: true, typeOffre: true } } } },
         _count: { select: { retours: true, offres: true, favorites: true } },
       },
     });
@@ -69,7 +75,81 @@ export class AdminService {
       throw new NotFoundException('Utilisateur non trouvé');
     }
 
-    return user;
+    // Get AI chatbot stats
+    const conversations = await this.prisma.conversation.findMany({
+      where: { userId: id },
+      include: {
+        _count: { select: { messages: true } },
+      },
+    });
+
+    const totalConversations = conversations.length;
+    const totalMessages = conversations.reduce((sum, conv) => sum + conv._count.messages, 0);
+    const lastConversation = conversations.length > 0 
+      ? conversations.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0]
+      : null;
+
+    // Get message breakdown (user vs assistant)
+    const messageStats = await this.prisma.chatMessage.groupBy({
+      by: ['role'],
+      where: {
+        conversation: { userId: id },
+      },
+      _count: { role: true },
+    });
+
+    const userMessages = messageStats.find(s => s.role === 'user')?._count?.role || 0;
+    const assistantMessages = messageStats.find(s => s.role === 'assistant')?._count?.role || 0;
+
+    // Get private messaging stats
+    const privateConversations = await this.prisma.privateConversation.count({
+      where: {
+        OR: [{ user1Id: id }, { user2Id: id }],
+      },
+    });
+
+    const privateMessagesSent = await this.prisma.privateMessage.count({
+      where: { senderId: id },
+    });
+
+    const privateMessagesReceived = await this.prisma.privateMessage.count({
+      where: {
+        conversation: {
+          OR: [{ user1Id: id }, { user2Id: id }],
+        },
+        NOT: { senderId: id },
+      },
+    });
+
+    // Get alerts count
+    const alertsCount = await this.prisma.alert.count({
+      where: { userId: id },
+    });
+
+    // Get comments count
+    const commentsCount = await this.prisma.commentaire.count({
+      where: { auteurId: id },
+    });
+
+    return {
+      ...user,
+      aiChatStats: {
+        totalConversations,
+        totalMessages,
+        userMessages,
+        assistantMessages,
+        lastConversationDate: lastConversation?.updatedAt || null,
+      },
+      messagingStats: {
+        privateConversations,
+        privateMessagesSent,
+        privateMessagesReceived,
+      },
+      engagementStats: {
+        alertsCount,
+        commentsCount,
+      },
+    };
   }
 
   async updateUserRole(id: number, role: string) {
