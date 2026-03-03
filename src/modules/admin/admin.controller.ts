@@ -85,6 +85,12 @@ export class AdminController {
     return this.adminService.deleteUser(id);
   }
 
+  @Get('users/export/all')
+  @ApiOperation({ summary: 'Exporter tous les utilisateurs' })
+  async getUsersForExport() {
+    return this.adminService.getAllUsersForExport();
+  }
+
   // ==================== OFFRES ====================
 
   @Get('offres')
@@ -117,6 +123,12 @@ export class AdminController {
   @ApiOperation({ summary: 'Supprimer une offre' })
   async deleteOffre(@Param('id', ParseIntPipe) id: number) {
     return this.adminService.deleteOffre(id);
+  }
+
+  @Get('offres/export/all')
+  @ApiOperation({ summary: 'Exporter toutes les offres' })
+  async getOffresForExport() {
+    return this.adminService.getAllOffresForExport();
   }
 
   @Post('offres/:id/toggle-cloture')

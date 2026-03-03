@@ -54,6 +54,27 @@ export class AdminService {
     };
   }
 
+  async getAllUsersForExport() {
+    return this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        statutProfessionnel: true,
+        telephone: true,
+        commune: true,
+        quartier: true,
+        createdAt: true,
+        _count: { select: { retours: true, offres: true } },
+      },
+    });
+  }
+
   async getUserById(id: number) {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -212,6 +233,16 @@ export class AdminService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async getAllOffresForExport() {
+    return this.prisma.offre.findMany({
+      orderBy: { datePublication: 'desc' },
+      include: {
+        auteur: { select: { id: true, username: true, email: true } },
+        _count: { select: { retours: true } },
+      },
+    });
   }
 
   async getOffreById(id: number) {
@@ -420,6 +451,22 @@ export class AdminService {
       take: 10,
     });
 
+    // Commune distribution
+    const communeStats = await this.prisma.user.groupBy({
+      by: ['commune'],
+      _count: { commune: true },
+      orderBy: { _count: { commune: 'desc' } },
+      take: 15,
+    });
+
+    // Quartier distribution
+    const quartierStats = await this.prisma.user.groupBy({
+      by: ['quartier'],
+      _count: { quartier: true },
+      orderBy: { _count: { quartier: 'desc' } },
+      take: 15,
+    });
+
     return {
       gender: {
         hommes,
@@ -441,6 +488,14 @@ export class AdminService {
       geographic: paysStats.map((item) => ({
         pays: item.pays || 'Non précisé',
         count: item._count.pays,
+      })),
+      communes: communeStats.map((item) => ({
+        commune: item.commune || 'Non précisé',
+        count: item._count.commune,
+      })),
+      quartiers: quartierStats.map((item) => ({
+        quartier: item.quartier || 'Non précisé',
+        count: item._count.quartier,
       })),
     };
   }
