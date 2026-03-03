@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationsService))
+    private notificationsService: NotificationsService,
+  ) {}
 
   // ==================== USERS ====================
 
@@ -497,6 +502,72 @@ export class AdminService {
         quartier: item.quartier || 'Non précisé',
         count: item._count.quartier,
       })),
+    };
+  }
+
+  // ==================== BULK MESSAGING ====================
+
+  async sendBulkMessage(adminId: number, userIds: number[], content: string) {
+    const admin = await this.prisma.user.findUnique({
+      where: { id: adminId },
+      select: { id: true, username: true, firstName: true, lastName: true },
+    });
+
+    if (!admin) {
+      throw new NotFoundException('Admin non trouvé');
+    }
+
+    const results = { sent: 0, failed: 0 };
+
+    for (const userId of userIds) {
+      if (userId === adminId) continue;
+
+      try {
+        // Ensure consistent ordering (smaller ID first)
+        const [user1Id, user2Id] = adminId < userId
+          ? [adminId, userId]
+          : [userId, adminId];
+
+        // Get or create conversation
+        let conversation = await this.prisma.privateConversation.findUnique({
+          where: { user1Id_user2Id: { user1Id, user2Id } },
+        });
+
+        if (!conversation) {
+          conversation = await this.prisma.privateConversation.create({
+            data: { user1Id, user2Id },
+          });
+        }
+
+        // Send message
+        await this.prisma.privateMessage.create({
+          data: {
+            content,
+            conversationId: conversation.id,
+            senderId: adminId,
+          },
+        });
+
+        // Update conversation timestamp
+        await this.prisma.privateConversation.update({
+          where: { id: conversation.id },
+          data: { updatedAt: new Date() },
+        });
+
+        // Send notification
+        const senderName = admin.firstName ? `${admin.firstName} ${admin.lastName || ''}`.trim() : admin.username;
+        await this.notificationsService.notifyNewMessage(userId, senderName, conversation.id);
+
+        results.sent++;
+      } catch (error) {
+        results.failed++;
+      }
+    }
+
+    return {
+      message: `Message envoyé à ${results.sent} utilisateur(s)${results.failed > 0 ? `, ${results.failed} échec(s)` : ''}`,
+      sent: results.sent,
+      failed: results.failed,
     };
   }
 }

@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
-import { Roles } from '../../common';
+import { Roles, CurrentUser } from '../../common';
 import { RolesGuard } from '../../common/guards';
 
 @ApiTags('Admin')
@@ -138,5 +138,17 @@ export class AdminController {
     @Body('estCloturee') estCloturee: boolean,
   ) {
     return this.adminService.toggleOffreCloturee(id, estCloturee);
+  }
+
+  // ==================== BULK MESSAGING ====================
+
+  @Post('messaging/bulk')
+  @ApiOperation({ summary: 'Envoyer un message à plusieurs utilisateurs' })
+  async sendBulkMessage(
+    @CurrentUser('id') adminId: number,
+    @Body('userIds') userIds: number[],
+    @Body('content') content: string,
+  ) {
+    return this.adminService.sendBulkMessage(adminId, userIds, content);
   }
 }
