@@ -144,7 +144,8 @@ export const TypeOffre: {
   EMPLOI: 'EMPLOI',
   FORMATION: 'FORMATION',
   BOURSE: 'BOURSE',
-  VOLONTARIAT: 'VOLONTARIAT'
+  VOLONTARIAT: 'VOLONTARIAT',
+  PROGRAMME: 'PROGRAMME'
 };
 
 export type TypeOffre = (typeof TypeOffre)[keyof typeof TypeOffre]
@@ -7148,6 +7149,7 @@ export namespace Prisma {
     indemnite: number | null
     competencesRequises: string | null
     viewCount: number | null
+    estCloturee: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
     auteurId: number | null
@@ -7185,6 +7187,7 @@ export namespace Prisma {
     indemnite: number | null
     competencesRequises: string | null
     viewCount: number | null
+    estCloturee: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
     auteurId: number | null
@@ -7223,6 +7226,7 @@ export namespace Prisma {
     indemnite: number
     competencesRequises: number
     viewCount: number
+    estCloturee: number
     createdAt: number
     updatedAt: number
     auteurId: number
@@ -7286,6 +7290,7 @@ export namespace Prisma {
     indemnite?: true
     competencesRequises?: true
     viewCount?: true
+    estCloturee?: true
     createdAt?: true
     updatedAt?: true
     auteurId?: true
@@ -7323,6 +7328,7 @@ export namespace Prisma {
     indemnite?: true
     competencesRequises?: true
     viewCount?: true
+    estCloturee?: true
     createdAt?: true
     updatedAt?: true
     auteurId?: true
@@ -7361,6 +7367,7 @@ export namespace Prisma {
     indemnite?: true
     competencesRequises?: true
     viewCount?: true
+    estCloturee?: true
     createdAt?: true
     updatedAt?: true
     auteurId?: true
@@ -7486,6 +7493,7 @@ export namespace Prisma {
     indemnite: number | null
     competencesRequises: string | null
     viewCount: number
+    estCloturee: boolean
     createdAt: Date
     updatedAt: Date
     auteurId: number
@@ -7543,6 +7551,7 @@ export namespace Prisma {
     indemnite?: boolean
     competencesRequises?: boolean
     viewCount?: boolean
+    estCloturee?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     auteurId?: boolean
@@ -7587,6 +7596,7 @@ export namespace Prisma {
     indemnite?: boolean
     competencesRequises?: boolean
     viewCount?: boolean
+    estCloturee?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     auteurId?: boolean
@@ -7626,6 +7636,7 @@ export namespace Prisma {
     indemnite?: boolean
     competencesRequises?: boolean
     viewCount?: boolean
+    estCloturee?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     auteurId?: boolean
@@ -7665,12 +7676,13 @@ export namespace Prisma {
     indemnite?: boolean
     competencesRequises?: boolean
     viewCount?: boolean
+    estCloturee?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     auteurId?: boolean
   }
 
-  export type OffreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "titre" | "description" | "url" | "datePublication" | "dateLimite" | "documentUrl" | "documentName" | "documentType" | "typeOffre" | "typeEmploi" | "secteur" | "niveauExperience" | "tags" | "localisation" | "entreprise" | "salaireMin" | "salaireMax" | "devise" | "organisme" | "dureeFormation" | "certification" | "paysBourse" | "niveauEtude" | "montantBourse" | "estRemboursable" | "typeVolontariat" | "dureeVolontariat" | "hebergement" | "indemnite" | "competencesRequises" | "viewCount" | "createdAt" | "updatedAt" | "auteurId", ExtArgs["result"]["offre"]>
+  export type OffreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "titre" | "description" | "url" | "datePublication" | "dateLimite" | "documentUrl" | "documentName" | "documentType" | "typeOffre" | "typeEmploi" | "secteur" | "niveauExperience" | "tags" | "localisation" | "entreprise" | "salaireMin" | "salaireMax" | "devise" | "organisme" | "dureeFormation" | "certification" | "paysBourse" | "niveauEtude" | "montantBourse" | "estRemboursable" | "typeVolontariat" | "dureeVolontariat" | "hebergement" | "indemnite" | "competencesRequises" | "viewCount" | "estCloturee" | "createdAt" | "updatedAt" | "auteurId", ExtArgs["result"]["offre"]>
   export type OffreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     auteur?: boolean | UserDefaultArgs<ExtArgs>
     commentaires?: boolean | Offre$commentairesArgs<ExtArgs>
@@ -7728,6 +7740,7 @@ export namespace Prisma {
       indemnite: number | null
       competencesRequises: string | null
       viewCount: number
+      estCloturee: boolean
       createdAt: Date
       updatedAt: Date
       auteurId: number
@@ -8191,6 +8204,7 @@ export namespace Prisma {
     readonly indemnite: FieldRef<"Offre", 'Float'>
     readonly competencesRequises: FieldRef<"Offre", 'String'>
     readonly viewCount: FieldRef<"Offre", 'Int'>
+    readonly estCloturee: FieldRef<"Offre", 'Boolean'>
     readonly createdAt: FieldRef<"Offre", 'DateTime'>
     readonly updatedAt: FieldRef<"Offre", 'DateTime'>
     readonly auteurId: FieldRef<"Offre", 'Int'>
@@ -26955,6 +26969,7 @@ export namespace Prisma {
     indemnite: 'indemnite',
     competencesRequises: 'competencesRequises',
     viewCount: 'viewCount',
+    estCloturee: 'estCloturee',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     auteurId: 'auteurId'
@@ -27757,6 +27772,7 @@ export namespace Prisma {
     indemnite?: FloatNullableFilter<"Offre"> | number | null
     competencesRequises?: StringNullableFilter<"Offre"> | string | null
     viewCount?: IntFilter<"Offre"> | number
+    estCloturee?: BoolFilter<"Offre"> | boolean
     createdAt?: DateTimeFilter<"Offre"> | Date | string
     updatedAt?: DateTimeFilter<"Offre"> | Date | string
     auteurId?: IntFilter<"Offre"> | number
@@ -27800,6 +27816,7 @@ export namespace Prisma {
     indemnite?: SortOrderInput | SortOrder
     competencesRequises?: SortOrderInput | SortOrder
     viewCount?: SortOrder
+    estCloturee?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     auteurId?: SortOrder
@@ -27846,6 +27863,7 @@ export namespace Prisma {
     indemnite?: FloatNullableFilter<"Offre"> | number | null
     competencesRequises?: StringNullableFilter<"Offre"> | string | null
     viewCount?: IntFilter<"Offre"> | number
+    estCloturee?: BoolFilter<"Offre"> | boolean
     createdAt?: DateTimeFilter<"Offre"> | Date | string
     updatedAt?: DateTimeFilter<"Offre"> | Date | string
     auteurId?: IntFilter<"Offre"> | number
@@ -27889,6 +27907,7 @@ export namespace Prisma {
     indemnite?: SortOrderInput | SortOrder
     competencesRequises?: SortOrderInput | SortOrder
     viewCount?: SortOrder
+    estCloturee?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     auteurId?: SortOrder
@@ -27935,6 +27954,7 @@ export namespace Prisma {
     indemnite?: FloatNullableWithAggregatesFilter<"Offre"> | number | null
     competencesRequises?: StringNullableWithAggregatesFilter<"Offre"> | string | null
     viewCount?: IntWithAggregatesFilter<"Offre"> | number
+    estCloturee?: BoolWithAggregatesFilter<"Offre"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Offre"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Offre"> | Date | string
     auteurId?: IntWithAggregatesFilter<"Offre"> | number
@@ -29431,6 +29451,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteur: UserCreateNestedOneWithoutOffresInput
@@ -29473,6 +29494,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteurId: number
@@ -29514,6 +29536,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteur?: UserUpdateOneRequiredWithoutOffresNestedInput
@@ -29556,6 +29579,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteurId?: IntFieldUpdateOperationsInput | number
@@ -29598,6 +29622,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteurId: number
@@ -29635,6 +29660,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29672,6 +29698,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteurId?: IntFieldUpdateOperationsInput | number
@@ -31360,6 +31387,7 @@ export namespace Prisma {
     indemnite?: SortOrder
     competencesRequises?: SortOrder
     viewCount?: SortOrder
+    estCloturee?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     auteurId?: SortOrder
@@ -31409,6 +31437,7 @@ export namespace Prisma {
     indemnite?: SortOrder
     competencesRequises?: SortOrder
     viewCount?: SortOrder
+    estCloturee?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     auteurId?: SortOrder
@@ -31446,6 +31475,7 @@ export namespace Prisma {
     indemnite?: SortOrder
     competencesRequises?: SortOrder
     viewCount?: SortOrder
+    estCloturee?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     auteurId?: SortOrder
@@ -34304,6 +34334,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     commentaires?: CommentaireCreateNestedManyWithoutOffreInput
@@ -34345,6 +34376,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     commentaires?: CommentaireUncheckedCreateNestedManyWithoutOffreInput
@@ -34808,6 +34840,7 @@ export namespace Prisma {
     indemnite?: FloatNullableFilter<"Offre"> | number | null
     competencesRequises?: StringNullableFilter<"Offre"> | string | null
     viewCount?: IntFilter<"Offre"> | number
+    estCloturee?: BoolFilter<"Offre"> | boolean
     createdAt?: DateTimeFilter<"Offre"> | Date | string
     updatedAt?: DateTimeFilter<"Offre"> | Date | string
     auteurId?: IntFilter<"Offre"> | number
@@ -36004,6 +36037,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteur: UserCreateNestedOneWithoutOffresInput
@@ -36045,6 +36079,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteurId: number
@@ -36101,6 +36136,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteur?: UserUpdateOneRequiredWithoutOffresNestedInput
@@ -36142,6 +36178,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteurId?: IntFieldUpdateOperationsInput | number
@@ -37900,6 +37937,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteur: UserCreateNestedOneWithoutOffresInput
@@ -37941,6 +37979,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteurId: number
@@ -38093,6 +38132,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteur?: UserUpdateOneRequiredWithoutOffresNestedInput
@@ -38134,6 +38174,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteurId?: IntFieldUpdateOperationsInput | number
@@ -38264,6 +38305,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteur: UserCreateNestedOneWithoutOffresInput
@@ -38305,6 +38347,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteurId: number
@@ -38480,6 +38523,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteur?: UserUpdateOneRequiredWithoutOffresNestedInput
@@ -38521,6 +38565,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteurId?: IntFieldUpdateOperationsInput | number
@@ -38899,6 +38944,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteur: UserCreateNestedOneWithoutOffresInput
@@ -38940,6 +38986,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     auteurId: number
@@ -39092,6 +39139,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteur?: UserUpdateOneRequiredWithoutOffresNestedInput
@@ -39133,6 +39181,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     auteurId?: IntFieldUpdateOperationsInput | number
@@ -39830,6 +39879,7 @@ export namespace Prisma {
     indemnite?: number | null
     competencesRequises?: string | null
     viewCount?: number
+    estCloturee?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -39969,6 +40019,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commentaires?: CommentaireUpdateManyWithoutOffreNestedInput
@@ -40010,6 +40061,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commentaires?: CommentaireUncheckedUpdateManyWithoutOffreNestedInput
@@ -40051,6 +40103,7 @@ export namespace Prisma {
     indemnite?: NullableFloatFieldUpdateOperationsInput | number | null
     competencesRequises?: NullableStringFieldUpdateOperationsInput | string | null
     viewCount?: IntFieldUpdateOperationsInput | number
+    estCloturee?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

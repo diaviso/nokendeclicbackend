@@ -198,6 +198,7 @@ exports.Prisma.OffreScalarFieldEnum = {
   indemnite: 'indemnite',
   competencesRequises: 'competencesRequises',
   viewCount: 'viewCount',
+  estCloturee: 'estCloturee',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   auteurId: 'auteurId'
@@ -411,7 +412,8 @@ exports.TypeOffre = exports.$Enums.TypeOffre = {
   EMPLOI: 'EMPLOI',
   FORMATION: 'FORMATION',
   BOURSE: 'BOURSE',
-  VOLONTARIAT: 'VOLONTARIAT'
+  VOLONTARIAT: 'VOLONTARIAT',
+  PROGRAMME: 'PROGRAMME'
 };
 
 exports.TypeEmploi = exports.$Enums.TypeEmploi = {

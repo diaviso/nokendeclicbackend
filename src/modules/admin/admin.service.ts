@@ -240,6 +240,14 @@ export class AdminService {
     return { message: 'Offre supprimée avec succès' };
   }
 
+  async toggleOffreCloturee(id: number, estCloturee: boolean) {
+    const offre = await this.prisma.offre.update({
+      where: { id },
+      data: { estCloturee },
+    });
+    return offre;
+  }
+
   // ==================== USER DASHBOARD STATS ====================
 
   async getUserDashboardStats(userId: number) {

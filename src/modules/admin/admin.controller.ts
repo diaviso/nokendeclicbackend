@@ -118,4 +118,13 @@ export class AdminController {
   async deleteOffre(@Param('id', ParseIntPipe) id: number) {
     return this.adminService.deleteOffre(id);
   }
+
+  @Post('offres/:id/toggle-cloture')
+  @ApiOperation({ summary: 'Clôturer/Rouvrir une offre' })
+  async toggleOffreCloturee(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('estCloturee') estCloturee: boolean,
+  ) {
+    return this.adminService.toggleOffreCloturee(id, estCloturee);
+  }
 }

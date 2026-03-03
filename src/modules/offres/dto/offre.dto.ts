@@ -17,6 +17,7 @@ export enum TypeOffre {
   FORMATION = 'FORMATION',
   BOURSE = 'BOURSE',
   VOLONTARIAT = 'VOLONTARIAT',
+  PROGRAMME = 'PROGRAMME',
 }
 
 export enum TypeEmploi {
