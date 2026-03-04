@@ -22,8 +22,9 @@ export class ChatbotToolsService {
       statutProfessionnel: user.statutProfessionnel || 'Non renseigné',
       localisation: {
         pays: user.pays || 'Non renseigné',
+        region: user.region || 'Non renseigné',
+        departement: user.departement || 'Non renseigné',
         commune: user.commune || 'Non renseigné',
-        quartier: user.quartier || 'Non renseigné',
       },
       membreDepuis: user.createdAt,
     };
