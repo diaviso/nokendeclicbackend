@@ -3419,8 +3419,9 @@ export namespace Prisma {
     isGoogleLogin: boolean | null
     statutProfessionnel: $Enums.StatutProfessionnel | null
     pays: string | null
+    region: string | null
+    departement: string | null
     commune: string | null
-    quartier: string | null
     sexe: $Enums.Sexe | null
     dateNaissance: Date | null
     adresse: string | null
@@ -3447,8 +3448,9 @@ export namespace Prisma {
     isGoogleLogin: boolean | null
     statutProfessionnel: $Enums.StatutProfessionnel | null
     pays: string | null
+    region: string | null
+    departement: string | null
     commune: string | null
-    quartier: string | null
     sexe: $Enums.Sexe | null
     dateNaissance: Date | null
     adresse: string | null
@@ -3475,8 +3477,9 @@ export namespace Prisma {
     isGoogleLogin: number
     statutProfessionnel: number
     pays: number
+    region: number
+    departement: number
     commune: number
-    quartier: number
     sexe: number
     dateNaissance: number
     adresse: number
@@ -3513,8 +3516,9 @@ export namespace Prisma {
     isGoogleLogin?: true
     statutProfessionnel?: true
     pays?: true
+    region?: true
+    departement?: true
     commune?: true
-    quartier?: true
     sexe?: true
     dateNaissance?: true
     adresse?: true
@@ -3541,8 +3545,9 @@ export namespace Prisma {
     isGoogleLogin?: true
     statutProfessionnel?: true
     pays?: true
+    region?: true
+    departement?: true
     commune?: true
-    quartier?: true
     sexe?: true
     dateNaissance?: true
     adresse?: true
@@ -3569,8 +3574,9 @@ export namespace Prisma {
     isGoogleLogin?: true
     statutProfessionnel?: true
     pays?: true
+    region?: true
+    departement?: true
     commune?: true
-    quartier?: true
     sexe?: true
     dateNaissance?: true
     adresse?: true
@@ -3684,8 +3690,9 @@ export namespace Prisma {
     isGoogleLogin: boolean
     statutProfessionnel: $Enums.StatutProfessionnel
     pays: string | null
+    region: string | null
+    departement: string | null
     commune: string | null
-    quartier: string | null
     sexe: $Enums.Sexe
     dateNaissance: Date | null
     adresse: string | null
@@ -3731,8 +3738,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: boolean
     pays?: boolean
+    region?: boolean
+    departement?: boolean
     commune?: boolean
-    quartier?: boolean
     sexe?: boolean
     dateNaissance?: boolean
     adresse?: boolean
@@ -3778,8 +3786,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: boolean
     pays?: boolean
+    region?: boolean
+    departement?: boolean
     commune?: boolean
-    quartier?: boolean
     sexe?: boolean
     dateNaissance?: boolean
     adresse?: boolean
@@ -3806,8 +3815,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: boolean
     pays?: boolean
+    region?: boolean
+    departement?: boolean
     commune?: boolean
-    quartier?: boolean
     sexe?: boolean
     dateNaissance?: boolean
     adresse?: boolean
@@ -3834,8 +3844,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: boolean
     pays?: boolean
+    region?: boolean
+    departement?: boolean
     commune?: boolean
-    quartier?: boolean
     sexe?: boolean
     dateNaissance?: boolean
     adresse?: boolean
@@ -3847,7 +3858,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "username" | "password" | "role" | "isActive" | "isEmailVerified" | "googleId" | "pictureUrl" | "firstName" | "lastName" | "isGoogleLogin" | "statutProfessionnel" | "pays" | "commune" | "quartier" | "sexe" | "dateNaissance" | "adresse" | "telephone" | "handicap" | "typeHandicap" | "refreshToken" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "username" | "password" | "role" | "isActive" | "isEmailVerified" | "googleId" | "pictureUrl" | "firstName" | "lastName" | "isGoogleLogin" | "statutProfessionnel" | "pays" | "region" | "departement" | "commune" | "sexe" | "dateNaissance" | "adresse" | "telephone" | "handicap" | "typeHandicap" | "refreshToken" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     offres?: boolean | User$offresArgs<ExtArgs>
     commentaires?: boolean | User$commentairesArgs<ExtArgs>
@@ -3909,8 +3920,9 @@ export namespace Prisma {
       isGoogleLogin: boolean
       statutProfessionnel: $Enums.StatutProfessionnel
       pays: string | null
+      region: string | null
+      departement: string | null
       commune: string | null
-      quartier: string | null
       sexe: $Enums.Sexe
       dateNaissance: Date | null
       adresse: string | null
@@ -4375,8 +4387,9 @@ export namespace Prisma {
     readonly isGoogleLogin: FieldRef<"User", 'Boolean'>
     readonly statutProfessionnel: FieldRef<"User", 'StatutProfessionnel'>
     readonly pays: FieldRef<"User", 'String'>
+    readonly region: FieldRef<"User", 'String'>
+    readonly departement: FieldRef<"User", 'String'>
     readonly commune: FieldRef<"User", 'String'>
-    readonly quartier: FieldRef<"User", 'String'>
     readonly sexe: FieldRef<"User", 'Sexe'>
     readonly dateNaissance: FieldRef<"User", 'DateTime'>
     readonly adresse: FieldRef<"User", 'String'>
@@ -29540,8 +29553,9 @@ export namespace Prisma {
     isGoogleLogin: 'isGoogleLogin',
     statutProfessionnel: 'statutProfessionnel',
     pays: 'pays',
+    region: 'region',
+    departement: 'departement',
     commune: 'commune',
-    quartier: 'quartier',
     sexe: 'sexe',
     dateNaissance: 'dateNaissance',
     adresse: 'adresse',
@@ -30150,8 +30164,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFilter<"User"> | boolean
     statutProfessionnel?: EnumStatutProfessionnelFilter<"User"> | $Enums.StatutProfessionnel
     pays?: StringNullableFilter<"User"> | string | null
+    region?: StringNullableFilter<"User"> | string | null
+    departement?: StringNullableFilter<"User"> | string | null
     commune?: StringNullableFilter<"User"> | string | null
-    quartier?: StringNullableFilter<"User"> | string | null
     sexe?: EnumSexeFilter<"User"> | $Enums.Sexe
     dateNaissance?: DateTimeNullableFilter<"User"> | Date | string | null
     adresse?: StringNullableFilter<"User"> | string | null
@@ -30196,8 +30211,9 @@ export namespace Prisma {
     isGoogleLogin?: SortOrder
     statutProfessionnel?: SortOrder
     pays?: SortOrderInput | SortOrder
+    region?: SortOrderInput | SortOrder
+    departement?: SortOrderInput | SortOrder
     commune?: SortOrderInput | SortOrder
-    quartier?: SortOrderInput | SortOrder
     sexe?: SortOrder
     dateNaissance?: SortOrderInput | SortOrder
     adresse?: SortOrderInput | SortOrder
@@ -30245,8 +30261,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFilter<"User"> | boolean
     statutProfessionnel?: EnumStatutProfessionnelFilter<"User"> | $Enums.StatutProfessionnel
     pays?: StringNullableFilter<"User"> | string | null
+    region?: StringNullableFilter<"User"> | string | null
+    departement?: StringNullableFilter<"User"> | string | null
     commune?: StringNullableFilter<"User"> | string | null
-    quartier?: StringNullableFilter<"User"> | string | null
     sexe?: EnumSexeFilter<"User"> | $Enums.Sexe
     dateNaissance?: DateTimeNullableFilter<"User"> | Date | string | null
     adresse?: StringNullableFilter<"User"> | string | null
@@ -30291,8 +30308,9 @@ export namespace Prisma {
     isGoogleLogin?: SortOrder
     statutProfessionnel?: SortOrder
     pays?: SortOrderInput | SortOrder
+    region?: SortOrderInput | SortOrder
+    departement?: SortOrderInput | SortOrder
     commune?: SortOrderInput | SortOrder
-    quartier?: SortOrderInput | SortOrder
     sexe?: SortOrder
     dateNaissance?: SortOrderInput | SortOrder
     adresse?: SortOrderInput | SortOrder
@@ -30327,8 +30345,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolWithAggregatesFilter<"User"> | boolean
     statutProfessionnel?: EnumStatutProfessionnelWithAggregatesFilter<"User"> | $Enums.StatutProfessionnel
     pays?: StringNullableWithAggregatesFilter<"User"> | string | null
+    region?: StringNullableWithAggregatesFilter<"User"> | string | null
+    departement?: StringNullableWithAggregatesFilter<"User"> | string | null
     commune?: StringNullableWithAggregatesFilter<"User"> | string | null
-    quartier?: StringNullableWithAggregatesFilter<"User"> | string | null
     sexe?: EnumSexeWithAggregatesFilter<"User"> | $Enums.Sexe
     dateNaissance?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     adresse?: StringNullableWithAggregatesFilter<"User"> | string | null
@@ -31940,8 +31959,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -31986,8 +32006,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -32031,8 +32052,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32077,8 +32099,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32123,8 +32146,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -32150,8 +32174,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32178,8 +32203,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34058,8 +34084,9 @@ export namespace Prisma {
     isGoogleLogin?: SortOrder
     statutProfessionnel?: SortOrder
     pays?: SortOrder
+    region?: SortOrder
+    departement?: SortOrder
     commune?: SortOrder
-    quartier?: SortOrder
     sexe?: SortOrder
     dateNaissance?: SortOrder
     adresse?: SortOrder
@@ -34090,8 +34117,9 @@ export namespace Prisma {
     isGoogleLogin?: SortOrder
     statutProfessionnel?: SortOrder
     pays?: SortOrder
+    region?: SortOrder
+    departement?: SortOrder
     commune?: SortOrder
-    quartier?: SortOrder
     sexe?: SortOrder
     dateNaissance?: SortOrder
     adresse?: SortOrder
@@ -34118,8 +34146,9 @@ export namespace Prisma {
     isGoogleLogin?: SortOrder
     statutProfessionnel?: SortOrder
     pays?: SortOrder
+    region?: SortOrder
+    departement?: SortOrder
     commune?: SortOrder
-    quartier?: SortOrder
     sexe?: SortOrder
     dateNaissance?: SortOrder
     adresse?: SortOrder
@@ -38828,8 +38857,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -38873,8 +38903,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -38933,8 +38964,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38978,8 +39010,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39022,8 +39055,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -39067,8 +39101,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -39127,8 +39162,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39172,8 +39208,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39216,8 +39253,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -39261,8 +39299,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -39417,8 +39456,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39462,8 +39502,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39765,8 +39806,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -39810,8 +39852,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -39932,8 +39975,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39977,8 +40021,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40295,8 +40340,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -40340,8 +40386,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -40423,8 +40470,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40468,8 +40516,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40550,8 +40599,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -40595,8 +40645,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -40683,8 +40734,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40728,8 +40780,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40772,8 +40825,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -40817,8 +40871,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -40866,8 +40921,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -40911,8 +40967,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -40996,8 +41053,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41041,8 +41099,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41096,8 +41155,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41141,8 +41201,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41221,8 +41282,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -41266,8 +41328,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -41352,8 +41415,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41397,8 +41461,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41441,8 +41506,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -41486,8 +41552,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -41634,8 +41701,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41679,8 +41747,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41817,8 +41886,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -41862,8 +41932,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -42033,8 +42104,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42078,8 +42150,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42252,8 +42325,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -42297,8 +42371,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -42383,8 +42458,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42428,8 +42504,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42472,8 +42549,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -42517,8 +42595,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -42665,8 +42744,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42710,8 +42790,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42848,8 +42929,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -42893,8 +42975,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -42953,8 +43036,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42998,8 +43082,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43042,8 +43127,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -43087,8 +43173,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -43170,8 +43257,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43215,8 +43303,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43334,8 +43423,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -43379,8 +43469,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -43462,8 +43553,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43507,8 +43599,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43599,8 +43692,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -43644,8 +43738,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -43742,8 +43837,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43787,8 +43883,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43831,8 +43928,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -43876,8 +43974,9 @@ export namespace Prisma {
     isGoogleLogin?: boolean
     statutProfessionnel?: $Enums.StatutProfessionnel
     pays?: string | null
+    region?: string | null
+    departement?: string | null
     commune?: string | null
-    quartier?: string | null
     sexe?: $Enums.Sexe
     dateNaissance?: Date | string | null
     adresse?: string | null
@@ -43936,8 +44035,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43981,8 +44081,9 @@ export namespace Prisma {
     isGoogleLogin?: BoolFieldUpdateOperationsInput | boolean
     statutProfessionnel?: EnumStatutProfessionnelFieldUpdateOperationsInput | $Enums.StatutProfessionnel
     pays?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    departement?: NullableStringFieldUpdateOperationsInput | string | null
     commune?: NullableStringFieldUpdateOperationsInput | string | null
-    quartier?: NullableStringFieldUpdateOperationsInput | string | null
     sexe?: EnumSexeFieldUpdateOperationsInput | $Enums.Sexe
     dateNaissance?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     adresse?: NullableStringFieldUpdateOperationsInput | string | null

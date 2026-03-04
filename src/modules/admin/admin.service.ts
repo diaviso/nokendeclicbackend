@@ -72,8 +72,9 @@ export class AdminService {
         isActive: true,
         statutProfessionnel: true,
         telephone: true,
+        region: true,
+        departement: true,
         commune: true,
-        quartier: true,
         createdAt: true,
         _count: { select: { retours: true, offres: true } },
       },
@@ -464,11 +465,19 @@ export class AdminService {
       take: 15,
     });
 
-    // Quartier distribution
-    const quartierStats = await this.prisma.user.groupBy({
-      by: ['quartier'],
-      _count: { quartier: true },
-      orderBy: { _count: { quartier: 'desc' } },
+    // Region distribution
+    const regionStats = await this.prisma.user.groupBy({
+      by: ['region'],
+      _count: { region: true },
+      orderBy: { _count: { region: 'desc' } },
+      take: 15,
+    });
+
+    // Departement distribution
+    const departementStats = await this.prisma.user.groupBy({
+      by: ['departement'],
+      _count: { departement: true },
+      orderBy: { _count: { departement: 'desc' } },
       take: 15,
     });
 
@@ -498,9 +507,13 @@ export class AdminService {
         commune: item.commune || 'Non précisé',
         count: item._count.commune,
       })),
-      quartiers: quartierStats.map((item) => ({
-        quartier: item.quartier || 'Non précisé',
-        count: item._count.quartier,
+      regions: regionStats.map((item) => ({
+        region: item.region || 'Non précisé',
+        count: item._count.region,
+      })),
+      departements: departementStats.map((item) => ({
+        departement: item.departement || 'Non précisé',
+        count: item._count.departement,
       })),
     };
   }

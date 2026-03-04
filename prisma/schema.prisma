@@ -101,8 +101,9 @@ model User {
   isGoogleLogin       Boolean              @default(false)
   statutProfessionnel StatutProfessionnel  @default(NON_PRECISE)
   pays                String?
+  region              String?
+  departement         String?
   commune             String?
-  quartier            String?
   // New profile fields
   sexe                Sexe                 @default(NON_PRECISE)
   dateNaissance       DateTime?

@@ -54,12 +54,17 @@ export class UpdateUserDto {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  commune?: string;
+  region?: string;
 
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  quartier?: string;
+  departement?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  commune?: string;
 
   @ApiPropertyOptional()
   @IsEnum(StatutProfessionnel)
@@ -148,10 +153,13 @@ export class UserResponse {
   pays?: string;
 
   @ApiPropertyOptional()
-  commune?: string;
+  region?: string;
 
   @ApiPropertyOptional()
-  quartier?: string;
+  departement?: string;
+
+  @ApiPropertyOptional()
+  commune?: string;
 
   @ApiPropertyOptional({ enum: Sexe })
   sexe?: Sexe;
