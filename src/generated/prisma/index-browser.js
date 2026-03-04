@@ -350,6 +350,28 @@ exports.Prisma.ChatMessageScalarFieldEnum = {
   conversationId: 'conversationId'
 };
 
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  titre: 'titre',
+  description: 'description',
+  categorie: 'categorie',
+  statut: 'statut',
+  priorite: 'priorite',
+  pageUrl: 'pageUrl',
+  capture: 'capture',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  auteurId: 'auteurId'
+};
+
+exports.Prisma.FeedbackReponseScalarFieldEnum = {
+  id: 'id',
+  contenu: 'contenu',
+  createdAt: 'createdAt',
+  feedbackId: 'feedbackId',
+  auteurId: 'auteurId'
+};
+
 exports.Prisma.NotificationScalarFieldEnum = {
   id: 'id',
   type: 'type',
@@ -459,11 +481,33 @@ exports.NiveauExperience = exports.$Enums.NiveauExperience = {
   EXPERT: 'EXPERT'
 };
 
+exports.FeedbackCategory = exports.$Enums.FeedbackCategory = {
+  BUG: 'BUG',
+  AMELIORATION: 'AMELIORATION',
+  QUESTION: 'QUESTION',
+  AUTRE: 'AUTRE'
+};
+
+exports.FeedbackStatus = exports.$Enums.FeedbackStatus = {
+  OUVERT: 'OUVERT',
+  EN_COURS: 'EN_COURS',
+  RESOLU: 'RESOLU',
+  FERME: 'FERME'
+};
+
+exports.FeedbackPriority = exports.$Enums.FeedbackPriority = {
+  BASSE: 'BASSE',
+  MOYENNE: 'MOYENNE',
+  HAUTE: 'HAUTE',
+  CRITIQUE: 'CRITIQUE'
+};
+
 exports.NotificationType = exports.$Enums.NotificationType = {
   NEW_OFFRE: 'NEW_OFFRE',
   NEW_MESSAGE: 'NEW_MESSAGE',
   NEW_RETOUR: 'NEW_RETOUR',
-  NEW_COMMENTAIRE: 'NEW_COMMENTAIRE'
+  NEW_COMMENTAIRE: 'NEW_COMMENTAIRE',
+  NEW_FEEDBACK_REPONSE: 'NEW_FEEDBACK_REPONSE'
 };
 
 exports.Prisma.ModelName = {
@@ -486,6 +530,8 @@ exports.Prisma.ModelName = {
   Alert: 'Alert',
   Conversation: 'Conversation',
   ChatMessage: 'ChatMessage',
+  Feedback: 'Feedback',
+  FeedbackReponse: 'FeedbackReponse',
   Notification: 'Notification'
 };
 

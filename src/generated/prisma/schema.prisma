@@ -136,6 +136,10 @@ model User {
   // Notifications
   notifications Notification[]
 
+  // Feedback
+  feedbacks        Feedback[]        @relation("FeedbackAuteur")
+  feedbackReponses FeedbackReponse[] @relation("FeedbackReponseAuteur")
+
   @@index([email])
   @@index([role])
   @@index([googleId])
@@ -480,12 +484,72 @@ model ChatMessage {
   @@index([conversationId])
 }
 
+// Système de feedback utilisateur
+enum FeedbackCategory {
+  BUG
+  AMELIORATION
+  QUESTION
+  AUTRE
+}
+
+enum FeedbackStatus {
+  OUVERT
+  EN_COURS
+  RESOLU
+  FERME
+}
+
+enum FeedbackPriority {
+  BASSE
+  MOYENNE
+  HAUTE
+  CRITIQUE
+}
+
+model Feedback {
+  id          Int              @id @default(autoincrement())
+  titre       String
+  description String
+  categorie   FeedbackCategory
+  statut      FeedbackStatus   @default(OUVERT)
+  priorite    FeedbackPriority @default(MOYENNE)
+  pageUrl     String?
+  capture     String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Relations
+  auteur   User              @relation("FeedbackAuteur", fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId Int
+  reponses FeedbackReponse[]
+
+  @@index([auteurId])
+  @@index([statut])
+  @@index([categorie])
+  @@index([createdAt])
+}
+
+model FeedbackReponse {
+  id        Int      @id @default(autoincrement())
+  contenu   String
+  createdAt DateTime @default(now())
+
+  // Relations
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  feedbackId Int
+  auteur     User     @relation("FeedbackReponseAuteur", fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId   Int
+
+  @@index([feedbackId])
+}
+
 // Système de notifications
 enum NotificationType {
   NEW_OFFRE
   NEW_MESSAGE
   NEW_RETOUR
   NEW_COMMENTAIRE
+  NEW_FEEDBACK_REPONSE
 }
 
 model Notification {
