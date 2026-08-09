@@ -1,12 +1,54 @@
-import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 
+/**
+ * Envoi d'e-mails via nodemailer directement.
+ *
+ * `@nestjs-modules/mailer` a été retiré : il n'était utilisé que pour
+ * `sendMail({ to, subject, html })` — aucun adaptateur de template n'était
+ * configuré — mais il tirait mjml, nunjucks, handlebars et liquidjs. Ces
+ * moteurs, jamais exécutés ici, portaient les deux vulnérabilités critiques du
+ * backend, et le conflit de version entre nunjucks (chokidar ^3) et l'arbre
+ * résolu (chokidar 4) rendait `npm ci` impossible en environnement de build.
+ */
 @Injectable()
 export class MailService {
-  constructor(private readonly mailerService: MailerService) {}
+  private readonly logger = new Logger(MailService.name);
+  private readonly transporter: Transporter;
+  private readonly from: string;
+
+  constructor(private readonly configService: ConfigService) {
+    const port = Number(this.configService.get<string>('MAIL_PORT') ?? 465);
+
+    this.transporter = nodemailer.createTransport({
+      host: this.configService.get<string>('MAIL_HOST'),
+      port,
+      // Le port 465 impose TLS implicite ; 587 passe par STARTTLS.
+      secure: port === 465,
+      auth: {
+        user: this.configService.get<string>('MAIL_USER'),
+        pass: this.configService.get<string>('MAIL_PASS'),
+      },
+    });
+
+    this.from =
+      this.configService.get<string>('MAIL_FROM') ??
+      this.configService.get<string>('MAIL_USER') ??
+      'no-reply@nokendeclic.com';
+  }
+
+  private async sendMail(options: {
+    to: string;
+    subject: string;
+    html: string;
+  }): Promise<void> {
+    await this.transporter.sendMail({ from: this.from, ...options });
+  }
 
   async sendTestEmail(to: string) {
-    await this.mailerService.sendMail({
+    await this.sendMail({
       to,
       subject: '✅ Test email NestJS',
       html: `
@@ -18,7 +60,7 @@ export class MailService {
   }
 
   async sendPasswordResetEmail(to: string, resetLink: string) {
-    await this.mailerService.sendMail({
+    await this.sendMail({
       to,
       subject: '🔑 Réinitialisation de votre mot de passe Noken',
       html: `
@@ -96,7 +138,7 @@ export class MailService {
   }
 
   async sendVerificationCode(to: string, code: string) {
-    await this.mailerService.sendMail({
+    await this.sendMail({
       to,
       subject: '🔐 Votre code de vérification Noken',
       html: `

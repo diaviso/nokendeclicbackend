@@ -29,7 +29,6 @@
   "dependencies": {
     "@langchain/core": "^1.1.16",
     "@langchain/openai": "^1.2.3",
-    "@nestjs-modules/mailer": "^2.3.7",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",

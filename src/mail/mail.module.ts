@@ -1,32 +1,12 @@
-
-import { MailService } from './mail.service';
-
 import { Module } from '@nestjs/common';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
+import { MailService } from './mail.service';
 import { MailController } from './mail.controller';
 
+// MailerModule (@nestjs-modules/mailer) retiré : MailService instancie
+// désormais son transport nodemailer directement. Voir mail.service.ts.
 @Module({
-  imports: [
-    MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        transport: {
-          host: config.get('MAIL_HOST'),
-          port: Number(config.get('MAIL_PORT')),
-          secure: config.get('MAIL_PORT') === '465',
-          auth: {
-            user: config.get('MAIL_USER'),
-            pass: config.get('MAIL_PASS'),
-          },
-        },
-        defaults: {
-          from: config.get('MAIL_FROM'),
-        },
-      }),
-    }),
-  ],
+  imports: [ConfigModule],
   providers: [MailService],
   controllers: [MailController],
   exports: [MailService],
