@@ -2,16 +2,23 @@ import {
   IsString,
   IsOptional,
   IsEnum,
+  IsInt,
   IsNumber,
   IsArray,
   IsBoolean,
   IsDateString,
+  IsObject,
   MaxLength,
   Min,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
+/**
+ * Ancienne énumération des types d'offre, conservée uniquement pour la
+ * compatibilité de lecture (filtres `typeOffre=EMPLOI` déjà partagés). Les
+ * types sont désormais administrables : voir le module types-offres.
+ */
 export enum TypeOffre {
   EMPLOI = 'EMPLOI',
   FORMATION = 'FORMATION',
@@ -84,9 +91,28 @@ export class CreateOffreDto {
   @IsOptional()
   dateLimite?: string;
 
-  @ApiProperty({ enum: TypeOffre })
-  @IsEnum(TypeOffre)
-  typeOffre: TypeOffre;
+  @ApiProperty({ example: 1, description: "Identifiant du type d'offre" })
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  typeOffreId: number;
+
+  /**
+   * Valeurs des champs définis par le type choisi, indexées par leur code.
+   * Validées et normalisées par TypesOffresService avant enregistrement : ce
+   * DTO n'en connaît pas la forme, qui dépend du type sélectionné.
+   */
+  @ApiPropertyOptional({
+    description: 'Valeurs des champs propres au type, indexées par code',
+  })
+  @IsObject()
+  @IsOptional()
+  champs?: Record<string, unknown>;
+
+  @ApiPropertyOptional({ description: 'URL de la photo de couverture' })
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
 
   @ApiPropertyOptional({ enum: TypeEmploi })
   @IsEnum(TypeEmploi)
@@ -119,100 +145,28 @@ export class CreateOffreDto {
   @IsOptional()
   entreprise?: string;
 
-  @ApiPropertyOptional({ example: 500000 })
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  @Transform(({ value }) => value ? Number(value) : undefined)
-  salaireMin?: number;
-
-  @ApiPropertyOptional({ example: 800000 })
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  @Transform(({ value }) => value ? Number(value) : undefined)
-  salaireMax?: number;
-
-  @ApiPropertyOptional({ example: 'FCFA' })
-  @IsString()
-  @IsOptional()
-  devise?: string;
-
-  // Formation
-  @ApiPropertyOptional()
-  @IsString()
-  @IsOptional()
-  organisme?: string;
-
-  @ApiPropertyOptional()
-  @IsNumber()
-  @IsOptional()
-  @Transform(({ value }) => value ? Number(value) : undefined)
-  dureeFormation?: number;
-
-  @ApiPropertyOptional()
-  @IsString()
-  @IsOptional()
-  certification?: string;
-
-  // Bourse
-  @ApiPropertyOptional()
-  @IsString()
-  @IsOptional()
-  paysBourse?: string;
-
-  @ApiPropertyOptional()
-  @IsString()
-  @IsOptional()
-  niveauEtude?: string;
-
-  @ApiPropertyOptional()
-  @IsNumber()
-  @IsOptional()
-  @Transform(({ value }) => value ? Number(value) : undefined)
-  montantBourse?: number;
-
-  @ApiPropertyOptional()
-  @IsBoolean()
-  @IsOptional()
-  estRemboursable?: boolean;
-
-  // Volontariat
-  @ApiPropertyOptional()
-  @IsString()
-  @IsOptional()
-  typeVolontariat?: string;
-
-  @ApiPropertyOptional()
-  @IsNumber()
-  @IsOptional()
-  @Transform(({ value }) => value ? Number(value) : undefined)
-  dureeVolontariat?: number;
-
-  @ApiPropertyOptional()
-  @IsBoolean()
-  @IsOptional()
-  hebergement?: boolean;
-
-  @ApiPropertyOptional()
-  @IsNumber()
-  @IsOptional()
-  @Transform(({ value }) => value ? Number(value) : undefined)
-  indemnite?: number;
-
-  @ApiPropertyOptional()
-  @IsString()
-  @IsOptional()
-  competencesRequises?: string;
 }
 
 export class UpdateOffreDto extends CreateOffreDto {}
 
 export class OffresFilterDto {
-  @ApiPropertyOptional({ enum: TypeOffre })
-  @IsEnum(TypeOffre)
+  /**
+   * Filtre par code de type (EMPLOI, FORMATION, ou tout code créé depuis le
+   * back-office). Une chaîne libre et non plus une énumération : les types sont
+   * administrables. Les liens déjà partagés du type `?typeOffre=EMPLOI`
+   * continuent donc de fonctionner.
+   */
+  @ApiPropertyOptional({ example: 'EMPLOI' })
+  @IsString()
+  @MaxLength(40)
   @IsOptional()
-  typeOffre?: TypeOffre;
+  typeOffre?: string;
+
+  @ApiPropertyOptional({ description: 'Filtre par identifiant de type' })
+  @IsInt()
+  @Type(() => Number)
+  @IsOptional()
+  typeOffreId?: number;
 
   @ApiPropertyOptional({ enum: TypeEmploi })
   @IsEnum(TypeEmploi)

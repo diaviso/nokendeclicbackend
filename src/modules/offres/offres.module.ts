@@ -4,18 +4,28 @@ import { memoryStorage } from 'multer';
 import { OffresController } from './offres.controller';
 import { OffresService } from './offres.service';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { TypesOffresModule } from '../types-offres/types-offres.module';
 
 @Module({
   imports: [
     forwardRef(() => NotificationsModule),
+    TypesOffresModule,
     MulterModule.register({
       // En mémoire, puis envoi vers R2 (voir StorageService).
       storage: memoryStorage(),
+      // Documents et images de couverture passent par le même module : le
+      // contrôle fin du type se fait dans le contrôleur, selon l'endpoint.
       fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'application/pdf') {
+        const acceptes = [
+          'application/pdf',
+          'image/jpeg',
+          'image/png',
+          'image/webp',
+        ];
+        if (acceptes.includes(file.mimetype)) {
           cb(null, true);
         } else {
-          cb(new Error('Seuls les fichiers PDF sont acceptés'), false);
+          cb(new Error('Formats acceptés : PDF, JPEG, PNG, WebP'), false);
         }
       },
       limits: {

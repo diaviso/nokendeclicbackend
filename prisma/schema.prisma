@@ -26,12 +26,15 @@ enum StatutProfessionnel {
   RECONVERSION
 }
 
-enum TypeOffre {
-  EMPLOI
-  FORMATION
-  BOURSE
-  VOLONTARIAT
-  PROGRAMME
+/// Nature d'un champ personnalisé de type d'offre.
+enum TypeChamp {
+  TEXTE
+  TEXTE_LONG
+  NOMBRE
+  DATE
+  BOOLEEN
+  LISTE
+  URL
 }
 
 enum TypeEmploi {
@@ -172,6 +175,56 @@ model PasswordReset {
   @@index([token])
 }
 
+/// Type d'offre, administrable depuis le back-office.
+///
+/// Remplace l'ancienne énumération `TypeOffre` : les types ne sont plus figés
+/// dans le schéma, l'administrateur les crée et définit pour chacun les
+/// informations à renseigner (voir ChampTypeOffre).
+model TypeOffre {
+  id          Int      @id @default(autoincrement())
+  /// Identifiant stable, utilisé dans les URL et les filtres. Immuable une
+  /// fois créé — le renommer casserait les liens partagés et l'indexation.
+  code        String   @unique
+  libelle     String
+  description String?
+  /// Nom d'icône Lucide, et clé de couleur de la palette front.
+  icone       String   @default("Briefcase")
+  couleur     String   @default("blue")
+  ordre       Int      @default(0)
+  estActif    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  champs      ChampTypeOffre[]
+  offres      Offre[]
+
+  @@index([estActif, ordre])
+}
+
+/// Définition d'un champ à renseigner pour un type d'offre donné.
+/// Les valeurs saisies sont stockées dans `Offre.champs`, indexées par `code`.
+model ChampTypeOffre {
+  id          Int       @id @default(autoincrement())
+  typeOffreId Int
+  /// Clé dans le JSON `Offre.champs`.
+  code        String
+  libelle     String
+  type        TypeChamp @default(TEXTE)
+  obligatoire Boolean   @default(false)
+  /// Valeurs proposées lorsque `type` vaut LISTE.
+  options     String[]
+  placeholder String?
+  aide        String?
+  ordre       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  typeOffre   TypeOffre @relation(fields: [typeOffreId], references: [id], onDelete: Cascade)
+
+  @@unique([typeOffreId, code])
+  @@index([typeOffreId, ordre])
+}
+
 model Offre {
   id              Int               @id @default(autoincrement())
   titre           String
@@ -179,60 +232,49 @@ model Offre {
   url             String?
   datePublication DateTime          @default(now())
   dateLimite      DateTime?
+
+  /// Photo de couverture (URL publique R2).
+  imageUrl        String?
+  /// Document principal joint à l'offre.
   documentUrl     String?
   documentName    String?
   documentType    String?
-  
-  // Categorisation
-  typeOffre       TypeOffre
+
+  // Categorisation — ces champs restent structurels : ils servent aux filtres
+  // du catalogue et sont indexés.
+  typeOffreId     Int
   typeEmploi      TypeEmploi?
   secteur         Secteur?
   niveauExperience NiveauExperience?
   tags            String[]
   localisation    String?
   entreprise      String?
-  
-  // Salaire
-  salaireMin      Float?
-  salaireMax      Float?
-  devise          String            @default("FCFA")
-  
-  // Formation specifique
-  organisme       String?
-  dureeFormation  Int?
-  certification   String?
-  
-  // Bourse specifique
-  paysBourse      String?
-  niveauEtude     String?
-  montantBourse   Float?
-  estRemboursable Boolean?
-  
-  // Volontariat specifique
-  typeVolontariat   String?
-  dureeVolontariat  Int?
-  hebergement       Boolean?
-  indemnite         Float?
-  competencesRequises String?
-  
+
+  /// Valeurs des champs définis par le type de l'offre, indexées par le `code`
+  /// du ChampTypeOffre. Remplace les anciennes colonnes spécifiques
+  /// (organisme, paysBourse, typeVolontariat, salaire…), qui figeaient dans le
+  /// schéma les besoins de cinq types seulement.
+  champs          Json              @default("{}")
+
   // Stats
   viewCount       Int               @default(0)
-  
+
   // Status
   estCloturee     Boolean           @default(false)
-  
+
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
   // Relations
   auteur          User              @relation(fields: [auteurId], references: [id], onDelete: Cascade)
   auteurId        Int
+  typeOffre       TypeOffre         @relation(fields: [typeOffreId], references: [id], onDelete: Restrict)
   commentaires    Commentaire[]
   retours         Retour[]
   favorites       Favorite[]
   fichiers        OffreFichier[]
 
-  @@index([typeOffre])
+  @@index([typeOffreId])
   @@index([secteur])
   @@index([localisation])
   @@index([datePublication])

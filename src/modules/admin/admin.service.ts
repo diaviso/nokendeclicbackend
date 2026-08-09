@@ -325,8 +325,8 @@ export class AdminService {
       this.prisma.favorite.count({ where: { userId } }),
       this.prisma.retour.count({ where: { auteurId: userId } }),
       this.prisma.offre.groupBy({
-        by: ['typeOffre'],
-        _count: { typeOffre: true },
+        by: ['typeOffreId'],
+        _count: { typeOffreId: true },
       }),
     ]);
 
@@ -334,11 +334,30 @@ export class AdminService {
       totalOffres,
       totalFavorites,
       totalRetours,
-      offresByType: offresByType.reduce((acc, item) => {
-        acc[item.typeOffre] = item._count.typeOffre;
-        return acc;
-      }, {} as Record<string, number>),
+      offresByType: await this.indexerParCodeDeType(offresByType),
     };
+  }
+
+  /**
+   * Convertit un regroupement par `typeOffreId` en objet indexé par code.
+   *
+   * Les statistiques restent ainsi lisibles côté client (`{ EMPLOI: 103, … }`)
+   * alors que les types ne sont plus une énumération figée mais des lignes en
+   * base, susceptibles d'être créées ou renommées.
+   */
+  private async indexerParCodeDeType(
+    groupes: { typeOffreId: number; _count: { typeOffreId: number } }[],
+  ): Promise<Record<string, number>> {
+    const types = await this.prisma.typeOffre.findMany({
+      select: { id: true, code: true },
+    });
+    const codeParId = new Map(types.map((t) => [t.id, t.code]));
+
+    return groupes.reduce<Record<string, number>>((acc, groupe) => {
+      const code = codeParId.get(groupe.typeOffreId);
+      if (code) acc[code] = groupe._count.typeOffreId;
+      return acc;
+    }, {});
   }
 
   // ==================== STATISTICS ====================
@@ -362,8 +381,8 @@ export class AdminService {
       this.prisma.offre.count(),
       this.prisma.retour.count(),
       this.prisma.offre.groupBy({
-        by: ['typeOffre'],
-        _count: { typeOffre: true },
+        by: ['typeOffreId'],
+        _count: { typeOffreId: true },
       }),
       this.prisma.offre.groupBy({
         by: ['secteur'],
@@ -396,10 +415,7 @@ export class AdminService {
         offres: totalOffres,
         retours: totalRetours,
       },
-      offresByType: offresByType.reduce((acc, item) => {
-        acc[item.typeOffre] = item._count.typeOffre;
-        return acc;
-      }, {} as Record<string, number>),
+      offresByType: await this.indexerParCodeDeType(offresByType),
       offresBySecteur: offresBySecteur.map((item) => ({
         secteur: item.secteur,
         count: item._count.secteur,

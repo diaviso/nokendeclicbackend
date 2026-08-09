@@ -151,12 +151,10 @@ export class ChatbotToolsService {
       select: {
         id: true,
         titre: true,
-        typeOffre: true,
+        typeOffre: { select: { code: true, libelle: true } },
         entreprise: true,
         localisation: true,
-        salaireMin: true,
-        salaireMax: true,
-        devise: true,
+        champs: true,
         tags: true,
       },
     });
@@ -195,13 +193,11 @@ export class ChatbotToolsService {
       select: {
         id: true,
         titre: true,
-        typeOffre: true,
+        typeOffre: { select: { code: true, libelle: true } },
         entreprise: true,
         localisation: true,
         niveauExperience: true,
-        salaireMin: true,
-        salaireMax: true,
-        devise: true,
+        champs: true,
       },
     });
 
@@ -222,12 +218,10 @@ export class ChatbotToolsService {
       select: {
         id: true,
         titre: true,
-        typeOffre: true,
+        typeOffre: { select: { code: true, libelle: true } },
         entreprise: true,
         localisation: true,
-        salaireMin: true,
-        salaireMax: true,
-        devise: true,
+        champs: true,
       },
     });
 
@@ -240,19 +234,17 @@ export class ChatbotToolsService {
 
   async getOffresParType(typeOffre: string) {
     const offres = await this.prisma.offre.findMany({
-      where: { typeOffre: typeOffre as any },
+      where: { typeOffre: { code: typeOffre.toUpperCase() } },
       take: 15,
       orderBy: { datePublication: 'desc' },
       select: {
         id: true,
         titre: true,
-        typeOffre: true,
+        typeOffre: { select: { code: true, libelle: true } },
         entreprise: true,
         localisation: true,
         secteur: true,
-        salaireMin: true,
-        salaireMax: true,
-        devise: true,
+        champs: true,
       },
     });
 
@@ -271,13 +263,11 @@ export class ChatbotToolsService {
       select: {
         id: true,
         titre: true,
-        typeOffre: true,
+        typeOffre: { select: { code: true, libelle: true } },
         entreprise: true,
         localisation: true,
         niveauExperience: true,
-        salaireMin: true,
-        salaireMax: true,
-        devise: true,
+        champs: true,
       },
     });
 
@@ -303,7 +293,7 @@ export class ChatbotToolsService {
       select: {
         id: true,
         titre: true,
-        typeOffre: true,
+        typeOffre: { select: { code: true, libelle: true } },
         entreprise: true,
         localisation: true,
         secteur: true,
@@ -328,7 +318,7 @@ export class ChatbotToolsService {
           select: {
             id: true,
             titre: true,
-            typeOffre: true,
+            typeOffre: { select: { code: true, libelle: true } },
             entreprise: true,
             localisation: true,
           },
@@ -351,7 +341,7 @@ export class ChatbotToolsService {
           select: {
             id: true,
             titre: true,
-            typeOffre: true,
+            typeOffre: { select: { code: true, libelle: true } },
             entreprise: true,
           },
         },
@@ -376,8 +366,8 @@ export class ChatbotToolsService {
     const [total, parType, parSecteur, parLocalisation] = await Promise.all([
       this.prisma.offre.count(),
       this.prisma.offre.groupBy({
-        by: ['typeOffre'],
-        _count: { typeOffre: true },
+        by: ['typeOffreId'],
+        _count: { typeOffreId: true },
       }),
       this.prisma.offre.groupBy({
         by: ['secteur'],
@@ -393,9 +383,20 @@ export class ChatbotToolsService {
       }),
     ]);
 
+    // Les types sont administrables : leur code se lit en base plutôt que
+    // d'être déduit d'une énumération figée.
+    const types = await this.prisma.typeOffre.findMany({
+      select: { id: true, code: true, libelle: true },
+    });
+    const parId = new Map(types.map((type) => [type.id, type]));
+
     return {
       totalOffres: total,
-      parType: parType.map((t) => ({ type: t.typeOffre, count: t._count.typeOffre })),
+      parType: parType.map((t) => ({
+        type: parId.get(t.typeOffreId)?.code ?? 'INCONNU',
+        libelle: parId.get(t.typeOffreId)?.libelle ?? 'Inconnu',
+        count: t._count.typeOffreId,
+      })),
       topSecteurs: parSecteur.map((s) => ({ secteur: s.secteur, count: s._count.secteur })),
       topLocalisations: parLocalisation.map((l) => ({ localisation: l.localisation, count: l._count.localisation })),
     };
@@ -403,15 +404,12 @@ export class ChatbotToolsService {
 
   async getFormationsDisponibles() {
     const formations = await this.prisma.offre.findMany({
-      where: { typeOffre: 'FORMATION' },
+      where: { typeOffre: { code: 'FORMATION' } },
       take: 15,
       orderBy: { datePublication: 'desc' },
       select: {
         id: true,
         titre: true,
-        organisme: true,
-        dureeFormation: true,
-        certification: true,
         localisation: true,
         description: true,
       },
@@ -425,16 +423,12 @@ export class ChatbotToolsService {
 
   async getBoursesDisponibles() {
     const bourses = await this.prisma.offre.findMany({
-      where: { typeOffre: 'BOURSE' },
+      where: { typeOffre: { code: 'BOURSE' } },
       take: 15,
       orderBy: { datePublication: 'desc' },
       select: {
         id: true,
         titre: true,
-        paysBourse: true,
-        niveauEtude: true,
-        montantBourse: true,
-        estRemboursable: true,
         localisation: true,
         description: true,
       },
@@ -448,17 +442,12 @@ export class ChatbotToolsService {
 
   async getVolontariatsDisponibles() {
     const volontariats = await this.prisma.offre.findMany({
-      where: { typeOffre: 'VOLONTARIAT' },
+      where: { typeOffre: { code: 'VOLONTARIAT' } },
       take: 15,
       orderBy: { datePublication: 'desc' },
       select: {
         id: true,
         titre: true,
-        typeVolontariat: true,
-        dureeVolontariat: true,
-        hebergement: true,
-        indemnite: true,
-        competencesRequises: true,
         localisation: true,
         description: true,
       },
@@ -531,14 +520,12 @@ export class ChatbotToolsService {
       select: {
         id: true,
         titre: true,
-        typeOffre: true,
+        typeOffre: { select: { code: true, libelle: true } },
         entreprise: true,
         localisation: true,
         secteur: true,
         niveauExperience: true,
-        salaireMin: true,
-        salaireMax: true,
-        devise: true,
+        champs: true,
       },
     });
 

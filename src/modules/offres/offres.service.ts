@@ -1,35 +1,76 @@
-import { Injectable, NotFoundException, ForbiddenException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateOffreDto, UpdateOffreDto, OffresFilterDto } from './dto';
 import { NotificationsService } from '../notifications/notifications.service';
+import { TypesOffresService } from '../types-offres/types-offres.service';
 
 @Injectable()
 export class OffresService {
   constructor(
     private prisma: PrismaService,
+    private typesOffres: TypesOffresService,
     @Inject(forwardRef(() => NotificationsService))
     private notificationsService: NotificationsService,
   ) {}
 
+  /** Projection du type jointe à chaque offre : le front en a besoin pour
+   *  l'affichage (libellé, icône, couleur) et pour rendre les champs. */
+  private readonly typeSelect = {
+    select: {
+      id: true,
+      code: true,
+      libelle: true,
+      icone: true,
+      couleur: true,
+      champs: {
+        orderBy: { ordre: 'asc' as const },
+        select: {
+          id: true,
+          code: true,
+          libelle: true,
+          type: true,
+          obligatoire: true,
+          options: true,
+          aide: true,
+          ordre: true,
+        },
+      },
+    },
+  };
+
+  private readonly auteurSelect = {
+    select: { id: true, username: true, pictureUrl: true },
+  };
+
   async create(dto: CreateOffreDto, auteurId: number) {
+    // Les valeurs des champs personnalisés sont validées contre la définition
+    // du type : obligatoires présents, types respectés, clés inconnues écartées.
+    const champs = await this.typesOffres.validerValeurs(
+      dto.typeOffreId,
+      dto.champs,
+    );
+
+    const { champs: _ignore, dateLimite, ...reste } = dto;
+
     const offre = await this.prisma.offre.create({
       data: {
-        ...dto,
-        typeOffre: dto.typeOffre as any,
+        ...reste,
         typeEmploi: dto.typeEmploi as any,
         secteur: dto.secteur as any,
         niveauExperience: dto.niveauExperience as any,
-        dateLimite: dto.dateLimite ? new Date(dto.dateLimite) : null,
+        dateLimite: dateLimite ? new Date(dateLimite) : null,
+        champs,
         auteurId,
       },
-      include: {
-        auteur: {
-          select: { id: true, username: true, pictureUrl: true },
-        },
-      },
+      include: { auteur: this.auteurSelect, typeOffre: this.typeSelect },
     });
 
-    // Send notification to all users
     await this.notificationsService.notifyNewOffre(offre.id, offre.titre);
 
     return offre;
@@ -41,24 +82,25 @@ export class OffresService {
 
     const where: any = {};
 
-    if (filterParams.typeOffre) {
-      where.typeOffre = filterParams.typeOffre;
+    // Le filtre accepte le code (liens partagés) ou l'identifiant.
+    if (filterParams.typeOffreId) {
+      where.typeOffreId = filterParams.typeOffreId;
+    } else if (filterParams.typeOffre) {
+      where.typeOffre = { code: filterParams.typeOffre.toUpperCase() };
     }
-    if (filterParams.typeEmploi) {
-      where.typeEmploi = filterParams.typeEmploi;
-    }
-    if (filterParams.secteur) {
-      where.secteur = filterParams.secteur;
-    }
+
+    if (filterParams.typeEmploi) where.typeEmploi = filterParams.typeEmploi;
+    if (filterParams.secteur) where.secteur = filterParams.secteur;
     if (filterParams.niveauExperience) {
       where.niveauExperience = filterParams.niveauExperience;
     }
     if (filterParams.localisation) {
-      where.localisation = { contains: filterParams.localisation, mode: 'insensitive' };
+      where.localisation = {
+        contains: filterParams.localisation,
+        mode: 'insensitive',
+      };
     }
-    if (filterParams.tag) {
-      where.tags = { has: filterParams.tag };
-    }
+    if (filterParams.tag) where.tags = { has: filterParams.tag };
     if (filterParams.keyword) {
       where.OR = [
         { titre: { contains: filterParams.keyword, mode: 'insensitive' } },
@@ -74,12 +116,9 @@ export class OffresService {
         take: limit,
         orderBy: { datePublication: 'desc' },
         include: {
-          auteur: {
-            select: { id: true, username: true, pictureUrl: true },
-          },
-          _count: {
-            select: { commentaires: true, retours: true },
-          },
+          auteur: this.auteurSelect,
+          typeOffre: this.typeSelect,
+          _count: { select: { commentaires: true, retours: true } },
         },
       }),
       this.prisma.offre.count({ where }),
@@ -102,21 +141,16 @@ export class OffresService {
         // Pas d'email : cette route est publique (rendu serveur des pages
         // d'offres). L'adresse de l'auteur reste accessible aux administrateurs
         // via GET /api/admin/offres/:id.
-        auteur: {
-          select: { id: true, username: true, pictureUrl: true },
-        },
+        auteur: this.auteurSelect,
+        typeOffre: this.typeSelect,
         commentaires: {
           include: {
             auteur: { select: { id: true, username: true, pictureUrl: true } },
           },
           orderBy: { datePublication: 'desc' },
         },
-        fichiers: {
-          orderBy: { createdAt: 'desc' },
-        },
-        _count: {
-          select: { commentaires: true, retours: true },
-        },
+        fichiers: { orderBy: { createdAt: 'desc' } },
+        _count: { select: { commentaires: true, retours: true } },
       },
     });
 
@@ -124,7 +158,6 @@ export class OffresService {
       throw new NotFoundException('Offre non trouvée');
     }
 
-    // Increment view count
     await this.prisma.offre.update({
       where: { id },
       data: { viewCount: { increment: 1 } },
@@ -144,29 +177,61 @@ export class OffresService {
       throw new ForbiddenException('Vous ne pouvez pas modifier cette offre');
     }
 
+    // Le type peut changer : les valeurs sont revalidées contre la définition
+    // du type cible, ce qui écarte au passage les champs de l'ancien type.
+    const typeOffreId = dto.typeOffreId ?? offre.typeOffreId;
+    const champs = await this.typesOffres.validerValeurs(
+      typeOffreId,
+      dto.champs ?? (offre.champs as Record<string, unknown>),
+    );
+
+    const { champs: _ignore, dateLimite, ...reste } = dto;
+
     return this.prisma.offre.update({
       where: { id },
       data: {
-        ...dto,
-        typeOffre: dto.typeOffre as any,
+        ...reste,
+        typeOffreId,
         typeEmploi: dto.typeEmploi as any,
         secteur: dto.secteur as any,
         niveauExperience: dto.niveauExperience as any,
-        dateLimite: dto.dateLimite ? new Date(dto.dateLimite) : null,
+        dateLimite: dateLimite ? new Date(dateLimite) : null,
+        champs,
       },
-      include: {
-        auteur: {
-          select: { id: true, username: true, pictureUrl: true },
-        },
-      },
+      include: { auteur: this.auteurSelect, typeOffre: this.typeSelect },
     });
   }
 
-  async updateDocument(id: number, documentUrl: string, documentName: string, documentType: string) {
-    return this.prisma.offre.update({
-      where: { id },
-      data: { documentUrl, documentName, documentType },
-    });
+  /**
+   * Met à jour la photo de couverture ou le document principal.
+   *
+   * `userId` est optionnel : les appels internes (création avec document, où
+   * l'appartenance vient d'être établie) le laissent de côté, les endpoints
+   * exposés le fournissent pour que l'autorisation soit vérifiée ici plutôt
+   * que dupliquée dans le contrôleur.
+   */
+  async updateMedia(
+    id: number,
+    data: {
+      imageUrl?: string | null;
+      documentUrl?: string | null;
+      documentName?: string | null;
+      documentType?: string | null;
+    },
+    auteur?: { userId: number; userRole: string },
+  ) {
+    if (auteur) {
+      const offre = await this.prisma.offre.findUnique({
+        where: { id },
+        select: { auteurId: true },
+      });
+      if (!offre) throw new NotFoundException('Offre non trouvée');
+      if (offre.auteurId !== auteur.userId && auteur.userRole !== 'ADMIN') {
+        throw new ForbiddenException('Vous ne pouvez pas modifier cette offre');
+      }
+    }
+
+    return this.prisma.offre.update({ where: { id }, data });
   }
 
   async delete(id: number, userId: number, userRole: string) {
@@ -184,10 +249,24 @@ export class OffresService {
     return { message: 'Offre supprimée avec succès' };
   }
 
+  /**
+   * Référentiel des valeurs proposées dans les formulaires.
+   * Les types viennent désormais de la base ; les autres restent des
+   * énumérations du schéma.
+   */
   async getTypes() {
+    const typeOffre = await this.prisma.typeOffre.findMany({
+      where: { estActif: true },
+      orderBy: [{ ordre: 'asc' }, { libelle: 'asc' }],
+      select: { id: true, code: true, libelle: true, icone: true, couleur: true },
+    });
+
     return {
-      typeOffre: ['EMPLOI', 'FORMATION', 'BOURSE', 'VOLONTARIAT', 'PROGRAMME'],
-      typeEmploi: ['CDI', 'CDD', 'STAGE', 'ALTERNANCE', 'FREELANCE', 'INTERIM', 'SAISONNIER', 'TEMPS_PARTIEL', 'TEMPS_PLEIN'],
+      typeOffre,
+      typeEmploi: [
+        'CDI', 'CDD', 'STAGE', 'ALTERNANCE', 'FREELANCE', 'INTERIM',
+        'SAISONNIER', 'TEMPS_PARTIEL', 'TEMPS_PLEIN',
+      ],
       secteur: [
         'INFORMATIQUE', 'FINANCE', 'SANTE', 'EDUCATION', 'COMMERCE', 'INDUSTRIE',
         'AGRICULTURE', 'TOURISME', 'TRANSPORT', 'COMMUNICATION', 'ADMINISTRATION',
@@ -202,23 +281,31 @@ export class OffresService {
     return this.prisma.offre.count();
   }
 
+  /** Comptage par type — dérivé de la table, plus d'une liste figée. */
   async countByType() {
-    const [emploi, formation, bourse, volontariat, programme] = await Promise.all([
-      this.prisma.offre.count({ where: { typeOffre: 'EMPLOI' } }),
-      this.prisma.offre.count({ where: { typeOffre: 'FORMATION' } }),
-      this.prisma.offre.count({ where: { typeOffre: 'BOURSE' } }),
-      this.prisma.offre.count({ where: { typeOffre: 'VOLONTARIAT' } }),
-      this.prisma.offre.count({ where: { typeOffre: 'PROGRAMME' } }),
-    ]);
-    return { emploi, formation, bourse, volontariat, programme };
+    const groupes = await this.prisma.offre.groupBy({
+      by: ['typeOffreId'],
+      _count: { typeOffreId: true },
+    });
+
+    const types = await this.prisma.typeOffre.findMany({
+      select: { id: true, code: true, libelle: true },
+    });
+
+    return types.map((type) => ({
+      id: type.id,
+      code: type.code,
+      libelle: type.libelle,
+      count:
+        groupes.find((g) => g.typeOffreId === type.id)?._count.typeOffreId ?? 0,
+    }));
   }
 
   async countBySecteur() {
-    const secteurs = await this.prisma.offre.groupBy({
+    return this.prisma.offre.groupBy({
       by: ['secteur'],
       _count: { secteur: true },
     });
-    return secteurs;
   }
 
   async getTopOffres(limit = 5) {
@@ -227,6 +314,7 @@ export class OffresService {
       orderBy: { retours: { _count: 'desc' } },
       include: {
         auteur: { select: { id: true, username: true } },
+        typeOffre: { select: { code: true, libelle: true } },
         _count: { select: { retours: true } },
       },
     });
@@ -237,6 +325,7 @@ export class OffresService {
       where: { auteurId },
       orderBy: { datePublication: 'desc' },
       include: {
+        typeOffre: this.typeSelect,
         _count: { select: { commentaires: true, retours: true } },
       },
     });

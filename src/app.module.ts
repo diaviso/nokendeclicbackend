@@ -23,6 +23,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { UploadModule } from './modules/upload/upload.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { TypesOffresModule } from './modules/types-offres/types-offres.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { StorageModule } from './modules/storage/storage.module';
     StorageModule,
     AuthModule,
     UsersModule,
+    TypesOffresModule,
     OffresModule,
     CVModule,
     MessagesModule,

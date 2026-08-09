@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   Post,
@@ -46,12 +47,11 @@ export class OffresController {
     
     if (file) {
       const stored = await this.storage.upload(file, 'documents');
-      await this.offresService.updateDocument(
-        offre.id,
-        stored.url,
-        stored.originalName,
-        stored.mimetype,
-      );
+      await this.offresService.updateMedia(offre.id, {
+        documentUrl: stored.url,
+        documentName: stored.originalName,
+        documentType: stored.mimetype,
+      });
     }
     
     return this.offresService.findById(offre.id);
@@ -111,15 +111,90 @@ export class OffresController {
     
     if (file) {
       const stored = await this.storage.upload(file, 'documents');
-      await this.offresService.updateDocument(
-        offre.id,
-        stored.url,
-        stored.originalName,
-        stored.mimetype,
-      );
+      await this.offresService.updateMedia(offre.id, {
+        documentUrl: stored.url,
+        documentName: stored.originalName,
+        documentType: stored.mimetype,
+      });
     }
     
     return this.offresService.findById(offre.id);
+  }
+
+  @Post(':id/image')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Envoyer la photo de couverture' })
+  async uploadImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: any,
+  ) {
+    if (!file) throw new BadRequestException('Aucun fichier fourni');
+    if (!file.mimetype.startsWith('image/')) {
+      throw new BadRequestException(
+        'La couverture doit être une image (JPEG, PNG ou WebP)',
+      );
+    }
+
+    const stored = await this.storage.upload(file, 'couvertures');
+    return this.offresService.updateMedia(
+      id,
+      { imageUrl: stored.url },
+      { userId: user.id, userRole: user.role },
+    );
+  }
+
+  @Delete(':id/image')
+  @ApiOperation({ summary: 'Retirer la photo de couverture' })
+  async removeImage(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.offresService.updateMedia(
+      id,
+      { imageUrl: null },
+      { userId: user.id, userRole: user.role },
+    );
+  }
+
+  @Post(':id/document')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Envoyer le document joint' })
+  async uploadDocument(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: any,
+  ) {
+    if (!file) throw new BadRequestException('Aucun fichier fourni');
+    if (file.mimetype !== 'application/pdf') {
+      throw new BadRequestException('Le document joint doit être un PDF');
+    }
+
+    const stored = await this.storage.upload(file, 'documents');
+    return this.offresService.updateMedia(
+      id,
+      {
+        documentUrl: stored.url,
+        documentName: stored.originalName,
+        documentType: stored.mimetype,
+      },
+      { userId: user.id, userRole: user.role },
+    );
+  }
+
+  @Delete(':id/document')
+  @ApiOperation({ summary: 'Retirer le document joint' })
+  async removeDocument(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.offresService.updateMedia(
+      id,
+      { documentUrl: null, documentName: null, documentType: null },
+      { userId: user.id, userRole: user.role },
+    );
   }
 
   @Delete(':id')

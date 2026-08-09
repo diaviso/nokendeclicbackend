@@ -23,26 +23,37 @@ export class DashboardController {
       this.prisma.favorite.count({ where: { userId } }),
       this.prisma.retour.count({ where: { auteurId: userId } }),
       this.prisma.offre.groupBy({
-        by: ['typeOffre'],
-        _count: { typeOffre: true },
+        by: ['typeOffreId'],
+        _count: { typeOffreId: true },
       }),
       this.prisma.offre.findMany({
         take: 5,
         orderBy: { datePublication: 'desc' },
         include: {
           auteur: { select: { id: true, username: true, pictureUrl: true } },
+          typeOffre: {
+            select: { id: true, code: true, libelle: true, icone: true, couleur: true },
+          },
         },
       }),
     ]);
+
+    const types = await this.prisma.typeOffre.findMany({
+      select: { id: true, code: true },
+    });
+    const codeParType = new Map(types.map((t) => [t.id, t.code]));
 
     return {
       totalOffres,
       totalFavorites,
       totalRetours,
-      offresByType: offresByType.reduce((acc, item) => {
-        acc[item.typeOffre] = item._count.typeOffre;
+      // Indexé par code de type plutôt que par identifiant : le client affiche
+      // des libellés, et les codes restent stables même si un type est renommé.
+      offresByType: offresByType.reduce<Record<string, number>>((acc, item) => {
+        const code = codeParType.get(item.typeOffreId);
+        if (code) acc[code] = item._count.typeOffreId;
         return acc;
-      }, {} as Record<string, number>),
+      }, {}),
       recentOffres,
     };
   }
