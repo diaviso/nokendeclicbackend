@@ -27,17 +27,28 @@ import { MailModule } from '../../mail/mail.module';
   providers: [
     AuthService,
     JwtStrategy,
-    // GoogleStrategy n'est enregistrée que si OAuth est configuré.
-    //
-    // passport-oauth2 lève `OAuth2Strategy requires a clientID option` dès la
-    // construction quand l'identifiant est vide, ce qui faisait échouer le
-    // démarrage de TOUTE l'application — impossible de lancer le backend en
-    // local, ou de déployer un environnement sans connexion Google, alors que
-    // l'authentification par email fonctionne indépendamment.
-    //
-    // Sans configuration, les routes /auth/google répondent une erreur
-    // explicite (voir AuthController) au lieu d'empêcher le boot.
-    ...(process.env.GOOGLE_CLIENT_ID ? [GoogleStrategy] : []),
+    {
+      // GoogleStrategy n'est instanciée que si OAuth est configuré.
+      //
+      // passport-oauth2 lève `OAuth2Strategy requires a clientID option` dès la
+      // construction quand l'identifiant est vide, ce qui faisait échouer le
+      // démarrage de TOUTE l'application — impossible de lancer le backend en
+      // local, ou de déployer un environnement sans connexion Google, alors que
+      // l'authentification par email fonctionne indépendamment.
+      //
+      // Le test se fait ici, dans une fabrique, et non au moment d'évaluer le
+      // décorateur : à cet instant-là ConfigModule n'a pas encore chargé le
+      // fichier .env, et la variable paraîtrait toujours absente.
+      //
+      // Sans configuration, les routes /auth/google répondent une erreur
+      // explicite (GoogleConfiguredGuard) plutôt que d'empêcher le boot.
+      provide: GoogleStrategy,
+      useFactory: (configService: ConfigService) => {
+        const clientId = configService.get<string>('google.clientId');
+        return clientId ? new GoogleStrategy(configService) : null;
+      },
+      inject: [ConfigService],
+    },
   ],
   exports: [AuthService, JwtModule],
 })
