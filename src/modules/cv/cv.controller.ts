@@ -13,8 +13,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
 import { CVService } from './cv.service';
 import { CVExtractorService } from './cv-extractor.service';
 import { CVCorrectorService } from './cv-corrector.service';
@@ -82,13 +81,10 @@ export class CVController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/cv',
-        filename: (req, file, callback) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          callback(null, `cv-${uniqueSuffix}${extname(file.originalname)}`);
-        },
-      }),
+      // Le PDF n'est lu que pour en extraire les données : il n'a pas besoin
+      // d'être persisté. Le garder en mémoire évite d'écrire sur un disque
+      // éphémère, et supprime le nettoyage de fichiers temporaires.
+      storage: memoryStorage(),
       fileFilter: (req, file, callback) => {
         if (file.mimetype !== 'application/pdf') {
           return callback(new BadRequestException('Seuls les fichiers PDF sont acceptés'), false);
@@ -110,13 +106,12 @@ export class CVController {
 
     try {
       // Extract CV data from PDF using AI
-      const extractedData = await this.cvExtractorService.processUploadedCV(file.path);
+      const extractedData = await this.cvExtractorService.processUploadedCV(file.buffer);
 
       return {
         success: true,
         message: 'CV analysé avec succès',
         extractedData,
-        filePath: file.path,
       };
     } catch (error) {
       throw new BadRequestException(`Erreur lors de l'analyse du CV: ${error.message}`);
@@ -128,13 +123,10 @@ export class CVController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/cv',
-        filename: (req, file, callback) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          callback(null, `cv-${uniqueSuffix}${extname(file.originalname)}`);
-        },
-      }),
+      // Le PDF n'est lu que pour en extraire les données : il n'a pas besoin
+      // d'être persisté. Le garder en mémoire évite d'écrire sur un disque
+      // éphémère, et supprime le nettoyage de fichiers temporaires.
+      storage: memoryStorage(),
       fileFilter: (req, file, callback) => {
         if (file.mimetype !== 'application/pdf') {
           return callback(new BadRequestException('Seuls les fichiers PDF sont acceptés'), false);
@@ -156,7 +148,7 @@ export class CVController {
 
     try {
       // Extract CV data from PDF using AI
-      const extractedData = await this.cvExtractorService.processUploadedCV(file.path);
+      const extractedData = await this.cvExtractorService.processUploadedCV(file.buffer);
 
       // Save the extracted data to the database
       const savedCV = await this.cvService.update(userId, extractedData as any);

@@ -1,20 +1,13 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { join } from 'path';
-import { existsSync, unlinkSync } from 'fs';
-import { ConfigService } from '@nestjs/config';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class UploadService {
   constructor(
     private prisma: PrismaService,
-    private configService: ConfigService,
+    private storage: StorageService,
   ) {}
-
-  getFileUrl(filename: string): string {
-    const baseUrl = this.configService.get<string>('app.baseUrl') || 'http://localhost:3000';
-    return `${baseUrl}/uploads/offres/${filename}`;
-  }
 
   async addFileToOffre(
     offreId: number,
@@ -35,17 +28,17 @@ export class UploadService {
       throw new ForbiddenException('Vous ne pouvez pas modifier cette offre');
     }
 
-    const fichier = await this.prisma.offreFichier.create({
+    const stored = await this.storage.upload(file, 'offres');
+
+    return this.prisma.offreFichier.create({
       data: {
-        nom: file.originalname,
-        url: this.getFileUrl(file.filename),
-        type: file.mimetype,
-        taille: file.size,
+        nom: stored.originalName,
+        url: stored.url,
+        type: stored.mimetype,
+        taille: stored.size,
         offreId,
       },
     });
-
-    return fichier;
   }
 
   async getOffreFichiers(offreId: number) {
@@ -69,14 +62,9 @@ export class UploadService {
       throw new ForbiddenException('Vous ne pouvez pas supprimer ce fichier');
     }
 
-    // Extract filename from URL and delete physical file
-    const urlParts = fichier.url.split('/');
-    const filename = urlParts[urlParts.length - 1];
-    const filePath = join(process.cwd(), 'uploads', 'offres', filename);
-
-    if (existsSync(filePath)) {
-      unlinkSync(filePath);
-    }
+    // L'objet distant est supprimé avant l'enregistrement ; un échec y est
+    // journalisé sans interrompre la suppression en base.
+    await this.storage.delete(fichier.url);
 
     await this.prisma.offreFichier.delete({
       where: { id: fichierId },

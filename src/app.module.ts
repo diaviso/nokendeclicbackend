@@ -22,8 +22,7 @@ import { MessagingModule } from './modules/messaging/messaging.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -36,6 +35,7 @@ import { join } from 'path';
       limit: 100,
     }]),
     PrismaModule,
+    StorageModule,
     AuthModule,
     UsersModule,
     OffresModule,
@@ -51,10 +51,8 @@ import { join } from 'path';
     NotificationsModule,
     UploadModule,
     FeedbackModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'uploads'),
-      serveRoot: '/uploads',
-    }),
+    // ServeStaticModule retiré : les fichiers ne sont plus servis depuis le
+    // disque du conteneur (éphémère sur Railway) mais depuis Cloudflare R2.
   ],
   providers: [
     {

@@ -1,37 +1,19 @@
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import { memoryStorage } from 'multer';
+import { extname } from 'path';
 import { UploadController } from './upload.controller';
 import { UploadService } from './upload.service';
 import { PrismaModule } from '../../prisma/prisma.module';
-
-const uploadDir = join(process.cwd(), 'uploads');
-
-// Create uploads directory if it doesn't exist
-if (!existsSync(uploadDir)) {
-  mkdirSync(uploadDir, { recursive: true });
-}
 
 @Module({
   imports: [
     PrismaModule,
     MulterModule.register({
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          const subDir = join(uploadDir, 'offres');
-          if (!existsSync(subDir)) {
-            mkdirSync(subDir, { recursive: true });
-          }
-          cb(null, subDir);
-        },
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          cb(null, `${uniqueSuffix}${ext}`);
-        },
-      }),
+      // En mémoire : le fichier est ensuite poussé vers R2. Le disque du
+      // conteneur est éphémère, y écrire revenait à perdre les fichiers à
+      // chaque déploiement.
+      storage: memoryStorage(),
       fileFilter: (req, file, cb) => {
         // Couples (extension -> types MIME acceptés) : le type déclaré ET l'extension
         // doivent être cohérents. Un OU laisserait passer n'importe quel binaire

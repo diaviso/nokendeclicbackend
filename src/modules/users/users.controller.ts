@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   Put,
   Delete,
   Body,
+  ForbiddenException,
   Param,
   ParseIntPipe,
   UseGuards,
@@ -14,6 +16,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
+import { StorageService } from '../storage/storage.service';
 import { UpdateUserDto, ChangeRoleDto, ChangeStatutDto } from './dto';
 import { CurrentUser, Roles } from '../../common';
 import { RolesGuard } from '../../common/guards';
@@ -22,7 +25,10 @@ import { RolesGuard } from '../../common/guards';
 @ApiBearerAuth()
 @Controller('api/users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private storage: StorageService,
+  ) {}
 
   @Get()
   @UseGuards(RolesGuard)
@@ -95,8 +101,7 @@ export class UsersController {
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser('id') currentUserId: number,
   ) {
-    const pictureUrl = `/uploads/profiles/${file.filename}`;
-    return this.usersService.updateProfilePicture(id, pictureUrl, currentUserId);
+    return this.storeProfilePicture(id, file, currentUserId);
   }
 
   @Post(':id/photo')
@@ -107,8 +112,27 @@ export class UsersController {
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser('id') currentUserId: number,
   ) {
-    const pictureUrl = `/uploads/profiles/${file.filename}`;
-    return this.usersService.updateProfilePicture(id, pictureUrl, currentUserId);
+    return this.storeProfilePicture(id, file, currentUserId);
+  }
+
+  private async storeProfilePicture(
+    id: number,
+    file: Express.Multer.File,
+    currentUserId: number,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Aucun fichier fourni');
+    }
+    // L'autorisation est vérifiée avant l'envoi, pour ne pas stocker un objet
+    // que l'appelant n'a pas le droit d'attacher.
+    if (id !== currentUserId) {
+      throw new ForbiddenException(
+        'Vous ne pouvez modifier que votre propre photo',
+      );
+    }
+
+    const stored = await this.storage.upload(file, 'profiles');
+    return this.usersService.updateProfilePicture(id, stored.url, currentUserId);
   }
 
   @Delete(':id')

@@ -101,13 +101,17 @@ IMPORTANT:
     });
   }
 
-  async extractTextFromPDF(filePath: string): Promise<string> {
-    if (!fs.existsSync(filePath)) {
-      throw new Error('Fichier PDF non trouvé');
+  /**
+   * Le PDF est reçu en mémoire (multer `memoryStorage`) : il n'est plus écrit
+   * sur le disque du conteneur, qui est éphémère, et aucun fichier temporaire
+   * n'est à nettoyer.
+   */
+  async extractTextFromPDF(data: Buffer): Promise<string> {
+    if (!data?.length) {
+      throw new Error('Fichier PDF vide ou illisible');
     }
 
-    const dataBuffer = fs.readFileSync(filePath);
-    const parser = new PDFParse({ data: dataBuffer });
+    const parser = new PDFParse({ data });
     const pdfData = await parser.getText();
 
     return this.cleanText(pdfData.text || '');
@@ -156,11 +160,11 @@ IMPORTANT:
     }
   }
 
-  async processUploadedCV(filePath: string): Promise<ExtractedCV> {
-    this.logger.log(`Processing CV from: ${filePath}`);
+  async processUploadedCV(data: Buffer): Promise<ExtractedCV> {
+    this.logger.log(`Traitement d'un CV de ${data?.length ?? 0} octets`);
 
     // Extract text from PDF
-    const pdfText = await this.extractTextFromPDF(filePath);
+    const pdfText = await this.extractTextFromPDF(data);
 
     if (!pdfText || pdfText.length < 50) {
       throw new Error('Le PDF ne contient pas assez de texte exploitable');

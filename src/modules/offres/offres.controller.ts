@@ -10,13 +10,11 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFile,
-  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
-import type { Response } from 'express';
-import { join } from 'path';
 import { OffresService } from './offres.service';
+import { StorageService } from '../storage/storage.service';
 import { CreateOffreDto, UpdateOffreDto, OffresFilterDto } from './dto';
 import { CurrentUser, Public } from '../../common';
 
@@ -24,7 +22,10 @@ import { CurrentUser, Public } from '../../common';
 @ApiBearerAuth()
 @Controller('api/offres')
 export class OffresController {
-  constructor(private offresService: OffresService) {}
+  constructor(
+    private offresService: OffresService,
+    private storage: StorageService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Créer une offre' })
@@ -44,11 +45,12 @@ export class OffresController {
     const offre = await this.offresService.create(dto, userId);
     
     if (file) {
+      const stored = await this.storage.upload(file, 'documents');
       await this.offresService.updateDocument(
         offre.id,
-        `/api/offres/documents/${file.filename}`,
-        file.originalname,
-        file.mimetype,
+        stored.url,
+        stored.originalName,
+        stored.mimetype,
       );
     }
     
@@ -108,11 +110,12 @@ export class OffresController {
     const offre = await this.offresService.update(id, dto, user.id, user.role);
     
     if (file) {
+      const stored = await this.storage.upload(file, 'documents');
       await this.offresService.updateDocument(
         offre.id,
-        `/api/offres/documents/${file.filename}`,
-        file.originalname,
-        file.mimetype,
+        stored.url,
+        stored.originalName,
+        stored.mimetype,
       );
     }
     
@@ -125,11 +128,11 @@ export class OffresController {
     return this.offresService.delete(id, user.id, user.role);
   }
 
-  @Public()
-  @Get('documents/:filename')
-  @ApiOperation({ summary: 'Télécharger un document' })
-  async getDocument(@Param('filename') filename: string, @Res() res: Response) {
-    const filePath = join(process.cwd(), 'uploads', 'documents', filename);
-    return res.sendFile(filePath);
-  }
+  // GET /api/offres/documents/:filename a été supprimée.
+  //
+  // Elle servait les documents depuis le disque local, désormais remplacé par
+  // Cloudflare R2 : `documentUrl` porte directement l'URL publique de l'objet.
+  // Cette route était par ailleurs vulnérable à une traversée de chemin — le
+  // paramètre `filename` était concaténé sans assainissement dans un `join()`,
+  // sur une route annotée @Public().
 }
