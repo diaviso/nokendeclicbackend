@@ -11,7 +11,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CommentairesService } from './commentaires.service';
 import { CreateCommentaireDto, UpdateCommentaireDto } from './dto';
-import { CurrentUser } from '../../common';
+import { CurrentUser, Public } from '../../common';
 
 @ApiTags('Commentaires')
 @ApiBearerAuth()
@@ -25,6 +25,10 @@ export class CommentairesController {
     return this.commentairesService.create(dto, userId);
   }
 
+  // Lecture publique : la page de détail d'une offre est rendue côté serveur
+  // pour les visiteurs non connectés, commentaires compris. Publier reste
+  // réservé aux membres authentifiés.
+  @Public()
   @Get('offre/:offreId')
   @ApiOperation({ summary: 'Commentaires d\'une offre' })
   async findByOffre(@Param('offreId', ParseIntPipe) offreId: number) {

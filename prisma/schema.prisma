@@ -127,6 +127,7 @@ model User {
   reponseRetours      ReponseRetour[]
   cv                  CV?
   favorites           Favorite[]
+  likes               OffreLike[]
   alerts              Alert[]
   conversations       Conversation[]
   emailVerifications  EmailVerification[]
@@ -272,6 +273,7 @@ model Offre {
   commentaires    Commentaire[]
   retours         Retour[]
   favorites       Favorite[]
+  likes           OffreLike[]
   fichiers        OffreFichier[]
 
   @@index([typeOffreId])
@@ -469,6 +471,26 @@ model ReponseRetour {
   auteurId    Int
 
   @@index([retourId])
+}
+
+/// « J'aime » public sur une offre.
+///
+/// Distinct de Favorite : le favori est un marque-page privé, servant à
+/// retrouver une offre ; le like est un signal public, dont le total est
+/// affiché à tous. Confondre les deux rendrait impossible d'enregistrer une
+/// offre sans la recommander publiquement.
+model OffreLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  offre     Offre    @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  offreId   Int
+
+  @@unique([userId, offreId])
+  @@index([offreId])
+  @@index([userId])
 }
 
 model Favorite {

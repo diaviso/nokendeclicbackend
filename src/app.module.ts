@@ -24,6 +24,7 @@ import { UploadModule } from './modules/upload/upload.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { TypesOffresModule } from './modules/types-offres/types-offres.module';
+import { LikesModule } from './modules/likes/likes.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { TypesOffresModule } from './modules/types-offres/types-offres.module';
     ChatbotModule,
     AdminModule,
     FavoritesModule,
+    LikesModule,
     MailModule,
     MessagingModule,
     NotificationsModule,

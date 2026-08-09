@@ -118,7 +118,7 @@ export class OffresService {
         include: {
           auteur: this.auteurSelect,
           typeOffre: this.typeSelect,
-          _count: { select: { commentaires: true, retours: true } },
+          _count: { select: { commentaires: true, retours: true, likes: true } },
         },
       }),
       this.prisma.offre.count({ where }),
@@ -150,7 +150,7 @@ export class OffresService {
           orderBy: { datePublication: 'desc' },
         },
         fichiers: { orderBy: { createdAt: 'desc' } },
-        _count: { select: { commentaires: true, retours: true } },
+        _count: { select: { commentaires: true, retours: true, likes: true } },
       },
     });
 
@@ -326,7 +326,7 @@ export class OffresService {
       orderBy: { datePublication: 'desc' },
       include: {
         typeOffre: this.typeSelect,
-        _count: { select: { commentaires: true, retours: true } },
+        _count: { select: { commentaires: true, retours: true, likes: true } },
       },
     });
   }

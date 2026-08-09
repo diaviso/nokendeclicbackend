@@ -50,25 +50,44 @@ export class StorageService implements OnModuleInit {
     const bucket = this.configService.get<string>('r2.bucket');
     const publicUrl = this.configService.get<string>('r2.publicUrl');
 
-    if (!accountId || !accessKeyId || !secretAccessKey || !bucket) {
-      // On ne bloque pas le démarrage : l'application reste utilisable sans
-      // stockage, seuls les envois de fichiers échoueront, avec un message
-      // explicite plutôt qu'une erreur obscure.
+    const manquantes = [
+      ['R2_ACCOUNT_ID', accountId],
+      ['R2_ACCESS_KEY_ID', accessKeyId],
+      ['R2_SECRET_ACCESS_KEY', secretAccessKey],
+      ['R2_BUCKET', bucket],
+      // R2_PUBLIC_URL est indispensable, pas optionnelle : l'URL absolue de
+      // l'objet est persistée en base. Sans domaine public, on écrirait des
+      // liens irrécupérables — mieux vaut refuser la configuration que
+      // produire des enregistrements cassés.
+      ['R2_PUBLIC_URL', publicUrl],
+    ]
+      .filter(([, valeur]) => !valeur)
+      .map(([nom]) => nom);
+
+    if (manquantes.length) {
+      // Le démarrage n'est pas bloqué : l'application reste utilisable sans
+      // stockage, seuls les envois de fichiers sont refusés.
       this.logger.warn(
-        'Stockage R2 non configuré — les envois de fichiers seront refusés. ' +
-          'Variables attendues : R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, ' +
-          'R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL.',
+        `Stockage R2 incomplet — envois de fichiers désactivés. ` +
+          `Variable(s) manquante(s) : ${manquantes.join(', ')}. ` +
+          `R2_PUBLIC_URL est le domaine public du bucket (domaine personnalisé ` +
+          `ou URL r2.dev si l'accès public est activé).`,
       );
       return;
     }
 
-    this.bucket = bucket;
-    this.publicUrl = (publicUrl ?? '').replace(/\/+$/, '');
+    this.bucket = bucket!;
+    this.publicUrl = publicUrl!.replace(/\/+$/, '');
 
     this.client = new S3Client({
       region: 'auto',
       endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-      credentials: { accessKeyId, secretAccessKey },
+      // Les valeurs sont garanties non vides par le contrôle ci-dessus, que
+      // TypeScript ne peut pas suivre à travers le tableau de vérification.
+      credentials: {
+        accessKeyId: accessKeyId!,
+        secretAccessKey: secretAccessKey!,
+      },
     });
 
     this.logger.log(`Stockage R2 actif — bucket « ${bucket} »`);
