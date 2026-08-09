@@ -12,12 +12,13 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { CVService } from './cv.service';
 import { CVExtractorService } from './cv-extractor.service';
 import { CVCorrectorService } from './cv-corrector.service';
-import { CreateCVDto, UpdateCVDto } from './dto';
+import { CorrectCVDto, CreateCVDto, UpdateCVDto } from './dto';
 import { CurrentUser, Public } from '../../common';
 
 @ApiTags('CV')
@@ -43,8 +44,11 @@ export class CVController {
   }
 
   @Post('correct')
+  // Route coûteuse (appel OpenAI) : plafond dédié, très en dessous du throttle
+  // global de 100 req/min, pour borner le coût par utilisateur.
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Corriger et améliorer le contenu du CV avec l\'IA' })
-  async correctCV(@Body() dto: Record<string, any>) {
+  async correctCV(@Body() dto: CorrectCVDto) {
     const correctedData = await this.cvCorrectorService.correctCV(dto);
     return {
       success: true,

@@ -7,6 +7,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { ChatbotService } from './chatbot.service';
 import { ChatMessageDto } from './dto';
 import { CurrentUser, Public } from '../../common';
@@ -18,6 +19,9 @@ export class ChatbotController {
   constructor(private chatbotService: ChatbotService) {}
 
   @Post('chat')
+  // Un seul message peut déclencher plusieurs allers-retours OpenAI (boucle de
+  // tool-calling) : plafond dédié pour borner le coût.
+  @Throttle({ default: { limit: 15, ttl: 60000 } })
   @ApiOperation({ summary: 'Envoyer un message au chatbot' })
   async chat(@Body() dto: ChatMessageDto, @CurrentUser('id') userId: number) {
     return this.chatbotService.chat(dto, userId);

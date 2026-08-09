@@ -33,52 +33,53 @@ if (!existsSync(uploadDir)) {
         },
       }),
       fileFilter: (req, file, cb) => {
-        // Extended list of allowed MIME types including variations
-        const allowedMimes = [
-          // Images
-          'image/jpeg',
-          'image/jpg',
-          'image/png',
-          'image/gif',
-          'image/webp',
-          'image/bmp',
-          'image/svg+xml',
-          'image/tiff',
-          'image/x-icon',
-          'image/vnd.microsoft.icon',
-          // PDF
-          'application/pdf',
-          // Documents
-          'application/msword',
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'application/vnd.ms-excel',
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-powerpoint',
-          'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-          // Text
-          'text/plain',
-          'text/csv',
-          // Archives (optional)
-          'application/zip',
-          'application/x-zip-compressed',
-          'application/x-rar-compressed',
-          // Fallback for unknown binary
-          'application/octet-stream',
-        ];
-        
-        // Also check by file extension as fallback
-        const allowedExtensions = [
-          '.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg', '.ico', '.tiff',
-          '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
-          '.txt', '.csv', '.zip', '.rar'
-        ];
-        
+        // Couples (extension -> types MIME acceptés) : le type déclaré ET l'extension
+        // doivent être cohérents. Un OU laisserait passer n'importe quel binaire
+        // déguisé derrière une extension autorisée, et inversement.
+        //
+        // Exclusions volontaires :
+        // - SVG : peut embarquer <script>, et les fichiers sont servis tels quels
+        //   depuis l'origine de l'API => XSS stocké.
+        // - application/octet-stream : type par défaut de tout binaire non identifié,
+        //   l'accepter revient à désactiver le filtre.
+        // - archives (.zip/.rar) : contenu non inspectable, aucun usage métier ici.
+        const allowedTypes: Record<string, string[]> = {
+          '.jpg': ['image/jpeg'],
+          '.jpeg': ['image/jpeg'],
+          '.png': ['image/png'],
+          '.gif': ['image/gif'],
+          '.webp': ['image/webp'],
+          '.bmp': ['image/bmp'],
+          '.tiff': ['image/tiff'],
+          '.pdf': ['application/pdf'],
+          '.doc': ['application/msword'],
+          '.docx': [
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          ],
+          '.xls': ['application/vnd.ms-excel'],
+          '.xlsx': [
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          ],
+          '.ppt': ['application/vnd.ms-powerpoint'],
+          '.pptx': [
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          ],
+          '.txt': ['text/plain'],
+          '.csv': ['text/csv', 'text/plain', 'application/csv'],
+        };
+
         const ext = extname(file.originalname).toLowerCase();
-        
-        if (allowedMimes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
+        const expectedMimes = allowedTypes[ext];
+
+        if (expectedMimes && expectedMimes.includes(file.mimetype)) {
           cb(null, true);
         } else {
-          cb(new Error(`Type de fichier non autorisé: ${file.mimetype} (${ext})`), false);
+          cb(
+            new Error(
+              `Type de fichier non autorisé: ${file.mimetype} (${ext || 'sans extension'})`,
+            ),
+            false,
+          );
         }
       },
       limits: {

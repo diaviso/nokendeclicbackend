@@ -82,9 +82,36 @@ export class AdminService {
   }
 
   async getUserById(id: number) {
+    // IMPORTANT: projection explicite. Ne jamais utiliser `include` seul ici :
+    // Prisma retournerait alors TOUS les champs scalaires de User, y compris
+    // `password` (hash bcrypt) et `refreshToken` (rejouable sur /auth/refresh).
     const user = await this.prisma.user.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        isEmailVerified: true,
+        isGoogleLogin: true,
+        pictureUrl: true,
+        statutProfessionnel: true,
+        pays: true,
+        region: true,
+        departement: true,
+        commune: true,
+        sexe: true,
+        dateNaissance: true,
+        adresse: true,
+        telephone: true,
+        handicap: true,
+        typeHandicap: true,
+        createdAt: true,
+        updatedAt: true,
+        // Champs volontairement exclus : password, refreshToken, googleId.
         cv: {
           include: {
             experiences: true,

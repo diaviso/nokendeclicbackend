@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` déclenche postinstall -> prisma generate, qui produit
+      # src/generated/prisma (non versionné). Aucune connexion à la base n'est
+      # nécessaire pour `generate`.
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Vérification des types
+        run: npx tsc --noEmit -p tsconfig.json
+
+      - name: Build
+        run: npm run build
+
+      # Bloquant : aucune vulnérabilité critique ne doit entrer sur main.
+      - name: Audit de sécurité (critique bloquant)
+        run: npm audit --audit-level=critical
+
+      # Non bloquant pour l'instant : le dépôt porte un arriéré de ~790 erreurs
+      # de lint. À basculer en bloquant (retirer `continue-on-error`) une fois
+      # l'arriéré résorbé — `npm run lint` applique --fix en local.
+      # Ici on lance eslint SANS --fix : la CI ne doit jamais réécrire le code.
+      - name: Lint (informatif)
+        continue-on-error: true
+        run: npx eslint "src/**/*.ts" --ignore-pattern "src/generated/**"
+
+      - name: Tests
+        run: npm test -- --passWithNoTests

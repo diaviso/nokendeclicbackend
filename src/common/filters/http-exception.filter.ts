@@ -4,17 +4,22 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { randomUUID } from 'crypto';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+  private readonly logger = new Logger('ExceptionFilter');
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Erreur interne du serveur';
+    let message: string | string[] = 'Erreur interne du serveur';
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -22,13 +27,35 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message =
         typeof exceptionResponse === 'string'
           ? exceptionResponse
-          : (exceptionResponse as any).message || exception.message;
+          : ((exceptionResponse as Record<string, any>).message as string) ||
+            exception.message;
+    }
+
+    // Identifiant de corrélation : renvoyé au client ET journalisé, pour pouvoir
+    // relier un signalement utilisateur à la trace serveur correspondante.
+    const correlationId = randomUUID();
+    const userId = (request as any).user?.id ?? 'anonyme';
+    const context = `${request.method} ${request.originalUrl} | user=${userId} | id=${correlationId}`;
+
+    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      // 5xx : anomalie serveur, on veut la trace complète.
+      this.logger.error(
+        `${context} | ${exception instanceof Error ? exception.message : String(exception)}`,
+        exception instanceof Error ? exception.stack : undefined,
+      );
+    } else if (status === HttpStatus.UNAUTHORIZED || status === HttpStatus.FORBIDDEN) {
+      // Utile pour détecter les tentatives d'accès non autorisées répétées.
+      this.logger.warn(`${context} | ${status} ${JSON.stringify(message)}`);
+    } else {
+      this.logger.debug?.(`${context} | ${status}`);
     }
 
     response.status(status).json({
       statusCode: status,
       message,
+      correlationId,
       timestamp: new Date().toISOString(),
+      path: request.originalUrl,
     });
   }
 }

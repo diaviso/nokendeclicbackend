@@ -25,11 +25,15 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Liste tous les utilisateurs' })
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN' as any)
+  @ApiOperation({ summary: 'Liste tous les utilisateurs (Admin)' })
   async findAll() {
     return this.usersService.findAll();
   }
 
+  // NOTE: cette route doit rester déclarée AVANT `@Get(':id')`,
+  // sinon Nest résout `/api/users/me` vers le handler paramétré.
   @Get('me')
   @ApiOperation({ summary: 'Obtenir l\'utilisateur connecté' })
   async getMe(@CurrentUser() user: any) {
@@ -37,7 +41,9 @@ export class UsersController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtenir un utilisateur par ID' })
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN' as any)
+  @ApiOperation({ summary: 'Obtenir un utilisateur par ID (Admin)' })
   async findById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findById(id);
   }

@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
@@ -35,6 +36,11 @@ export class AuthController {
 
   @Public()
   @Post('login')
+  // Le throttle global (100 req/min) est bien trop permissif pour du bruteforce
+  // de mot de passe. Plafond dédié, calibré en tenant compte du public visé :
+  // les connexions partagées (cybercafés, NAT mobile) font que plusieurs
+  // utilisateurs légitimes sortent souvent par la même IP.
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Connexion avec email/password' })
   @ApiResponse({ status: 200, type: TokensResponse })
@@ -88,6 +94,9 @@ export class AuthController {
 
   @Public()
   @Post('verify-email')
+  // Code à 6 chiffres = 10^6 combinaisons. Sans plafond strict, 100 essais/min
+  // rendent l'énumération réaliste sur la fenêtre de validité de 15 minutes.
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Vérifier l\'email avec le code à 6 chiffres' })
   async verifyEmail(@Body() dto: VerifyEmailDto) {
@@ -96,6 +105,9 @@ export class AuthController {
 
   @Public()
   @Post('resend-code')
+  // Route qui déclenche un envoi d'e-mail : limiter pour éviter d'en faire
+  // un relais de spam et de brûler le quota SMTP.
+  @Throttle({ default: { limit: 3, ttl: 300000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Renvoyer le code de vérification' })
   async resendCode(@Body() dto: ResendCodeDto) {
@@ -104,6 +116,7 @@ export class AuthController {
 
   @Public()
   @Post('forgot-password')
+  @Throttle({ default: { limit: 3, ttl: 300000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Demander un lien de réinitialisation de mot de passe' })
   async forgotPassword(@Body() dto: ForgotPasswordDto) {

@@ -136,13 +136,13 @@ export class ChatbotService {
         type: 'function',
         function: {
           name: 'get_offres_par_type',
-          description: "Récupère les offres par type (EMPLOI, FORMATION, BOURSE, VOLONTARIAT)",
+          description: "Récupère les offres par type (EMPLOI, FORMATION, BOURSE, VOLONTARIAT, PROGRAMME)",
           parameters: {
             type: 'object',
             properties: {
               typeOffre: {
                 type: 'string',
-                enum: ['EMPLOI', 'FORMATION', 'BOURSE', 'VOLONTARIAT'],
+                enum: ['EMPLOI', 'FORMATION', 'BOURSE', 'VOLONTARIAT', 'PROGRAMME'],
                 description: "Type d'offre",
               },
             },

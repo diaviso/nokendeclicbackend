@@ -1,5 +1,24 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+/**
+ * Politique de mot de passe commune à l'inscription et à la réinitialisation.
+ * 10 caractères minimum avec au moins une minuscule, une majuscule et un chiffre.
+ * La borne haute évite les charges utiles volumineuses côté bcrypt (coût CPU).
+ */
+export const PASSWORD_MIN_LENGTH = 10;
+export const PASSWORD_MAX_LENGTH = 128;
+export const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
+export const PASSWORD_MESSAGE =
+  'Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre';
 
 export class LoginDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -24,9 +43,11 @@ export class RegisterDto {
   @IsNotEmpty()
   username: string;
 
-  @ApiProperty({ example: 'password123' })
+  @ApiProperty({ example: 'MonMotDePasse1' })
   @IsString()
-  @MinLength(6)
+  @MinLength(PASSWORD_MIN_LENGTH)
+  @MaxLength(PASSWORD_MAX_LENGTH)
+  @Matches(PASSWORD_PATTERN, { message: PASSWORD_MESSAGE })
   password: string;
 
   @ApiPropertyOptional({ example: 'John' })
@@ -106,9 +127,11 @@ export class ResetPasswordDto {
   @IsNotEmpty()
   token: string;
 
-  @ApiProperty({ example: 'newPassword123' })
+  @ApiProperty({ example: 'MonNouveauMotDePasse1' })
   @IsString()
-  @MinLength(6)
+  @MinLength(PASSWORD_MIN_LENGTH)
+  @MaxLength(PASSWORD_MAX_LENGTH)
+  @Matches(PASSWORD_PATTERN, { message: PASSWORD_MESSAGE })
   password: string;
 }
 

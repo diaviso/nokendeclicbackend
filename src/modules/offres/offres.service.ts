@@ -183,7 +183,7 @@ export class OffresService {
 
   async getTypes() {
     return {
-      typeOffre: ['EMPLOI', 'FORMATION', 'BOURSE', 'VOLONTARIAT'],
+      typeOffre: ['EMPLOI', 'FORMATION', 'BOURSE', 'VOLONTARIAT', 'PROGRAMME'],
       typeEmploi: ['CDI', 'CDD', 'STAGE', 'ALTERNANCE', 'FREELANCE', 'INTERIM', 'SAISONNIER', 'TEMPS_PARTIEL', 'TEMPS_PLEIN'],
       secteur: [
         'INFORMATIQUE', 'FINANCE', 'SANTE', 'EDUCATION', 'COMMERCE', 'INDUSTRIE',
@@ -200,13 +200,14 @@ export class OffresService {
   }
 
   async countByType() {
-    const [emploi, formation, bourse, volontariat] = await Promise.all([
+    const [emploi, formation, bourse, volontariat, programme] = await Promise.all([
       this.prisma.offre.count({ where: { typeOffre: 'EMPLOI' } }),
       this.prisma.offre.count({ where: { typeOffre: 'FORMATION' } }),
       this.prisma.offre.count({ where: { typeOffre: 'BOURSE' } }),
       this.prisma.offre.count({ where: { typeOffre: 'VOLONTARIAT' } }),
+      this.prisma.offre.count({ where: { typeOffre: 'PROGRAMME' } }),
     ]);
-    return { emploi, formation, bourse, volontariat };
+    return { emploi, formation, bourse, volontariat, programme };
   }
 
   async countBySecteur() {

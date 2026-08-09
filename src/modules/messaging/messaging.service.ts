@@ -85,9 +85,44 @@ export class MessagingService {
 
   // Get or create a conversation between two users
   async getOrCreateConversation(userId: number, otherUserId: number) {
+    if (userId === otherUserId) {
+      throw new ForbiddenException(
+        'Vous ne pouvez pas démarrer une conversation avec vous-même',
+      );
+    }
+
+    // La règle « un membre ne peut écrire qu'aux administrateurs » doit être
+    // appliquée ICI et pas seulement dans getContactableUsers : sans ce contrôle,
+    // n'importe quel membre peut ouvrir une conversation avec un autre membre en
+    // devinant son identifiant.
+    const [currentUser, targetUser] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: otherUserId },
+        select: { role: true, isActive: true },
+      }),
+    ]);
+
+    if (!currentUser) {
+      throw new NotFoundException('Utilisateur non trouvé');
+    }
+
+    if (!targetUser || !targetUser.isActive) {
+      throw new NotFoundException('Destinataire non trouvé');
+    }
+
+    if (currentUser.role !== 'ADMIN' && targetUser.role !== 'ADMIN') {
+      throw new ForbiddenException(
+        'Vous ne pouvez contacter que les administrateurs',
+      );
+    }
+
     // Ensure consistent ordering (smaller ID first)
-    const [user1Id, user2Id] = userId < otherUserId 
-      ? [userId, otherUserId] 
+    const [user1Id, user2Id] = userId < otherUserId
+      ? [userId, otherUserId]
       : [otherUserId, userId];
 
     let conversation = await this.prisma.privateConversation.findUnique({

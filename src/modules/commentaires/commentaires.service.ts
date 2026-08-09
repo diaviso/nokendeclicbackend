@@ -88,9 +88,13 @@ export class CommentairesService {
       throw new ForbiddenException('Vous ne pouvez pas modifier ce commentaire');
     }
 
+    // La modération doit aussi s'appliquer à l'édition : sans cela, il suffit de
+    // publier un commentaire acceptable puis de le modifier pour la contourner.
+    const moderation = await this.moderationService.moderateContent(dto.contenu);
+
     return this.prisma.commentaire.update({
       where: { id },
-      data: { contenu: dto.contenu },
+      data: { contenu: moderation.moderatedContent },
       include: {
         auteur: { select: { id: true, username: true, pictureUrl: true } },
       },
