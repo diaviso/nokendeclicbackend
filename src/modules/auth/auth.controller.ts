@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto, RefreshTokenDto, TokensResponse, VerifyEmailDto, ResendCodeDto, ForgotPasswordDto, ResetPasswordDto, ValidateResetTokenDto } from './dto';
 import { Public, CurrentUser } from '../../common';
+import { GoogleConfiguredGuard } from '../../common/guards';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -50,7 +51,7 @@ export class AuthController {
 
   @Public()
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleConfiguredGuard, AuthGuard('google'))
   @ApiOperation({ summary: 'Initier la connexion Google OAuth2' })
   async googleAuth() {
     // Redirige vers Google
@@ -58,7 +59,7 @@ export class AuthController {
 
   @Public()
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleConfiguredGuard, AuthGuard('google'))
   @ApiOperation({ summary: 'Callback Google OAuth2' })
   async googleAuthCallback(@Req() req: any, @Res() res: Response) {
     const tokens = await this.authService.googleLogin(req.user);
