@@ -99,8 +99,11 @@ export class OffresService {
     const offre = await this.prisma.offre.findUnique({
       where: { id },
       include: {
+        // Pas d'email : cette route est publique (rendu serveur des pages
+        // d'offres). L'adresse de l'auteur reste accessible aux administrateurs
+        // via GET /api/admin/offres/:id.
         auteur: {
-          select: { id: true, username: true, pictureUrl: true, email: true },
+          select: { id: true, username: true, pictureUrl: true },
         },
         commentaires: {
           include: {

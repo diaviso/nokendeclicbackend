@@ -55,7 +55,11 @@ export class OffresController {
     return this.offresService.findById(offre.id);
   }
 
+  // Catalogue public : c'est la condition pour que les pages d'offres puissent
+  // être rendues côté serveur et donc indexées. La projection ne contient que
+  // des données destinées à la publication (aucun email, aucun contact).
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Liste des offres avec filtres et pagination' })
   async findAll(@Query() filters: OffresFilterDto) {
     return this.offresService.findAll(filters);
@@ -75,6 +79,7 @@ export class OffresController {
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Détails d\'une offre' })
   async findById(@Param('id', ParseIntPipe) id: number) {
     return this.offresService.findById(id);
