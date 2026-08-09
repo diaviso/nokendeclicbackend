@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   ForbiddenException,
@@ -6,7 +7,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateOffreDto, UpdateOffreDto, OffresFilterDto } from './dto';
+import { CHAMPS_LEGACY, CreateOffreDto, UpdateOffreDto, OffresFilterDto } from './dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { TypesOffresService } from '../types-offres/types-offres.service';
 
@@ -48,32 +49,124 @@ export class OffresService {
     select: { id: true, username: true, pictureUrl: true },
   };
 
-  async create(dto: CreateOffreDto, auteurId: number) {
-    // Les valeurs des champs personnalisés sont validées contre la définition
-    // du type : obligatoires présents, types respectés, clés inconnues écartées.
-    const champs = await this.typesOffres.validerValeurs(
-      dto.typeOffreId,
-      dto.champs,
-    );
+  /**
+   * Met la réponse à la forme attendue par les deux frontends.
+   *
+   * `typeOffre` reste une **chaîne** (le code) : c'est ce que lisent l'ancien
+   * front Vite — qui l'utilise comme clé de ses tables de libellés — et le
+   * nouveau. Renvoyer l'objet sous ce nom ferait disparaître silencieusement
+   * toutes les pastilles de type sur une application en production.
+   *
+   * L'objet complet (libellé, icône, couleur, définition des champs) est
+   * exposé sous `type`, que seul le nouveau front consomme.
+   *
+   * Les anciennes colonnes spécifiques sont par ailleurs remontées à plat
+   * depuis `champs`, pour que l'ancien front continue d'afficher salaire,
+   * organisme ou pays de bourse. À retirer une fois l'ancien front déposé.
+   */
+  private serialiser<T extends Record<string, any>>(offre: T) {
+    if (!offre) return offre;
 
-    const { champs: _ignore, dateLimite, ...reste } = dto;
+    const { typeOffre, champs, ...reste } = offre;
+    const valeurs = (champs ?? {}) as Record<string, unknown>;
+
+    return {
+      ...reste,
+      ...valeurs,
+      champs: valeurs,
+      typeOffre: typeOffre?.code ?? null,
+      type: typeOffre ?? null,
+    };
+  }
+
+  /**
+   * Résout le type et les valeurs de champs à partir d'une requête, qu'elle
+   * vienne du nouveau front (`typeOffreId` + `champs`) ou de l'ancien
+   * (`typeOffre` en code + champs spécifiques à plat).
+   */
+  private async resoudreEntree(
+    dto: CreateOffreDto | UpdateOffreDto,
+    typeParDefaut?: number,
+  ) {
+    let typeOffreId = dto.typeOffreId ?? typeParDefaut;
+
+    if (!typeOffreId && dto.typeOffre) {
+      const type = await this.prisma.typeOffre.findUnique({
+        where: { code: dto.typeOffre.toUpperCase() },
+        select: { id: true },
+      });
+      if (!type) {
+        throw new NotFoundException(
+          `Type d'offre « ${dto.typeOffre} » introuvable`,
+        );
+      }
+      typeOffreId = type.id;
+    }
+
+    if (!typeOffreId) {
+      throw new BadRequestException("Le type d'offre est requis");
+    }
+
+    // Champs hérités envoyés à plat : repliés dans `champs`, sans écraser une
+    // valeur explicitement fournie sous la nouvelle forme.
+    const heritees: Record<string, unknown> = {};
+    const brut = dto as unknown as Record<string, unknown>;
+    for (const code of CHAMPS_LEGACY) {
+      const valeur = brut[code];
+      if (valeur !== undefined && valeur !== null && valeur !== '') {
+        heritees[code] = valeur;
+      }
+    }
+
+    const champs = await this.typesOffres.validerValeurs(typeOffreId, {
+      ...heritees,
+      ...(dto.champs ?? {}),
+    });
+
+    return { typeOffreId, champs };
+  }
+
+  /** Retire du DTO les clés qui ne sont pas des colonnes de la table. */
+  private sansClesNonColonnes(dto: CreateOffreDto | UpdateOffreDto) {
+    const reste = { ...(dto as unknown as Record<string, unknown>) };
+
+    for (const cle of ['champs', 'typeOffre', 'typeOffreId', 'dateLimite']) {
+      delete reste[cle];
+    }
+    for (const code of CHAMPS_LEGACY) {
+      delete reste[code];
+    }
+
+    return reste as Omit<
+      CreateOffreDto,
+      'champs' | 'typeOffre' | 'typeOffreId' | 'dateLimite'
+    >;
+  }
+
+  async create(dto: CreateOffreDto, auteurId: number) {
+    // Les valeurs sont validées contre la définition du type : obligatoires
+    // présents, types respectés, clés inconnues écartées.
+    const { typeOffreId, champs } = await this.resoudreEntree(dto);
+    const reste = this.sansClesNonColonnes(dto);
+    const dateLimite = dto.dateLimite;
 
     const offre = await this.prisma.offre.create({
       data: {
         ...reste,
+        typeOffreId,
         typeEmploi: dto.typeEmploi as any,
         secteur: dto.secteur as any,
         niveauExperience: dto.niveauExperience as any,
         dateLimite: dateLimite ? new Date(dateLimite) : null,
         champs,
         auteurId,
-      },
+      } as any,
       include: { auteur: this.auteurSelect, typeOffre: this.typeSelect },
     });
 
     await this.notificationsService.notifyNewOffre(offre.id, offre.titre);
 
-    return offre;
+    return this.serialiser(offre);
   }
 
   async findAll(filters: OffresFilterDto) {
@@ -125,7 +218,7 @@ export class OffresService {
     ]);
 
     return {
-      data,
+      data: data.map((offre) => this.serialiser(offre)),
       total,
       page,
       limit,
@@ -163,7 +256,7 @@ export class OffresService {
       data: { viewCount: { increment: 1 } },
     });
 
-    return offre;
+    return this.serialiser(offre);
   }
 
   async update(id: number, dto: UpdateOffreDto, userId: number, userRole: string) {
@@ -179,15 +272,20 @@ export class OffresService {
 
     // Le type peut changer : les valeurs sont revalidées contre la définition
     // du type cible, ce qui écarte au passage les champs de l'ancien type.
-    const typeOffreId = dto.typeOffreId ?? offre.typeOffreId;
-    const champs = await this.typesOffres.validerValeurs(
-      typeOffreId,
-      dto.champs ?? (offre.champs as Record<string, unknown>),
+    const { typeOffreId, champs } = await this.resoudreEntree(
+      {
+        ...dto,
+        // Sans valeurs fournies, on repart de celles déjà enregistrées : une
+        // mise à jour partielle ne doit pas vider les champs du type.
+        champs: dto.champs ?? (offre.champs as Record<string, unknown>),
+      },
+      offre.typeOffreId,
     );
 
-    const { champs: _ignore, dateLimite, ...reste } = dto;
+    const reste = this.sansClesNonColonnes(dto);
+    const dateLimite = dto.dateLimite;
 
-    return this.prisma.offre.update({
+    const misAJour = await this.prisma.offre.update({
       where: { id },
       data: {
         ...reste,
@@ -200,6 +298,8 @@ export class OffresService {
       },
       include: { auteur: this.auteurSelect, typeOffre: this.typeSelect },
     });
+
+    return this.serialiser(misAJour);
   }
 
   /**
@@ -321,7 +421,7 @@ export class OffresService {
   }
 
   async findByAuteur(auteurId: number) {
-    return this.prisma.offre.findMany({
+    const offres = await this.prisma.offre.findMany({
       where: { auteurId },
       orderBy: { datePublication: 'desc' },
       include: {
@@ -329,5 +429,7 @@ export class OffresService {
         _count: { select: { commentaires: true, retours: true, likes: true } },
       },
     });
+
+    return offres.map((offre) => this.serialiser(offre));
   }
 }

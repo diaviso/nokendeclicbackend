@@ -70,7 +70,84 @@ export enum NiveauExperience {
   EXPERT = 'EXPERT',
 }
 
-export class CreateOffreDto {
+export class ChampsLegacyDto {
+  @ApiPropertyOptional({ deprecated: true })
+  @IsNumber()
+  @IsOptional()
+  salaireMin?: number;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsNumber()
+  @IsOptional()
+  salaireMax?: number;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsString()
+  @IsOptional()
+  devise?: string;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsString()
+  @IsOptional()
+  organisme?: string;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsNumber()
+  @IsOptional()
+  dureeFormation?: number;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsString()
+  @IsOptional()
+  certification?: string;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsString()
+  @IsOptional()
+  paysBourse?: string;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsString()
+  @IsOptional()
+  niveauEtude?: string;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsNumber()
+  @IsOptional()
+  montantBourse?: number;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsBoolean()
+  @IsOptional()
+  estRemboursable?: boolean;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsString()
+  @IsOptional()
+  typeVolontariat?: string;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsNumber()
+  @IsOptional()
+  dureeVolontariat?: number;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsBoolean()
+  @IsOptional()
+  hebergement?: boolean;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsNumber()
+  @IsOptional()
+  indemnite?: number;
+
+  @ApiPropertyOptional({ deprecated: true })
+  @IsString()
+  @IsOptional()
+  competencesRequises?: string;
+}
+
+export class CreateOffreDto extends ChampsLegacyDto {
   @ApiProperty({ example: 'Développeur Full Stack' })
   @IsString()
   @MaxLength(200)
@@ -91,11 +168,23 @@ export class CreateOffreDto {
   @IsOptional()
   dateLimite?: string;
 
-  @ApiProperty({ example: 1, description: "Identifiant du type d'offre" })
+  @ApiPropertyOptional({ example: 1, description: "Identifiant du type d'offre" })
   @IsInt()
   @Min(1)
   @Type(() => Number)
-  typeOffreId: number;
+  @IsOptional()
+  typeOffreId?: number;
+
+  /**
+   * Compatibilité : l'ancien back-office envoie le code du type
+   * (`typeOffre: "EMPLOI"`) et non son identifiant. Le service résout l'un ou
+   * l'autre. À retirer une fois l'ancien front déposé.
+   */
+  @ApiPropertyOptional({ example: 'EMPLOI', deprecated: true })
+  @IsString()
+  @MaxLength(40)
+  @IsOptional()
+  typeOffre?: string;
 
   /**
    * Valeurs des champs définis par le type choisi, indexées par leur code.
@@ -146,6 +235,35 @@ export class CreateOffreDto {
   entreprise?: string;
 
 }
+
+/**
+ * Champs spécifiques de l'ancien modèle, encore envoyés à plat par le
+ * back-office Vite. Ils sont repliés dans `champs` par le service.
+ *
+ * Sans ces déclarations, la validation globale (`forbidNonWhitelisted`) les
+ * rejetterait en 400 : créer ou modifier une offre depuis l'ancienne interface
+ * deviendrait impossible du jour au lendemain.
+ *
+ * À supprimer une fois l'ancien front déposé.
+ */
+/** Codes des champs hérités, repliés dans `champs` par le service. */
+export const CHAMPS_LEGACY = [
+  'salaireMin',
+  'salaireMax',
+  'devise',
+  'organisme',
+  'dureeFormation',
+  'certification',
+  'paysBourse',
+  'niveauEtude',
+  'montantBourse',
+  'estRemboursable',
+  'typeVolontariat',
+  'dureeVolontariat',
+  'hebergement',
+  'indemnite',
+  'competencesRequises',
+] as const;
 
 export class UpdateOffreDto extends CreateOffreDto {}
 
