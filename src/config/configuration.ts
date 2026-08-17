@@ -19,6 +19,10 @@ export default () => ({
   },
   openai: {
     apiKey: process.env.OPENAI_API_KEY,
+    // Modèle multimodal utilisé pour lire les documents déposés (CV scanné ou
+    // photographié). Surchargeable sans redéploiement, le temps d'évaluer un
+    // nouveau modèle sur des scans réels.
+    visionModel: process.env.OPENAI_VISION_MODEL ?? 'gpt-4.1',
   },
   frontend: {
     url: process.env.FRONTEND_URL ?? 'http://localhost:5173',

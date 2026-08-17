@@ -12,6 +12,11 @@ export class DashboardController {
   @Get('stats')
   @ApiOperation({ summary: 'Statistiques du dashboard utilisateur' })
   async getStats(@CurrentUser('id') userId: number) {
+    // Tous les comptages portent sur les seules offres validées : un dépôt de
+    // partenaire en attente de relecture n'est visible de personne, et le
+    // compter gonflerait un total sur lequel l'utilisateur ne peut pas cliquer.
+    const publiees = { statutModeration: 'PUBLIEE' as const };
+
     const [
       totalOffres,
       totalFavorites,
@@ -19,14 +24,16 @@ export class DashboardController {
       offresByType,
       recentOffres,
     ] = await Promise.all([
-      this.prisma.offre.count(),
+      this.prisma.offre.count({ where: publiees }),
       this.prisma.favorite.count({ where: { userId } }),
       this.prisma.retour.count({ where: { auteurId: userId } }),
       this.prisma.offre.groupBy({
         by: ['typeOffreId'],
+        where: publiees,
         _count: { typeOffreId: true },
       }),
       this.prisma.offre.findMany({
+        where: publiees,
         take: 5,
         orderBy: { datePublication: 'desc' },
         include: {

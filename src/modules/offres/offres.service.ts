@@ -143,12 +143,17 @@ export class OffresService {
     >;
   }
 
-  async create(dto: CreateOffreDto, auteurId: number) {
+  async create(dto: CreateOffreDto, auteurId: number, auteurRole?: string) {
     // Les valeurs sont validées contre la définition du type : obligatoires
     // présents, types respectés, clés inconnues écartées.
     const { typeOffreId, champs } = await this.resoudreEntree(dto);
     const reste = this.sansClesNonColonnes(dto);
     const dateLimite = dto.dateLimite;
+
+    // Une offre déposée par un partenaire attend une relecture ; celles de
+    // l'administration entrent directement au catalogue. Le rôle est lu ici
+    // plutôt que transmis par le client : c'est le serveur qui décide.
+    const enAttente = auteurRole === 'PARTENAIRE';
 
     const offre = await this.prisma.offre.create({
       data: {
@@ -160,20 +165,93 @@ export class OffresService {
         dateLimite: dateLimite ? new Date(dateLimite) : null,
         champs,
         auteurId,
+        statutModeration: enAttente ? 'EN_ATTENTE' : 'PUBLIEE',
       } as any,
       include: { auteur: this.auteurSelect, typeOffre: this.typeSelect },
     });
 
-    await this.notificationsService.notifyNewOffre(offre.id, offre.titre);
+    // Pas de notification tant que l'offre n'est pas visible : annoncer aux
+    // membres une offre qu'ils ne peuvent pas ouvrir ne ferait qu'un lien mort.
+    // Elle part à la validation (voir `moderer`).
+    if (!enAttente) {
+      await this.notificationsService.notifyNewOffre(offre.id, offre.titre);
+    }
 
     return this.serialiser(offre);
+  }
+
+  /**
+   * Tranche la modération d'une offre.
+   *
+   * Une offre refusée n'est pas supprimée : son auteur doit pouvoir lire le
+   * motif, corriger et soumettre à nouveau. La notification aux membres part au
+   * moment de la validation, et non du dépôt — c'est là que l'offre devient
+   * réellement consultable.
+   */
+  async moderer(
+    id: number,
+    decision: { statut: 'PUBLIEE' | 'REFUSEE'; motif?: string },
+    moderateurId: number,
+  ) {
+    const offre = await this.prisma.offre.findUnique({
+      where: { id },
+      select: { id: true, titre: true, statutModeration: true },
+    });
+
+    if (!offre) {
+      throw new NotFoundException('Offre non trouvée');
+    }
+
+    if (decision.statut === 'REFUSEE' && !decision.motif?.trim()) {
+      throw new BadRequestException(
+        'Un refus doit être motivé : le partenaire ne peut pas corriger sans savoir quoi.',
+      );
+    }
+
+    const misAJour = await this.prisma.offre.update({
+      where: { id },
+      data: {
+        statutModeration: decision.statut,
+        motifRefus: decision.statut === 'REFUSEE' ? decision.motif?.trim() : null,
+        dateModeration: new Date(),
+        modereParId: moderateurId,
+      },
+      include: { auteur: this.auteurSelect, typeOffre: this.typeSelect },
+    });
+
+    // La notification ne part qu'à la première publication : revalider une
+    // offre déjà passée au catalogue ne doit pas la réannoncer à tout le monde.
+    if (
+      decision.statut === 'PUBLIEE' &&
+      offre.statutModeration !== 'PUBLIEE'
+    ) {
+      await this.notificationsService.notifyNewOffre(misAJour.id, misAJour.titre);
+    }
+
+    return this.serialiser(misAJour);
+  }
+
+  /** File d'attente de la console : les dépôts en attente, les plus anciens d'abord. */
+  async findEnAttente() {
+    const offres = await this.prisma.offre.findMany({
+      where: { statutModeration: 'EN_ATTENTE' },
+      // Les plus anciens d'abord : c'est celui qui attend depuis le plus
+      // longtemps qui doit être traité en premier.
+      orderBy: { createdAt: 'asc' },
+      include: { auteur: this.auteurSelect, typeOffre: this.typeSelect },
+    });
+
+    return offres.map((offre) => this.serialiser(offre));
   }
 
   async findAll(filters: OffresFilterDto) {
     const { page = 1, limit = 20, ...filterParams } = filters;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    // Le catalogue ne montre que ce qui est validé. Le filtre est posé en
+    // premier et n'est jamais surchargé par les paramètres de requête : c'est
+    // la seule barrière entre un dépôt non relu et l'ensemble des membres.
+    const where: any = { statutModeration: 'PUBLIEE' };
 
     // Le filtre accepte le code (liens partagés) ou l'identifiant.
     if (filterParams.typeOffreId) {
@@ -247,7 +325,10 @@ export class OffresService {
       },
     });
 
-    if (!offre) {
+    // Une offre non validée n'existe pas pour le public : renvoyer 403 plutôt
+    // que 404 confirmerait son existence, et l'adresse d'un dépôt en attente
+    // suffirait alors à contourner la relecture en la partageant.
+    if (!offre || offre.statutModeration !== 'PUBLIEE') {
       throw new NotFoundException('Offre non trouvée');
     }
 
@@ -255,6 +336,34 @@ export class OffresService {
       where: { id },
       data: { viewCount: { increment: 1 } },
     });
+
+    return this.serialiser(offre);
+  }
+
+  /**
+   * Offre telle que son auteur ou l'administration doit la voir, quel que soit
+   * son état de modération — c'est ce que charge le formulaire de modification.
+   *
+   * Distincte de `findById`, qui sert le catalogue public : celle-ci exige une
+   * session, ne compte pas de vue, et laisse passer les dépôts en attente.
+   */
+  async findPourEdition(id: number, userId: number, userRole: string) {
+    const offre = await this.prisma.offre.findUnique({
+      where: { id },
+      include: {
+        auteur: this.auteurSelect,
+        typeOffre: this.typeSelect,
+        fichiers: { orderBy: { createdAt: 'desc' as const } },
+      },
+    });
+
+    if (!offre) {
+      throw new NotFoundException('Offre non trouvée');
+    }
+
+    if (offre.auteurId !== userId && userRole !== 'ADMIN') {
+      throw new ForbiddenException('Vous ne pouvez pas consulter cette offre');
+    }
 
     return this.serialiser(offre);
   }
@@ -285,6 +394,12 @@ export class OffresService {
     const reste = this.sansClesNonColonnes(dto);
     const dateLimite = dto.dateLimite;
 
+    // Une modification par un partenaire renvoie l'offre en relecture. Sans
+    // cela, la modération se contourne en une manœuvre : déposer une annonce
+    // inoffensive, attendre sa validation, puis la réécrire entièrement. Une
+    // modification par l'administration ne change évidemment rien.
+    const repasseEnRelecture = userRole !== 'ADMIN';
+
     const misAJour = await this.prisma.offre.update({
       where: { id },
       data: {
@@ -295,6 +410,14 @@ export class OffresService {
         niveauExperience: dto.niveauExperience as any,
         dateLimite: dateLimite ? new Date(dateLimite) : null,
         champs,
+        ...(repasseEnRelecture
+          ? {
+              statutModeration: 'EN_ATTENTE' as const,
+              motifRefus: null,
+              dateModeration: null,
+              modereParId: null,
+            }
+          : {}),
       },
       include: { auteur: this.auteurSelect, typeOffre: this.typeSelect },
     });
@@ -377,14 +500,20 @@ export class OffresService {
     };
   }
 
+  /**
+   * Les comptages n'incluent que les offres validées : ils alimentent la page
+   * d'accueil et les compteurs par catégorie, qui doivent correspondre à ce
+   * qu'un visiteur trouvera réellement en cliquant.
+   */
   async count() {
-    return this.prisma.offre.count();
+    return this.prisma.offre.count({ where: { statutModeration: 'PUBLIEE' } });
   }
 
   /** Comptage par type — dérivé de la table, plus d'une liste figée. */
   async countByType() {
     const groupes = await this.prisma.offre.groupBy({
       by: ['typeOffreId'],
+      where: { statutModeration: 'PUBLIEE' },
       _count: { typeOffreId: true },
     });
 
@@ -404,12 +533,14 @@ export class OffresService {
   async countBySecteur() {
     return this.prisma.offre.groupBy({
       by: ['secteur'],
+      where: { statutModeration: 'PUBLIEE' },
       _count: { secteur: true },
     });
   }
 
   async getTopOffres(limit = 5) {
     return this.prisma.offre.findMany({
+      where: { statutModeration: 'PUBLIEE' },
       take: limit,
       orderBy: { retours: { _count: 'desc' } },
       include: {

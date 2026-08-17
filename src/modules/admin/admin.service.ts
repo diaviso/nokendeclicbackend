@@ -10,6 +10,44 @@ export class AdminService {
     private notificationsService: NotificationsService,
   ) {}
 
+  /**
+   * Projection du type d'offre — libellé, icône et couleur, sans la définition
+   * des champs : la console d'administration affiche une pastille par ligne,
+   * pas un formulaire, et charger les champs de vingt types par page serait
+   * payé à chaque affichage de la liste.
+   */
+  private static readonly TYPE_SELECT = {
+    select: {
+      id: true,
+      code: true,
+      libelle: true,
+      icone: true,
+      couleur: true,
+    },
+  };
+
+  /**
+   * Met une offre à la forme attendue par les frontends, comme le fait
+   * `OffresService.serialiser`.
+   *
+   * `typeOffre` doit rester une **chaîne** — le code — car c'est la clé que les
+   * deux frontends utilisent pour retrouver libellé et couleur ; l'objet complet
+   * est exposé sous `type`. Ce module avait été oublié lors du passage aux types
+   * administrables : il renvoyait la relation brute sous `typeOffre`, si bien
+   * que la colonne « Type » de la console restait vide.
+   */
+  private static serialiserOffre<T extends Record<string, any>>(offre: T) {
+    if (!offre) return offre;
+
+    const { typeOffre, ...reste } = offre;
+
+    return {
+      ...reste,
+      typeOffre: typeOffre?.code ?? null,
+      type: typeOffre ?? null,
+    };
+  }
+
   // ==================== USERS ====================
 
   async getAllUsers(page = 1, limit = 20, search?: string) {
@@ -114,14 +152,91 @@ export class AdminService {
         // Champs volontairement exclus : password, refreshToken, googleId.
         cv: {
           include: {
-            experiences: true,
-            formations: true,
+            experiences: { orderBy: { dateDebut: 'desc' } },
+            formations: { orderBy: { dateDebut: 'desc' } },
           },
         },
-        retours: { take: 5, orderBy: { datePublication: 'desc' }, include: { offre: { select: { titre: true } } } },
-        offres: { take: 5, orderBy: { datePublication: 'desc' } },
-        favorites: { take: 5, orderBy: { createdAt: 'desc' }, include: { offre: { select: { id: true, titre: true, typeOffre: true } } } },
-        _count: { select: { retours: true, offres: true, favorites: true } },
+        retours: {
+          take: 10,
+          orderBy: { datePublication: 'desc' },
+          include: {
+            offre: { select: { id: true, titre: true } },
+            _count: { select: { reponses: true } },
+          },
+        },
+        offres: {
+          take: 10,
+          orderBy: { datePublication: 'desc' },
+          include: {
+            typeOffre: AdminService.TYPE_SELECT,
+            _count: { select: { retours: true, commentaires: true } },
+          },
+        },
+        favorites: {
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            offre: {
+              select: {
+                id: true,
+                titre: true,
+                entreprise: true,
+                estCloturee: true,
+                typeOffre: AdminService.TYPE_SELECT,
+              },
+            },
+          },
+        },
+        likes: {
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            offre: {
+              select: { id: true, titre: true, typeOffre: AdminService.TYPE_SELECT },
+            },
+          },
+        },
+        commentaires: {
+          take: 10,
+          orderBy: { datePublication: 'desc' },
+          include: { offre: { select: { id: true, titre: true } } },
+        },
+        feedbacks: {
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            titre: true,
+            categorie: true,
+            statut: true,
+            priorite: true,
+            createdAt: true,
+            _count: { select: { reponses: true } },
+          },
+        },
+        alerts: {
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            criteria: true,
+            isActive: true,
+            lastSent: true,
+            createdAt: true,
+          },
+        },
+        _count: {
+          select: {
+            retours: true,
+            offres: true,
+            favorites: true,
+            likes: true,
+            commentaires: true,
+            feedbacks: true,
+            alerts: true,
+            notifications: true,
+            conversations: true,
+          },
+        },
       },
     });
 
@@ -175,18 +290,52 @@ export class AdminService {
       },
     });
 
-    // Get alerts count
-    const alertsCount = await this.prisma.alert.count({
-      where: { userId: id },
-    });
+    // Notifications non lues et dernières reçues : elles disent ce que la
+    // plateforme a tenté d'adresser au compte, information utile quand un
+    // membre écrit « je n'ai rien reçu ».
+    const [notificationsNonLues, dernieresNotifications, derniereConnexionMessage] =
+      await Promise.all([
+        this.prisma.notification.count({ where: { userId: id, isRead: false } }),
+        this.prisma.notification.findMany({
+          where: { userId: id },
+          take: 8,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            type: true,
+            title: true,
+            message: true,
+            isRead: true,
+            createdAt: true,
+          },
+        }),
+        this.prisma.privateMessage.findFirst({
+          where: { senderId: id },
+          orderBy: { createdAt: 'desc' },
+          select: { createdAt: true },
+        }),
+      ]);
 
-    // Get comments count
-    const commentsCount = await this.prisma.commentaire.count({
-      where: { auteurId: id },
-    });
+    // Dernier signe de vie observable, toutes surfaces confondues. `updatedAt`
+    // seul est trompeur : il bouge à chaque modification du profil, y compris
+    // faite depuis la console par un administrateur.
+    const derniereActivite = [
+      derniereConnexionMessage?.createdAt,
+      lastConversation?.updatedAt,
+      user.retours[0]?.datePublication,
+      user.offres[0]?.datePublication,
+      user.commentaires[0]?.datePublication,
+      user.feedbacks[0]?.createdAt,
+      user.favorites[0]?.createdAt,
+      user.likes[0]?.createdAt,
+    ]
+      .filter((date): date is Date => Boolean(date))
+      .sort((a, b) => b.getTime() - a.getTime())[0];
 
     return {
       ...user,
+      derniereActivite: derniereActivite ?? null,
+      dernieresNotifications,
       aiChatStats: {
         totalConversations,
         totalMessages,
@@ -200,8 +349,12 @@ export class AdminService {
         privateMessagesReceived,
       },
       engagementStats: {
-        alertsCount,
-        commentsCount,
+        alertsCount: user._count.alerts,
+        commentsCount: user._count.commentaires,
+        likesCount: user._count.likes,
+        feedbacksCount: user._count.feedbacks,
+        notificationsCount: user._count.notifications,
+        notificationsNonLues,
       },
     };
   }
@@ -240,7 +393,11 @@ export class AdminService {
     }
 
     if (typeOffre) {
-      where.typeOffre = typeOffre;
+      // Le filtre porte sur le code du type, via la relation : depuis que les
+      // types sont administrables, `Offre` ne porte plus de colonne `typeOffre`
+      // mais une clé étrangère `typeOffreId`. Filtrer sur l'ancien nom faisait
+      // échouer la requête dès qu'un type était sélectionné.
+      where.typeOffre = { code: typeOffre.toUpperCase() };
     }
 
     const [offres, total] = await Promise.all([
@@ -251,14 +408,15 @@ export class AdminService {
         orderBy: { datePublication: 'desc' },
         include: {
           auteur: { select: { id: true, username: true, email: true } },
-          _count: { select: { retours: true } },
+          typeOffre: AdminService.TYPE_SELECT,
+          _count: { select: { retours: true, commentaires: true } },
         },
       }),
       this.prisma.offre.count({ where }),
     ]);
 
     return {
-      data: offres,
+      data: offres.map((offre) => AdminService.serialiserOffre(offre)),
       meta: {
         total,
         page,
@@ -269,13 +427,16 @@ export class AdminService {
   }
 
   async getAllOffresForExport() {
-    return this.prisma.offre.findMany({
+    const offres = await this.prisma.offre.findMany({
       orderBy: { datePublication: 'desc' },
       include: {
         auteur: { select: { id: true, username: true, email: true } },
+        typeOffre: AdminService.TYPE_SELECT,
         _count: { select: { retours: true } },
       },
     });
+
+    return offres.map((offre) => AdminService.serialiserOffre(offre));
   }
 
   async getOffreById(id: number) {
@@ -283,6 +444,7 @@ export class AdminService {
       where: { id },
       include: {
         auteur: { select: { id: true, username: true, email: true } },
+        typeOffre: AdminService.TYPE_SELECT,
         retours: {
           take: 10,
           orderBy: { datePublication: 'desc' },
@@ -296,7 +458,7 @@ export class AdminService {
       throw new NotFoundException('Offre non trouvée');
     }
 
-    return offre;
+    return AdminService.serialiserOffre(offre);
   }
 
   async deleteOffre(id: number) {
@@ -315,20 +477,22 @@ export class AdminService {
   // ==================== USER DASHBOARD STATS ====================
 
   async getUserDashboardStats(userId: number) {
-    const [
-      totalOffres,
-      totalFavorites,
-      totalRetours,
-      offresByType,
-    ] = await Promise.all([
-      this.prisma.offre.count(),
-      this.prisma.favorite.count({ where: { userId } }),
-      this.prisma.retour.count({ where: { auteurId: userId } }),
-      this.prisma.offre.groupBy({
-        by: ['typeOffreId'],
-        _count: { typeOffreId: true },
-      }),
-    ]);
+    // Le tableau de bord d'un membre ne compte que les offres qu'il peut
+    // réellement ouvrir : un dépôt de partenaire en attente de relecture
+    // gonflerait le total sans que rien de nouveau ne soit consultable.
+    const publiees = { statutModeration: 'PUBLIEE' as const };
+
+    const [totalOffres, totalFavorites, totalRetours, offresByType] =
+      await Promise.all([
+        this.prisma.offre.count({ where: publiees }),
+        this.prisma.favorite.count({ where: { userId } }),
+        this.prisma.retour.count({ where: { auteurId: userId } }),
+        this.prisma.offre.groupBy({
+          by: ['typeOffreId'],
+          where: publiees,
+          _count: { typeOffreId: true },
+        }),
+      ]);
 
     return {
       totalOffres,

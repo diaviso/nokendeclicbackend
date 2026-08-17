@@ -348,3 +348,21 @@ export class PaginatedOffresResponse {
   @ApiProperty()
   hasMore: boolean;
 }
+
+/** Décision de modération prise par l'administration sur une offre déposée. */
+export class ModererOffreDto {
+  @ApiProperty({ enum: ['PUBLIEE', 'REFUSEE'] })
+  @IsEnum(['PUBLIEE', 'REFUSEE'])
+  statut: 'PUBLIEE' | 'REFUSEE';
+
+  /**
+   * Obligatoire en cas de refus — contrôlé dans le service, où l'on connaît le
+   * statut. Sans motif, le partenaire ne peut pas corriger : il ne sait pas ce
+   * qui a été reproché à son annonce.
+   */
+  @ApiPropertyOptional()
+  @IsString()
+  @MaxLength(500)
+  @IsOptional()
+  motif?: string;
+}

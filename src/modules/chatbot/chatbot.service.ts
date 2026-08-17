@@ -411,12 +411,17 @@ export class ChatbotService {
   }
 
   private async getContextData() {
+    // L'assistant ne decrit que le catalogue reellement consultable : un depot
+    // de partenaire en attente de relecture n'existe pas encore pour un membre.
+    const publiees = { statutModeration: 'PUBLIEE' as const };
+
     const [offresCount, usersCount, cvCount, topSecteurs] = await Promise.all([
-      this.prisma.offre.count(),
+      this.prisma.offre.count({ where: publiees }),
       this.prisma.user.count(),
       this.prisma.cV.count({ where: { estPublic: true } }),
       this.prisma.offre.groupBy({
         by: ['secteur'],
+        where: publiees,
         _count: { secteur: true },
         orderBy: { _count: { secteur: 'desc' } },
         take: 5,
@@ -424,6 +429,7 @@ export class ChatbotService {
     ]);
 
     const recentOffres = await this.prisma.offre.findMany({
+      where: publiees,
       take: 10,
       orderBy: { datePublication: 'desc' },
       select: {

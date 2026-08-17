@@ -11,6 +11,55 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
+/**
+ * Entrée d'une rubrique libre.
+ *
+ * Volontairement pauvre : titre, sous-titre, période et description couvrent
+ * publications, projets, bénévolat ou distinctions sans imposer de structure
+ * propre à l'une d'elles. La période reste une chaîne libre — un CV écrit
+ * « 2021 — aujourd'hui », et normaliser cela en dates inventerait une précision
+ * que le document n'a pas.
+ */
+export class EntreeRubriqueDto {
+  @ApiProperty()
+  @IsString()
+  @MaxLength(200)
+  titre: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @MaxLength(200)
+  @IsOptional()
+  sousTitre?: string | null;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @MaxLength(100)
+  @IsOptional()
+  periode?: string | null;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @MaxLength(2000)
+  @IsOptional()
+  description?: string | null;
+}
+
+/** Rubrique du CV sans équivalent dans le modèle fixe. */
+export class RubriqueDto {
+  @ApiProperty()
+  @IsString()
+  @MaxLength(120)
+  titre: string;
+
+  @ApiProperty({ type: [EntreeRubriqueDto] })
+  @IsArray()
+  @ArrayMaxSize(30)
+  @ValidateNested({ each: true })
+  @Type(() => EntreeRubriqueDto)
+  entrees: EntreeRubriqueDto[];
+}
+
 export class ExperienceDto {
   @ApiProperty()
   @IsString()
@@ -153,6 +202,14 @@ export class CreateCVDto {
   @IsString({ each: true })
   @IsOptional()
   interets?: string[];
+
+  @ApiPropertyOptional({ type: [RubriqueDto] })
+  @IsArray()
+  @ArrayMaxSize(15)
+  @ValidateNested({ each: true })
+  @Type(() => RubriqueDto)
+  @IsOptional()
+  rubriques?: RubriqueDto[];
 
   @ApiPropertyOptional()
   @IsBoolean()

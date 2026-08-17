@@ -102,7 +102,13 @@ export class MessagingService {
       }),
       this.prisma.user.findUnique({
         where: { id: otherUserId },
-        select: { role: true, isActive: true },
+        // Le CV est chargé ici : la visibilité qu'un membre a choisie est ce
+        // qui autorise, ou non, un partenaire à lui écrire.
+        select: {
+          role: true,
+          isActive: true,
+          cv: { select: { estPublic: true } },
+        },
       }),
     ]);
 
@@ -114,10 +120,39 @@ export class MessagingService {
       throw new NotFoundException('Destinataire non trouvé');
     }
 
-    if (currentUser.role !== 'ADMIN' && targetUser.role !== 'ADMIN') {
-      throw new ForbiddenException(
-        'Vous ne pouvez contacter que les administrateurs',
-      );
+    // Un partenaire peut écrire à un membre qui a rendu son CV visible : c'est
+    // exactement ce que ce réglage promet — « les recruteurs partenaires
+    // pourront le consulter ». Il ne peut pas écrire aux autres, ni un membre
+    // écrire à un partenaire de sa propre initiative : la sollicitation part du
+    // recruteur, et le membre garde la main en choisissant de répondre.
+    const partenaireVersCandidatVisible =
+      currentUser.role === 'PARTENAIRE' &&
+      targetUser.role === 'MEMBRE' &&
+      targetUser.cv?.estPublic === true;
+
+    const impliqueUnAdmin =
+      currentUser.role === 'ADMIN' || targetUser.role === 'ADMIN';
+
+    if (!impliqueUnAdmin && !partenaireVersCandidatVisible) {
+      // La réponse d'un membre à un partenaire reste possible : la conversation
+      // existe déjà, et cette méthode n'est appelée que pour en ouvrir une.
+      const dejaOuverte = await this.prisma.privateConversation.findFirst({
+        where: {
+          OR: [
+            { user1Id: userId, user2Id: otherUserId },
+            { user1Id: otherUserId, user2Id: userId },
+          ],
+        },
+        select: { id: true },
+      });
+
+      if (!dejaOuverte) {
+        throw new ForbiddenException(
+          currentUser.role === 'PARTENAIRE'
+            ? "Ce membre n'a pas rendu son profil visible aux recruteurs"
+            : 'Vous ne pouvez contacter que les administrateurs',
+        );
+      }
     }
 
     // Ensure consistent ordering (smaller ID first)
@@ -390,10 +425,22 @@ export class MessagingService {
       throw new NotFoundException('Utilisateur non trouvé');
     }
 
-    // Admins can contact anyone, regular users can only contact admins
-    const whereClause = currentUser.role === 'ADMIN'
-      ? { id: { not: userId }, isActive: true }
-      : { id: { not: userId }, role: 'ADMIN' as any, isActive: true };
+    // L'administration peut écrire à tout le monde ; un partenaire, aux membres
+    // qui ont rendu leur CV visible aux recruteurs, plus à l'administration ;
+    // un membre, à la seule administration.
+    const whereClause =
+      currentUser.role === 'ADMIN'
+        ? { id: { not: userId }, isActive: true }
+        : currentUser.role === 'PARTENAIRE'
+          ? {
+              id: { not: userId },
+              isActive: true,
+              OR: [
+                { role: 'ADMIN' as any },
+                { role: 'MEMBRE' as any, cv: { estPublic: true } },
+              ],
+            }
+          : { id: { not: userId }, role: 'ADMIN' as any, isActive: true };
 
     const users = await this.prisma.user.findMany({
       where: whereClause,

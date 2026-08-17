@@ -39,14 +39,23 @@ export class ChampTypeOffreDto {
   @IsOptional()
   id?: number;
 
-  @ApiProperty({ example: 'organisme' })
+  /**
+   * Facultatif : le service le dérive du libellé et garantit son unicité au
+   * sein du type. Un code déjà enregistré n'est jamais réécrit — c'est la clé
+   * sous laquelle les offres ont stocké leurs valeurs.
+   *
+   * Reste accepté en entrée pour les appelants qui le fournissent (import,
+   * scripts de migration), mais le back-office ne l'envoie plus.
+   */
+  @ApiPropertyOptional({ example: 'organisme' })
   @IsString()
   @MinLength(2)
   @MaxLength(40)
   @Matches(/^[a-zA-Z][a-zA-Z0-9_]*$/, {
     message: 'Le code du champ doit commencer par une lettre, sans espace',
   })
-  code: string;
+  @IsOptional()
+  code?: string;
 
   @ApiProperty({ example: 'Organisme' })
   @IsString()
@@ -91,10 +100,16 @@ export class ChampTypeOffreDto {
 }
 
 export class CreateTypeOffreDto {
-  @ApiProperty({ example: 'CONCOURS' })
+  /**
+   * Facultatif : dérivé du libellé, avec un suffixe numérique si le code est
+   * déjà pris. Le déduire côté serveur est le seul endroit où l'unicité peut
+   * être garantie — le formulaire, lui, ignore ce qui existe déjà.
+   */
+  @ApiPropertyOptional({ example: 'CONCOURS' })
   @IsString()
   @Matches(CODE_PATTERN, { message: CODE_MESSAGE })
-  code: string;
+  @IsOptional()
+  code?: string;
 
   @ApiProperty({ example: 'Concours' })
   @IsString()

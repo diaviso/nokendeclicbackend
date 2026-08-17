@@ -9,6 +9,7 @@ import {
   Param,
   Query,
   ParseIntPipe,
+  UseGuards,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
@@ -16,8 +17,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { OffresService } from './offres.service';
 import { StorageService } from '../storage/storage.service';
-import { CreateOffreDto, UpdateOffreDto, OffresFilterDto } from './dto';
-import { CurrentUser, Public } from '../../common';
+import {
+  CreateOffreDto,
+  UpdateOffreDto,
+  OffresFilterDto,
+  ModererOffreDto,
+} from './dto';
+import { CurrentUser, PeutPublier, Public, Roles } from '../../common';
+import { RolesGuard } from '../../common/guards';
 
 @ApiTags('Offres')
 @ApiBearerAuth()
@@ -28,12 +35,14 @@ export class OffresController {
     private storage: StorageService,
   ) {}
 
+  @PeutPublier()
   @Post()
   @ApiOperation({ summary: 'Créer une offre' })
-  async create(@Body() dto: CreateOffreDto, @CurrentUser('id') userId: number) {
-    return this.offresService.create(dto, userId);
+  async create(@Body() dto: CreateOffreDto, @CurrentUser() user: any) {
+    return this.offresService.create(dto, user.id, user.role);
   }
 
+  @PeutPublier()
   @Post('with-document')
   @UseInterceptors(FileInterceptor('document'))
   @ApiConsumes('multipart/form-data')
@@ -41,10 +50,10 @@ export class OffresController {
   async createWithDocument(
     @Body() dto: CreateOffreDto,
     @UploadedFile() file: any,
-    @CurrentUser('id') userId: number,
+    @CurrentUser() user: any,
   ) {
-    const offre = await this.offresService.create(dto, userId);
-    
+    const offre = await this.offresService.create(dto, user.id, user.role);
+
     if (file) {
       const stored = await this.storage.upload(file, 'documents');
       await this.offresService.updateMedia(offre.id, {
@@ -53,8 +62,38 @@ export class OffresController {
         documentType: stored.mimetype,
       });
     }
-    
-    return this.offresService.findById(offre.id);
+
+    // Relecture, et non `findById` : l'offre d'un partenaire vient d'être mise
+    // en attente, et la route publique ne la renverrait pas.
+    return this.offresService.findPourEdition(offre.id, user.id, user.role);
+  }
+
+  /**
+   * File de modération. Réservée à l'administration : c'est elle qui tranche,
+   * un partenaire n'a aucune raison de voir les dépôts des autres.
+   */
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN' as any)
+  @Get('moderation/en-attente')
+  @ApiOperation({ summary: 'Offres en attente de validation' })
+  async findEnAttente() {
+    return this.offresService.findEnAttente();
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN' as any)
+  @Post(':id/moderation')
+  @ApiOperation({ summary: 'Valider ou refuser une offre' })
+  async moderer(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ModererOffreDto,
+    @CurrentUser('id') moderateurId: number,
+  ) {
+    return this.offresService.moderer(
+      id,
+      { statut: dto.statut, motif: dto.motif },
+      moderateurId,
+    );
   }
 
   // Catalogue public : c'est la condition pour que les pages d'offres puissent
@@ -80,6 +119,20 @@ export class OffresController {
     return this.offresService.findByAuteur(userId);
   }
 
+  /**
+   * Offre telle que son auteur doit la voir pour la modifier — y compris un
+   * dépôt en attente ou refusé, que la route publique masque. Elle exige une
+   * session et ne compte pas de consultation.
+   */
+  @Get(':id/edition')
+  @ApiOperation({ summary: 'Détails d\'une offre pour son auteur' })
+  async findPourEdition(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.offresService.findPourEdition(id, user.id, user.role);
+  }
+
   @Get(':id')
   @Public()
   @ApiOperation({ summary: 'Détails d\'une offre' })
@@ -87,6 +140,7 @@ export class OffresController {
     return this.offresService.findById(id);
   }
 
+  @PeutPublier()
   @Put(':id')
   @ApiOperation({ summary: 'Modifier une offre' })
   async update(
@@ -97,6 +151,7 @@ export class OffresController {
     return this.offresService.update(id, dto, user.id, user.role);
   }
 
+  @PeutPublier()
   @Put(':id/with-document')
   @UseInterceptors(FileInterceptor('document'))
   @ApiConsumes('multipart/form-data')
@@ -121,6 +176,7 @@ export class OffresController {
     return this.offresService.findById(offre.id);
   }
 
+  @PeutPublier()
   @Post(':id/image')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
@@ -145,6 +201,7 @@ export class OffresController {
     );
   }
 
+  @PeutPublier()
   @Delete(':id/image')
   @ApiOperation({ summary: 'Retirer la photo de couverture' })
   async removeImage(
@@ -158,6 +215,7 @@ export class OffresController {
     );
   }
 
+  @PeutPublier()
   @Post(':id/document')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
@@ -184,6 +242,7 @@ export class OffresController {
     );
   }
 
+  @PeutPublier()
   @Delete(':id/document')
   @ApiOperation({ summary: 'Retirer le document joint' })
   async removeDocument(
@@ -197,6 +256,7 @@ export class OffresController {
     );
   }
 
+  @PeutPublier()
   @Delete(':id')
   @ApiOperation({ summary: 'Supprimer une offre' })
   async delete(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any) {

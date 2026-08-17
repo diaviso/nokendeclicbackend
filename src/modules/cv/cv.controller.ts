@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  UseGuards,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
@@ -18,7 +19,8 @@ import { CVService } from './cv.service';
 import { CVExtractorService } from './cv-extractor.service';
 import { CVCorrectorService } from './cv-corrector.service';
 import { CorrectCVDto, CreateCVDto, UpdateCVDto } from './dto';
-import { CurrentUser, Public } from '../../common';
+import { CurrentUser, Roles } from '../../common';
+import { RolesGuard } from '../../common/guards';
 
 @ApiTags('CV')
 @ApiBearerAuth()
@@ -62,16 +64,28 @@ export class CVController {
     return this.cvService.delete(userId);
   }
 
-  @Public()
+  /**
+   * Ces deux routes étaient annotées `@Public()` : sans le moindre compte, on
+   * obtenait la liste complète des CV rendus visibles — téléphone et adresse
+   * compris. Rendre son CV « visible pour les recruteurs partenaires », ce que
+   * dit l'interface, n'a jamais voulu dire le publier sur l'internet ouvert.
+   *
+   * L'accès est désormais réservé aux partenaires et aux administrateurs, et la
+   * projection ne comporte plus de coordonnées directes : un partenaire prend
+   * contact par la messagerie interne, et le candidat décide de répondre.
+   */
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN' as any, 'PARTENAIRE' as any)
   @Get('public')
-  @ApiOperation({ summary: 'Liste des CV publics' })
+  @ApiOperation({ summary: 'Liste des CV visibles par les recruteurs' })
   async getPublicCVs() {
     return this.cvService.findAllPublic();
   }
 
-  @Public()
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN' as any, 'PARTENAIRE' as any)
   @Get('user/:userId')
-  @ApiOperation({ summary: 'Obtenir le CV public d\'un utilisateur' })
+  @ApiOperation({ summary: 'Obtenir le CV visible d\'un utilisateur' })
   async getPublicCV(@Param('userId', ParseIntPipe) userId: number) {
     return this.cvService.findPublicById(userId);
   }
@@ -86,8 +100,15 @@ export class CVController {
       // éphémère, et supprime le nettoyage de fichiers temporaires.
       storage: memoryStorage(),
       fileFilter: (req, file, callback) => {
-        if (file.mimetype !== 'application/pdf') {
-          return callback(new BadRequestException('Seuls les fichiers PDF sont acceptés'), false);
+        // Un CV photographié au téléphone arrive en JPEG : n'accepter que le
+        // PDF fermait la porte au cas le plus fréquent du public visé.
+        if (!CVExtractorService.TYPES_ACCEPTES.includes(file.mimetype)) {
+          return callback(
+            new BadRequestException(
+              'Formats acceptés : PDF, JPEG, PNG, WebP ou HEIC.',
+            ),
+            false,
+          );
         }
         callback(null, true);
       },
@@ -106,7 +127,7 @@ export class CVController {
 
     try {
       // Extract CV data from PDF using AI
-      const extractedData = await this.cvExtractorService.processUploadedCV(file.buffer);
+      const extractedData = await this.cvExtractorService.processUploadedCV(file);
 
       return {
         success: true,
@@ -128,8 +149,15 @@ export class CVController {
       // éphémère, et supprime le nettoyage de fichiers temporaires.
       storage: memoryStorage(),
       fileFilter: (req, file, callback) => {
-        if (file.mimetype !== 'application/pdf') {
-          return callback(new BadRequestException('Seuls les fichiers PDF sont acceptés'), false);
+        // Un CV photographié au téléphone arrive en JPEG : n'accepter que le
+        // PDF fermait la porte au cas le plus fréquent du public visé.
+        if (!CVExtractorService.TYPES_ACCEPTES.includes(file.mimetype)) {
+          return callback(
+            new BadRequestException(
+              'Formats acceptés : PDF, JPEG, PNG, WebP ou HEIC.',
+            ),
+            false,
+          );
         }
         callback(null, true);
       },
@@ -148,7 +176,7 @@ export class CVController {
 
     try {
       // Extract CV data from PDF using AI
-      const extractedData = await this.cvExtractorService.processUploadedCV(file.buffer);
+      const extractedData = await this.cvExtractorService.processUploadedCV(file);
 
       // Save the extracted data to the database
       const savedCV = await this.cvService.update(userId, extractedData as any);

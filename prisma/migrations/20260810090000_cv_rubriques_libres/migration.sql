@@ -1,0 +1,11 @@
+-- Rubriques libres du CV.
+--
+-- Un CV réel contient des sections que le modèle fixe ne prévoit pas :
+-- publications, projets personnels, bénévolat, distinctions, références.
+-- L'import les jetait faute de case où les ranger ; elles sont désormais
+-- conservées telles quelles.
+--
+-- Migration purement additive : la colonne a une valeur par défaut, les
+-- enregistrements existants la reçoivent sans être réécrits et aucune donnée
+-- n'est touchée.
+ALTER TABLE "CV" ADD COLUMN "rubriques" JSONB NOT NULL DEFAULT '[]';

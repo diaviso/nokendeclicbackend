@@ -138,6 +138,7 @@ export class ChatbotToolsService {
     // Rechercher les offres qui contiennent des mots-clés des compétences
     const offres = await this.prisma.offre.findMany({
       where: {
+        statutModeration: 'PUBLIEE',
         OR: cv.competences.map((comp) => ({
           OR: [
             { titre: { contains: comp, mode: 'insensitive' } },
@@ -181,6 +182,7 @@ export class ChatbotToolsService {
 
     const offres = await this.prisma.offre.findMany({
       where: {
+        statutModeration: 'PUBLIEE',
         OR: postes.map((poste) => ({
           OR: [
             { titre: { contains: poste, mode: 'insensitive' } },
@@ -211,6 +213,7 @@ export class ChatbotToolsService {
   async getOffresParLocalisation(localisation: string) {
     const offres = await this.prisma.offre.findMany({
       where: {
+        statutModeration: 'PUBLIEE',
         localisation: { contains: localisation, mode: 'insensitive' },
       },
       take: 15,
@@ -234,7 +237,7 @@ export class ChatbotToolsService {
 
   async getOffresParType(typeOffre: string) {
     const offres = await this.prisma.offre.findMany({
-      where: { typeOffre: { code: typeOffre.toUpperCase() } },
+      where: { statutModeration: 'PUBLIEE', typeOffre: { code: typeOffre.toUpperCase() } },
       take: 15,
       orderBy: { datePublication: 'desc' },
       select: {
@@ -257,7 +260,7 @@ export class ChatbotToolsService {
 
   async getOffresParSecteur(secteur: string) {
     const offres = await this.prisma.offre.findMany({
-      where: { secteur: secteur as any },
+      where: { statutModeration: 'PUBLIEE', secteur: secteur as any },
       take: 15,
       orderBy: { datePublication: 'desc' },
       select: {
@@ -281,6 +284,7 @@ export class ChatbotToolsService {
   async searchOffres(query: string) {
     const offres = await this.prisma.offre.findMany({
       where: {
+        statutModeration: 'PUBLIEE',
         OR: [
           { titre: { contains: query, mode: 'insensitive' } },
           { description: { contains: query, mode: 'insensitive' } },
@@ -364,19 +368,22 @@ export class ChatbotToolsService {
 
   async getStatistiquesOffres() {
     const [total, parType, parSecteur, parLocalisation] = await Promise.all([
-      this.prisma.offre.count(),
+      this.prisma.offre.count({ where: { statutModeration: 'PUBLIEE' } }),
       this.prisma.offre.groupBy({
         by: ['typeOffreId'],
+        where: { statutModeration: 'PUBLIEE' },
         _count: { typeOffreId: true },
       }),
       this.prisma.offre.groupBy({
         by: ['secteur'],
+        where: { statutModeration: 'PUBLIEE' },
         _count: { secteur: true },
         orderBy: { _count: { secteur: 'desc' } },
         take: 10,
       }),
       this.prisma.offre.groupBy({
         by: ['localisation'],
+        where: { statutModeration: 'PUBLIEE' },
         _count: { localisation: true },
         orderBy: { _count: { localisation: 'desc' } },
         take: 10,
@@ -404,7 +411,7 @@ export class ChatbotToolsService {
 
   async getFormationsDisponibles() {
     const formations = await this.prisma.offre.findMany({
-      where: { typeOffre: { code: 'FORMATION' } },
+      where: { statutModeration: 'PUBLIEE', typeOffre: { code: 'FORMATION' } },
       take: 15,
       orderBy: { datePublication: 'desc' },
       select: {
@@ -423,7 +430,7 @@ export class ChatbotToolsService {
 
   async getBoursesDisponibles() {
     const bourses = await this.prisma.offre.findMany({
-      where: { typeOffre: { code: 'BOURSE' } },
+      where: { statutModeration: 'PUBLIEE', typeOffre: { code: 'BOURSE' } },
       take: 15,
       orderBy: { datePublication: 'desc' },
       select: {
@@ -442,7 +449,7 @@ export class ChatbotToolsService {
 
   async getVolontariatsDisponibles() {
     const volontariats = await this.prisma.offre.findMany({
-      where: { typeOffre: { code: 'VOLONTARIAT' } },
+      where: { statutModeration: 'PUBLIEE', typeOffre: { code: 'VOLONTARIAT' } },
       take: 15,
       orderBy: { datePublication: 'desc' },
       select: {
@@ -509,6 +516,7 @@ export class ChatbotToolsService {
     // Rechercher les offres correspondantes
     const offres = await this.prisma.offre.findMany({
       where: {
+        statutModeration: 'PUBLIEE',
         OR: searchTerms.flatMap((term) => [
           { titre: { contains: term, mode: 'insensitive' } },
           { description: { contains: term, mode: 'insensitive' } },

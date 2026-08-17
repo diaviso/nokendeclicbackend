@@ -120,6 +120,9 @@ model User {
 
   // Relations
   offres              Offre[]
+  /// Offres dont ce compte a tranché la modération. Distincte de `offres`, qui
+  /// désigne celles qu'il a rédigées.
+  offresModerees      Offre[]              @relation("OffreModeree")
   commentaires        Commentaire[]
   retours             Retour[]
   messages            Message[]
@@ -263,6 +266,20 @@ model Offre {
   // Status
   estCloturee     Boolean           @default(false)
 
+  /// État de modération. Une offre déposée par un partenaire attend une
+  /// validation de l'équipe avant d'entrer au catalogue ; une offre publiée par
+  /// l'administration y entre directement.
+  ///
+  /// La valeur par défaut est PUBLIEE, et non EN_ATTENTE : la migration doit
+  /// être additive. Un défaut à EN_ATTENTE retirerait d'un coup les 173 offres
+  /// existantes du catalogue au déploiement.
+  statutModeration StatutModeration @default(PUBLIEE)
+  /// Renseigné uniquement en cas de refus : c'est ce que lira le partenaire.
+  motifRefus      String?
+  dateModeration  DateTime?
+  moderePar       User?             @relation("OffreModeree", fields: [modereParId], references: [id], onDelete: SetNull)
+  modereParId     Int?
+
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
@@ -281,6 +298,18 @@ model Offre {
   @@index([localisation])
   @@index([datePublication])
   @@index([auteurId])
+  // Le catalogue public filtre sur ce champ à chaque requête.
+  @@index([statutModeration])
+}
+
+/// Cycle de vie d'une offre déposée par un partenaire.
+///
+/// Une offre refusée n'est pas supprimée : son auteur doit pouvoir lire le
+/// motif, corriger et soumettre à nouveau. C'est aussi la trace de la décision.
+enum StatutModeration {
+  EN_ATTENTE
+  PUBLIEE
+  REFUSEE
 }
 
 model OffreFichier {
@@ -313,6 +342,11 @@ model CV {
   langues           String[]
   certifications    String[]
   interets          String[]
+  /// Rubriques libres : ce qu'un CV contient et que le modèle fixe ne prévoit
+  /// pas — publications, projets personnels, bénévolat, distinctions. Sans
+  /// elles, l'import jetait purement et simplement ces sections. Structure :
+  /// [{ titre, entrees: [{ titre, sousTitre, periode, description }] }]
+  rubriques         Json          @default("[]")
   estPublic         Boolean       @default(false)
   dateCreation      DateTime      @default(now())
   dateModification  DateTime      @updatedAt

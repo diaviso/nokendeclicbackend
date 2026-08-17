@@ -1,21 +1,30 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { ChatOpenAI } from '@langchain/openai';
-import { HumanMessage, SystemMessage } from '@langchain/core/messages';
-import * as fs from 'fs';
-import { PDFParse } from 'pdf-parse';
+import { DocumentExtractionService } from '../extraction/document-extraction.service';
+
+/** Entrée d'une rubrique non prévue par le modèle fixe du CV. */
+export interface EntreeRubrique {
+  titre: string;
+  sousTitre?: string | null;
+  periode?: string | null;
+  description?: string | null;
+}
+
+export interface RubriqueLibre {
+  titre: string;
+  entrees: EntreeRubrique[];
+}
 
 export interface ExtractedCV {
-  titreProfessionnel?: string;
-  telephone?: string;
-  adresse?: string;
-  ville?: string;
-  codePostal?: string;
-  pays?: string;
-  linkedin?: string;
-  siteWeb?: string;
-  github?: string;
-  resume?: string;
+  titreProfessionnel?: string | null;
+  telephone?: string | null;
+  adresse?: string | null;
+  ville?: string | null;
+  codePostal?: string | null;
+  pays?: string | null;
+  linkedin?: string | null;
+  siteWeb?: string | null;
+  github?: string | null;
+  resume?: string | null;
   competences: string[];
   langues: string[];
   certifications: string[];
@@ -23,162 +32,409 @@ export interface ExtractedCV {
   experiences: {
     poste: string;
     entreprise: string;
-    ville?: string;
+    ville?: string | null;
     dateDebut: string;
-    dateFin?: string;
+    dateFin?: string | null;
     enCours: boolean;
-    description?: string;
+    description?: string | null;
   }[];
   formations: {
     diplome: string;
     etablissement: string;
-    ville?: string;
+    ville?: string | null;
     dateDebut: string;
-    dateFin?: string;
+    dateFin?: string | null;
     enCours: boolean;
-    description?: string;
+    description?: string | null;
   }[];
+  /**
+   * Rubriques présentes dans le document mais absentes du modèle fixe :
+   * publications, projets personnels, bénévolat, distinctions, références…
+   */
+  rubriques: RubriqueLibre[];
 }
 
+/**
+ * Lecture d'un CV déposé, par modèle multimodal.
+ *
+ * L'implémentation précédente extrayait la couche texte du PDF (`pdf-parse`)
+ * avant de l'envoyer au modèle. Elle échouait sur trois cas courants :
+ *
+ * - le document scanné ou photographié n'a pas de couche texte, l'extraction
+ *   renvoyait une chaîne vide et l'import s'arrêtait ;
+ * - une couche texte partielle passait le contrôle de longueur, et le modèle
+ *   comblait les trous en inventant — plus grave, parce que silencieux ;
+ * - la mise en page était perdue, or un CV sur deux colonnes linéarisé entrelace
+ *   ses colonnes et devient incompréhensible.
+ *
+ * Le document part désormais tel quel au modèle, qui dispose de la structure
+ * visuelle en plus des mots.
+ */
 @Injectable()
 export class CVExtractorService {
   private readonly logger = new Logger(CVExtractorService.name);
-  private chatModel: ChatOpenAI;
 
-  private readonly systemPrompt = `Tu es un expert en extraction d'informations de CV. 
-Ton rôle est d'analyser le texte d'un CV et d'extraire toutes les informations pertinentes de manière structurée.
+  constructor(private readonly extraction: DocumentExtractionService) {}
 
-Tu dois extraire les informations suivantes et les retourner en JSON valide:
-- titreProfessionnel: Le titre ou poste actuel/recherché
-- telephone: Numéro de téléphone
-- adresse: Adresse complète
-- ville: Ville
-- codePostal: Code postal
-- pays: Pays
-- linkedin: URL LinkedIn
-- siteWeb: Site web personnel
-- github: URL GitHub
-- resume: Résumé professionnel ou objectif de carrière
-- competences: Liste des compétences techniques et soft skills (tableau de strings)
-- langues: Liste des langues parlées avec niveau si disponible (tableau de strings, ex: "Français (Natif)", "Anglais (B2)")
-- certifications: Liste des certifications (tableau de strings)
-- interets: Centres d'intérêt (tableau de strings)
-- experiences: Liste des expériences professionnelles avec:
-  - poste: Intitulé du poste
-  - entreprise: Nom de l'entreprise
-  - ville: Ville (optionnel)
-  - dateDebut: Date de début au format YYYY-MM-DD (utilise le premier jour du mois si seul le mois est donné)
-  - dateFin: Date de fin au format YYYY-MM-DD (null si en cours)
-  - enCours: true si c'est le poste actuel
-  - description: Description des missions/responsabilités
-- formations: Liste des formations avec:
-  - diplome: Nom du diplôme
-  - etablissement: Nom de l'école/université
-  - ville: Ville (optionnel)
-  - dateDebut: Date de début au format YYYY-MM-DD
-  - dateFin: Date de fin au format YYYY-MM-DD (null si en cours)
-  - enCours: true si formation en cours
-  - description: Description ou spécialisation
+  /**
+   * Schéma strict au sens d'OpenAI : chaque objet interdit les propriétés
+   * supplémentaires et déclare toutes ses clés obligatoires. L'optionalité
+   * passe par un type nullable, jamais par l'absence de clé.
+   */
+  private static readonly SCHEMA = {
+    type: 'object',
+    additionalProperties: false,
+    required: [
+      'titreProfessionnel',
+      'telephone',
+      'adresse',
+      'ville',
+      'codePostal',
+      'pays',
+      'linkedin',
+      'siteWeb',
+      'github',
+      'resume',
+      'competences',
+      'langues',
+      'certifications',
+      'interets',
+      'experiences',
+      'formations',
+      'rubriques',
+    ],
+    properties: {
+      titreProfessionnel: {
+        type: ['string', 'null'],
+        description:
+          "Titre ou poste occupé/recherché, tel qu'affiché en tête du CV.",
+      },
+      telephone: { type: ['string', 'null'] },
+      adresse: { type: ['string', 'null'] },
+      ville: { type: ['string', 'null'] },
+      codePostal: { type: ['string', 'null'] },
+      pays: { type: ['string', 'null'] },
+      linkedin: { type: ['string', 'null'], description: 'URL du profil LinkedIn.' },
+      siteWeb: { type: ['string', 'null'], description: 'Site personnel ou portfolio.' },
+      github: { type: ['string', 'null'] },
+      resume: {
+        type: ['string', 'null'],
+        description: "Résumé, profil ou objectif professionnel, s'il figure sur le CV.",
+      },
+      competences: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Compétences techniques et humaines, une par entrée.',
+      },
+      langues: {
+        type: 'array',
+        items: { type: 'string' },
+        description:
+          'Langues avec leur niveau quand il est indiqué, ex. « Français (langue maternelle) », « Anglais (B2) ».',
+      },
+      certifications: { type: 'array', items: { type: 'string' } },
+      interets: { type: 'array', items: { type: 'string' } },
+      experiences: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: [
+            'poste',
+            'entreprise',
+            'ville',
+            'dateDebut',
+            'dateFin',
+            'enCours',
+            'description',
+          ],
+          properties: {
+            poste: { type: 'string' },
+            entreprise: { type: 'string' },
+            ville: { type: ['string', 'null'] },
+            dateDebut: {
+              type: ['string', 'null'],
+              description:
+                'Date de début au format AAAA-MM-JJ. Si seul le mois est donné, premier jour du mois ; si seule l\'année, AAAA-01-01.',
+            },
+            dateFin: {
+              type: ['string', 'null'],
+              description: 'Même format. null si le poste est en cours.',
+            },
+            enCours: { type: 'boolean' },
+            description: {
+              type: ['string', 'null'],
+              description: 'Missions et réalisations, recopiées fidèlement.',
+            },
+          },
+        },
+      },
+      formations: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: [
+            'diplome',
+            'etablissement',
+            'ville',
+            'dateDebut',
+            'dateFin',
+            'enCours',
+            'description',
+          ],
+          properties: {
+            diplome: { type: 'string' },
+            etablissement: { type: 'string' },
+            ville: { type: ['string', 'null'] },
+            dateDebut: { type: ['string', 'null'] },
+            dateFin: { type: ['string', 'null'] },
+            enCours: { type: 'boolean' },
+            description: { type: ['string', 'null'] },
+          },
+        },
+      },
+      rubriques: {
+        type: 'array',
+        description:
+          "Rubriques du CV qui n'entrent dans AUCUN des champs ci-dessus : publications, projets personnels, bénévolat, distinctions, références, permis, engagements associatifs, etc.",
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['titre', 'entrees'],
+          properties: {
+            titre: {
+              type: 'string',
+              description: 'Intitulé de la rubrique, repris tel quel du document.',
+            },
+            entrees: {
+              type: 'array',
+              items: {
+                type: 'object',
+                additionalProperties: false,
+                required: ['titre', 'sousTitre', 'periode', 'description'],
+                properties: {
+                  titre: { type: 'string' },
+                  sousTitre: { type: ['string', 'null'] },
+                  periode: {
+                    type: ['string', 'null'],
+                    description: 'Période telle qu\'écrite, ex. « 2021 — 2023 ».',
+                  },
+                  description: { type: ['string', 'null'] },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  };
 
-IMPORTANT:
-- Retourne UNIQUEMENT du JSON valide, sans texte avant ou après
-- Si une information n'est pas trouvée, utilise null pour les strings et [] pour les tableaux
-- Les dates doivent être au format YYYY-MM-DD. Si seule l'année est donnée, utilise YYYY-01-01
-- Trie les expériences et formations par date de début décroissante (plus récent en premier)`;
+  private static readonly CONSIGNES = [
+    "Tu analyses le CV ci-joint et tu en extrais les informations de manière structurée.",
+    '',
+    'Règles générales :',
+    "- N'invente JAMAIS une information absente ou illisible : mets `null`, ou un tableau vide.",
+    '- Recopie les intitulés et descriptions tels qu\'ils figurent sur le document ; ne les reformule pas.',
+    "- Le CV peut être rédigé en français ou en anglais : restitue les valeurs dans la langue du document, sans traduire.",
+    '- Les dates partent au format AAAA-MM-JJ. Mois seul → premier jour du mois. Année seule → AAAA-01-01.',
+    '- Trie expériences et formations de la plus récente à la plus ancienne.',
+    '',
+    'Mise en page :',
+    "- Le CV est souvent sur deux colonnes. Lis chaque colonne dans son ordre propre : ne mélange pas une compétence de la colonne latérale avec la description d'une expérience de la colonne principale.",
+    "- Si une zone est floue ou coupée, extrais ce qui est lisible et laisse le reste à `null`. Ne devine pas un nom d'entreprise à moitié effacé.",
+    '',
+    'Rubriques :',
+    "- Range en priorité chaque information dans les champs prévus. Les intitulés varient d'un CV à l'autre : « Work Experience », « Parcours professionnel », « Expériences » désignent tous les EXPÉRIENCES ; « Education », « Études », « Cursus » désignent les FORMATIONS ; « Skills », « Savoir-faire » désignent les COMPÉTENCES. Rattache-les au bon champ.",
+    "- N'utilise `rubriques` QUE pour ce qui n'entre dans aucun champ prévu : publications, projets personnels, bénévolat, distinctions, références, permis de conduire, engagements associatifs.",
+    "- Ne duplique jamais dans `rubriques` une information déjà placée dans un champ prévu.",
+  ].join('\n');
 
-  constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get<string>('OPENAI_API_KEY');
+  /** Formats acceptés en entrée. */
+  static readonly TYPES_ACCEPTES = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/heic',
+    'image/heif',
+  ];
 
-    if (!apiKey) {
-      this.logger.error('OPENAI_API_KEY is not configured');
-    }
+  /**
+   * Normalise une date partiellement renseignée.
+   *
+   * Le modèle respecte la consigne dans la grande majorité des cas, mais rend
+   * parfois « 2019 » ou « 2019-09 ». Compléter ici évite de refuser un import
+   * pour une date incomplète, alors que le reste du CV est exploitable.
+   */
+  private normaliserDate(valeur?: string | null): string | null {
+    if (!valeur) return null;
+    const texte = String(valeur).trim();
 
-    this.chatModel = new ChatOpenAI({
-      openAIApiKey: apiKey,
-      modelName: 'gpt-4o-mini',
-      temperature: 0.1,
-      maxTokens: 4000,
-    });
+    if (/^\d{4}$/.test(texte)) return `${texte}-01-01`;
+    if (/^\d{4}-\d{2}$/.test(texte)) return `${texte}-01`;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(texte)) return texte;
+
+    const date = new Date(texte);
+    return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
   }
 
   /**
-   * Le PDF est reçu en mémoire (multer `memoryStorage`) : il n'est plus écrit
-   * sur le disque du conteneur, qui est éphémère, et aucun fichier temporaire
-   * n'est à nettoyer.
+   * Complète une adresse web recopiée sans son schéma.
+   *
+   * Un CV imprime « linkedin.com/in/aminata » ou « www.exemple.sn », et le
+   * modèle recopie fidèlement — c'est ce qu'on lui demande. Mais un champ de
+   * saisie de type `url` refuse une valeur sans schéma, et le formulaire se
+   * bloque. La normalisation appartient donc à cette couche, pas au modèle.
    */
-  async extractTextFromPDF(data: Buffer): Promise<string> {
-    if (!data?.length) {
-      throw new Error('Fichier PDF vide ou illisible');
-    }
+  private normaliserUrl(valeur?: string | null): string | null {
+    if (!valeur) return null;
+    const texte = String(valeur).trim();
+    if (!texte) return null;
 
-    const parser = new PDFParse({ data });
-    const pdfData = await parser.getText();
+    if (/^https?:\/\//i.test(texte)) return texte;
+    // Un identifiant seul (« @aminata », « aminata-diallo ») n'est pas une
+    // adresse : le préfixer produirait un lien mort. On le laisse tel quel.
+    if (!texte.includes('.')) return texte;
 
-    return this.cleanText(pdfData.text || '');
+    return `https://${texte.replace(/^\/+/, '')}`;
   }
 
-  private cleanText(text: string): string {
-    return text
-      .replace(/\r\n/g, '\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .replace(/[ \t]+/g, ' ')
-      .replace(/^\s+|\s+$/gm, '')
+  /** Retire les doublons d'une liste de libellés, à la casse et aux accents près. */
+  private dedupliquer(valeurs?: string[]): string[] {
+    const vus = new Set<string>();
+    const resultat: string[] = [];
+
+    for (const brut of valeurs ?? []) {
+      const valeur = String(brut ?? '').trim();
+      if (!valeur) continue;
+
+      const cle = valeur
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+
+      if (vus.has(cle)) continue;
+      vus.add(cle);
+      resultat.push(valeur);
+    }
+
+    return resultat;
+  }
+
+  /**
+   * Titres de rubriques déjà couverts par un champ du modèle fixe.
+   *
+   * Malgré la consigne, le modèle recrée parfois une rubrique « Compétences »
+   * en doublon du champ dédié. Ce filtre est le garde-fou : une rubrique dont
+   * le titre correspond à un champ existant est écartée plutôt que d'apparaître
+   * deux fois dans le CV.
+   */
+  private static readonly TITRES_COUVERTS = [
+    'experience',
+    'experiences',
+    'work experience',
+    'parcours professionnel',
+    'formation',
+    'formations',
+    'education',
+    'etudes',
+    'cursus',
+    'competence',
+    'competences',
+    'skills',
+    'langue',
+    'langues',
+    'languages',
+    'certification',
+    'certifications',
+    'interet',
+    'interets',
+    'centres d interet',
+    'hobbies',
+    'profil',
+    'resume',
+    'summary',
+    'contact',
+  ];
+
+  private estRubriqueCouverte(titre: string): boolean {
+    const normalise = titre
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z\s]/g, ' ')
+      .replace(/\s+/g, ' ')
       .trim();
+
+    return CVExtractorService.TITRES_COUVERTS.includes(normalise);
   }
 
-  async extractCVData(pdfText: string): Promise<ExtractedCV> {
-    try {
-      const messages = [
-        new SystemMessage(this.systemPrompt),
-        new HumanMessage(`Voici le contenu du CV à analyser:\n\n${pdfText}`),
-      ];
+  /** Remet la sortie du modèle en ordre : dates, doublons, tri, rubriques. */
+  private normaliser(brut: ExtractedCV): ExtractedCV {
+    const experiences = (brut.experiences ?? [])
+      .filter((e) => e?.poste || e?.entreprise)
+      .map((e) => ({
+        ...e,
+        dateDebut: this.normaliserDate(e.dateDebut) ?? '',
+        dateFin: e.enCours ? null : this.normaliserDate(e.dateFin),
+      }))
+      .sort((a, b) => (b.dateDebut ?? '').localeCompare(a.dateDebut ?? ''));
 
-      const response = await this.chatModel.invoke(messages);
-      const content = response.content as string;
+    const formations = (brut.formations ?? [])
+      .filter((f) => f?.diplome || f?.etablissement)
+      .map((f) => ({
+        ...f,
+        dateDebut: this.normaliserDate(f.dateDebut) ?? '',
+        dateFin: f.enCours ? null : this.normaliserDate(f.dateFin),
+      }))
+      .sort((a, b) => (b.dateDebut ?? '').localeCompare(a.dateDebut ?? ''));
 
-      // Parse JSON response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('Impossible de parser la réponse JSON');
-      }
+    const rubriques = (brut.rubriques ?? [])
+      .filter((r) => r?.titre && !this.estRubriqueCouverte(r.titre))
+      .map((r) => ({
+        titre: r.titre.trim(),
+        entrees: (r.entrees ?? []).filter((entree) => entree?.titre?.trim()),
+      }))
+      .filter((r) => r.entrees.length > 0);
 
-      const extractedData = JSON.parse(jsonMatch[0]) as ExtractedCV;
-
-      // Ensure arrays are initialized
-      return {
-        ...extractedData,
-        competences: extractedData.competences || [],
-        langues: extractedData.langues || [],
-        certifications: extractedData.certifications || [],
-        interets: extractedData.interets || [],
-        experiences: extractedData.experiences || [],
-        formations: extractedData.formations || [],
-      };
-    } catch (error) {
-      this.logger.error('Error extracting CV data:', error);
-      throw new Error(`Erreur lors de l'extraction des données du CV: ${error.message}`);
-    }
+    return {
+      ...brut,
+      linkedin: this.normaliserUrl(brut.linkedin),
+      github: this.normaliserUrl(brut.github),
+      siteWeb: this.normaliserUrl(brut.siteWeb),
+      competences: this.dedupliquer(brut.competences),
+      langues: this.dedupliquer(brut.langues),
+      certifications: this.dedupliquer(brut.certifications),
+      interets: this.dedupliquer(brut.interets),
+      experiences,
+      formations,
+      rubriques,
+    };
   }
 
-  async processUploadedCV(data: Buffer): Promise<ExtractedCV> {
-    this.logger.log(`Traitement d'un CV de ${data?.length ?? 0} octets`);
-
-    // Extract text from PDF
-    const pdfText = await this.extractTextFromPDF(data);
-
-    if (!pdfText || pdfText.length < 50) {
-      throw new Error('Le PDF ne contient pas assez de texte exploitable');
-    }
-
-    this.logger.log(`Extracted ${pdfText.length} characters from PDF`);
-
-    // Extract structured data using AI
-    const extractedData = await this.extractCVData(pdfText);
-
+  async processUploadedCV(fichier: {
+    buffer: Buffer;
+    mimetype: string;
+    originalname?: string;
+  }): Promise<ExtractedCV> {
     this.logger.log(
-      `Extracted: ${extractedData.experiences?.length || 0} experiences, ${extractedData.formations?.length || 0} formations`,
+      `Analyse d'un CV — ${fichier.mimetype}, ${Math.round((fichier.buffer?.length ?? 0) / 1024)} Ko`,
     );
 
-    return extractedData;
+    const brut = await this.extraction.extraire<ExtractedCV>({
+      fichier,
+      schema: CVExtractorService.SCHEMA,
+      nomSchema: 'cv',
+      consignes: CVExtractorService.CONSIGNES,
+    });
+
+    const donnees = this.normaliser(brut);
+
+    this.logger.log(
+      `CV analysé : ${donnees.experiences.length} expérience(s), ${donnees.formations.length} formation(s), ${donnees.competences.length} compétence(s), ${donnees.rubriques.length} rubrique(s) libre(s).`,
+    );
+
+    return donnees;
   }
 }

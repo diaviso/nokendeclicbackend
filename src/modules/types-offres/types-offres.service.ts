@@ -65,18 +65,23 @@ export class TypesOffresService {
   }
 
   async create(dto: CreateTypeOffreDto) {
+    const code = dto.code
+      ? dto.code
+      : await this.genererCodeType(dto.libelle);
+
     const existing = await this.prisma.typeOffre.findUnique({
-      where: { code: dto.code },
+      where: { code },
     });
     if (existing) {
-      throw new ConflictException(`Le code « ${dto.code} » est déjà utilisé`);
+      throw new ConflictException(`Le code « ${code} » est déjà utilisé`);
     }
 
-    this.assertChampsCoherents(dto.champs ?? []);
+    const champs = this.attribuerCodesChamps(dto.champs ?? [], new Map());
+    this.assertChampsCoherents(champs);
 
     return this.prisma.typeOffre.create({
       data: {
-        code: dto.code,
+        code,
         libelle: dto.libelle,
         description: dto.description,
         icone: dto.icone ?? 'Briefcase',
@@ -84,9 +89,7 @@ export class TypesOffresService {
         ordre: dto.ordre ?? 0,
         estActif: dto.estActif ?? true,
         champs: {
-          create: (dto.champs ?? []).map((champ, index) =>
-            this.toChampData(champ, index),
-          ),
+          create: champs.map((champ, index) => this.toChampData(champ, index)),
         },
       },
       include: this.includeChamps,
@@ -94,10 +97,22 @@ export class TypesOffresService {
   }
 
   async update(id: number, dto: UpdateTypeOffreDto) {
-    await this.findById(id);
+    const actuel = await this.findById(id);
 
-    if (dto.champs) {
-      this.assertChampsCoherents(dto.champs);
+    // Codes déjà en base, indexés par identifiant de champ : un champ conservé
+    // garde le sien coûte que coûte. Le recalculer depuis un libellé modifié
+    // orphelinerait les valeurs déjà saisies dans `Offre.champs`, qui sont
+    // rangées sous l'ancien code.
+    const codesExistants = new Map(
+      actuel.champs.map((champ) => [champ.id, champ.code]),
+    );
+
+    const champs = dto.champs
+      ? this.attribuerCodesChamps(dto.champs, codesExistants)
+      : undefined;
+
+    if (champs) {
+      this.assertChampsCoherents(champs);
     }
 
     // La liste de champs est remplacée en bloc, dans une transaction : le
@@ -116,8 +131,8 @@ export class TypesOffresService {
         },
       });
 
-      if (dto.champs) {
-        const gardes = dto.champs
+      if (champs) {
+        const gardes = champs
           .map((champ) => champ.id)
           .filter((value): value is number => typeof value === 'number');
 
@@ -125,7 +140,7 @@ export class TypesOffresService {
           where: { typeOffreId: id, id: { notIn: gardes.length ? gardes : [0] } },
         });
 
-        for (const [index, champ] of dto.champs.entries()) {
+        for (const [index, champ] of champs.entries()) {
           const data = this.toChampData(champ, index);
           if (champ.id) {
             await tx.champTypeOffre.update({ where: { id: champ.id }, data });
@@ -161,9 +176,121 @@ export class TypesOffresService {
     return { message: "Type d'offre supprimé" };
   }
 
+  /* ------------------------------------------------------- codes techniques */
+
+  /**
+   * Réduit un libellé à ses lettres et chiffres, mot par mot.
+   *
+   * « Pays d'accueil » donne ['Pays', 'd', 'accueil'] : les accents sont
+   * décomposés par NFD puis leurs marques retirées, et tout ce qui n'est pas
+   * alphanumérique fait office de séparateur.
+   */
+  private motsDuLibelle(libelle: string): string[] {
+    return libelle
+      .normalize('NFD')
+      // Marques diacritiques combinantes produites par NFD : « é » devient
+      // « e » suivi de U+0301. Écrites en points de code, jamais en clair :
+      // un caractère combinant collé au crochet du motif est illisible et se
+      // perd à la moindre conversion d'encodage.
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]+/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+  }
+
+  /**
+   * Code d'un type : le libellé en majuscules, mots joints par un tiret bas.
+   *
+   * Un suffixe numérique est ajouté tant que le code est pris — deux types
+   * peuvent légitimement porter des noms voisins, et c'est ici, face à la base,
+   * qu'on le sait. Le formulaire, lui, ignore ce qui existe déjà.
+   */
+  private async genererCodeType(libelle: string): Promise<string> {
+    const mots = this.motsDuLibelle(libelle);
+    const base =
+      mots
+        .join('_')
+        .toUpperCase()
+        .replace(/^[^A-Z]+/, '')
+        .slice(0, 36) || 'TYPE';
+
+    for (let suffixe = 0; suffixe < 100; suffixe += 1) {
+      const candidat = suffixe === 0 ? base : `${base}_${suffixe + 1}`;
+      const pris = await this.prisma.typeOffre.findUnique({
+        where: { code: candidat },
+        select: { id: true },
+      });
+      if (!pris) return candidat;
+    }
+
+    throw new ConflictException(
+      `Impossible de dériver un code libre depuis « ${libelle} ». Choisissez un autre nom.`,
+    );
+  }
+
+  /**
+   * Code d'un champ : le libellé en casse chameau — « Pays d'accueil » devient
+   * `paysDAccueil`.
+   */
+  private genererCodeChamp(libelle: string): string {
+    const mots = this.motsDuLibelle(libelle);
+    if (!mots.length) return 'champ';
+
+    const camel =
+      mots[0].toLowerCase() +
+      mots
+        .slice(1)
+        .map((mot) => mot[0].toUpperCase() + mot.slice(1).toLowerCase())
+        .join('');
+
+    // Le code doit commencer par une lettre : un libellé purement numérique
+    // (« 2026 ») produirait sinon un identifiant invalide.
+    return (/^[a-zA-Z]/.test(camel) ? camel : `champ${camel}`).slice(0, 40);
+  }
+
+  /**
+   * Attribue son code à chaque champ soumis.
+   *
+   * Trois règles, dans cet ordre : un champ déjà enregistré garde le code qu'il
+   * a en base ; un code explicitement fourni est respecté ; sinon le libellé le
+   * détermine. Les collisions au sein du type sont levées par un suffixe, car
+   * deux champs peuvent légitimement s'appeler « Durée » dans deux sections.
+   */
+  private attribuerCodesChamps(
+    champs: ChampTypeOffreDto[],
+    codesExistants: Map<number, string>,
+  ): (ChampTypeOffreDto & { code: string })[] {
+    const pris = new Set<string>();
+
+    // Les codes conservés sont réservés en premier : un champ existant ne doit
+    // jamais céder son code à un nouveau venu traité avant lui.
+    for (const champ of champs) {
+      const conserve = champ.id ? codesExistants.get(champ.id) : undefined;
+      if (conserve) pris.add(conserve.toLowerCase());
+    }
+
+    return champs.map((champ) => {
+      const conserve = champ.id ? codesExistants.get(champ.id) : undefined;
+      if (conserve) return { ...champ, code: conserve };
+
+      const souhaite = champ.code?.trim() || this.genererCodeChamp(champ.libelle);
+
+      let code = souhaite;
+      let suffixe = 2;
+      while (pris.has(code.toLowerCase())) {
+        code = `${souhaite.slice(0, 37)}${suffixe}`;
+        suffixe += 1;
+      }
+
+      pris.add(code.toLowerCase());
+      return { ...champ, code };
+    });
+  }
+
   /* ------------------------------------------------------------- validation */
 
-  private toChampData(champ: ChampTypeOffreDto, index: number) {
+  private toChampData(champ: ChampTypeOffreDto & { code: string }, index: number) {
     return {
       code: champ.code,
       libelle: champ.libelle,
@@ -176,7 +303,7 @@ export class TypesOffresService {
     };
   }
 
-  private assertChampsCoherents(champs: ChampTypeOffreDto[]) {
+  private assertChampsCoherents(champs: (ChampTypeOffreDto & { code: string })[]) {
     const codes = new Set<string>();
     for (const champ of champs) {
       if (codes.has(champ.code)) {
