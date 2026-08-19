@@ -1,5 +1,12 @@
 [phases.setup]
-nixPkgs = ["nodejs_22", "openssl"]
+# Node 24, comme en développement.
+#
+# Node 22.11 ne sait pas charger un module ES depuis un `require()`. Or
+# `sanitize-html`, qui assainit le contenu des annonces, dépend de
+# `htmlparser2` 12, distribué en ES uniquement : le serveur plantait au
+# démarrage avec ERR_REQUIRE_ESM. Le défaut n'était pas visible en local, où
+# Node 24 accepte cet appel — c'est précisément cet écart qui l'avait masqué.
+nixPkgs = ["nodejs_24", "openssl"]
 
 [phases.install]
 cmds = ["npm ci"]
