@@ -7,6 +7,12 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  assainirHtml,
+  extraireAccroche,
+  fabriquerSlug,
+  htmlVersTexte,
+} from './contenu.util';
 import { CHAMPS_LEGACY, CreateOffreDto, UpdateOffreDto, OffresFilterDto } from './dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { TypesOffresService } from '../types-offres/types-offres.service';
@@ -130,7 +136,19 @@ export class OffresService {
   private sansClesNonColonnes(dto: CreateOffreDto | UpdateOffreDto) {
     const reste = { ...(dto as unknown as Record<string, unknown>) };
 
-    for (const cle of ['champs', 'typeOffre', 'typeOffreId', 'dateLimite']) {
+    // Ces clés sont reprises plus loin, après transformation : les laisser
+    // passer telles quelles écraserait le résultat du traitement.
+    for (const cle of [
+      'champs',
+      'typeOffre',
+      'typeOffreId',
+      'dateLimite',
+      'contenuHtml',
+      'extrait',
+      'description',
+      'estBrouillon',
+      'datePublicationPrevue',
+    ]) {
       delete reste[cle];
     }
     for (const code of CHAMPS_LEGACY) {
@@ -141,6 +159,65 @@ export class OffresService {
       CreateOffreDto,
       'champs' | 'typeOffre' | 'typeOffreId' | 'dateLimite'
     >;
+  }
+
+  /**
+   * Met le contenu rédactionnel en forme avant enregistrement.
+   *
+   * Trois représentations du même texte, dérivées les unes des autres quand
+   * l'auteur ne les fournit pas : le balisage pour la page, le texte brut pour
+   * la recherche et l'assistant, l'accroche pour les listes et les aperçus de
+   * partage. Les laisser à la charge du client, c'est accepter qu'elles
+   * divergent.
+   */
+  private async preparerContenu(
+    dto: CreateOffreDto | UpdateOffreDto,
+    offreId?: number,
+  ) {
+    const html = assainirHtml(dto.contenuHtml);
+    const texte = html ? htmlVersTexte(html) : (dto.description ?? '');
+
+    const donnees: Record<string, unknown> = {};
+    if (dto.contenuHtml !== undefined) donnees.contenuHtml = html;
+
+    // La description reste la source de vérité en texte : elle est reprise du
+    // balisage quand l'éditeur est utilisé, pour que les deux ne divergent pas.
+    if (html) donnees.description = texte;
+    else if (dto.description !== undefined) donnees.description = dto.description;
+
+    if (dto.extrait !== undefined) {
+      donnees.extrait = dto.extrait?.trim() || (texte ? extraireAccroche(texte) : null);
+    } else if (html) {
+      donnees.extrait = extraireAccroche(texte);
+    }
+
+    if (dto.titre) {
+      donnees.slug = await this.slugUnique(fabriquerSlug(dto.titre), offreId);
+    }
+
+    return donnees;
+  }
+
+  /**
+   * Rend la portion d'adresse unique.
+   *
+   * Deux offres peuvent légitimement porter le même titre — « Stage
+   * communication » revient chaque année. Un suffixe numérique les départage
+   * plutôt qu'un rejet de la publication.
+   */
+  private async slugUnique(base: string, offreId?: number): Promise<string> {
+    const racine = base || 'offre';
+
+    for (let suffixe = 0; suffixe < 50; suffixe += 1) {
+      const candidat = suffixe === 0 ? racine : `${racine}-${suffixe + 1}`;
+      const occupe = await this.prisma.offre.findFirst({
+        where: { slug: candidat, ...(offreId ? { id: { not: offreId } } : {}) },
+        select: { id: true },
+      });
+      if (!occupe) return candidat;
+    }
+
+    return `${racine}-${Date.now()}`;
   }
 
   async create(dto: CreateOffreDto, auteurId: number, auteurRole?: string) {
@@ -155,17 +232,31 @@ export class OffresService {
     // plutôt que transmis par le client : c'est le serveur qui décide.
     const enAttente = auteurRole === 'PARTENAIRE';
 
+    const contenu = await this.preparerContenu(dto);
+    const brouillon = dto.estBrouillon === true;
+
     const offre = await this.prisma.offre.create({
       data: {
         ...reste,
+        ...contenu,
         typeOffreId,
         typeEmploi: dto.typeEmploi as any,
         secteur: dto.secteur as any,
         niveauExperience: dto.niveauExperience as any,
         dateLimite: dateLimite ? new Date(dateLimite) : null,
+        datePublicationPrevue: dto.datePublicationPrevue
+          ? new Date(dto.datePublicationPrevue)
+          : null,
         champs,
         auteurId,
-        statutModeration: enAttente ? 'EN_ATTENTE' : 'PUBLIEE',
+        estBrouillon: brouillon,
+        // Un brouillon n'entre pas en modération : il n'est pas terminé, et
+        // faire relire un texte inachevé fait perdre son temps à tout le monde.
+        statutModeration: brouillon
+          ? 'EN_ATTENTE'
+          : enAttente
+            ? 'EN_ATTENTE'
+            : 'PUBLIEE',
       } as any,
       include: { auteur: this.auteurSelect, typeOffre: this.typeSelect },
     });
@@ -173,7 +264,7 @@ export class OffresService {
     // Pas de notification tant que l'offre n'est pas visible : annoncer aux
     // membres une offre qu'ils ne peuvent pas ouvrir ne ferait qu'un lien mort.
     // Elle part à la validation (voir `moderer`).
-    if (!enAttente) {
+    if (!enAttente && !brouillon) {
       await this.notificationsService.notifyNewOffre(offre.id, offre.titre);
     }
 
@@ -251,7 +342,17 @@ export class OffresService {
     // Le catalogue ne montre que ce qui est validé. Le filtre est posé en
     // premier et n'est jamais surchargé par les paramètres de requête : c'est
     // la seule barrière entre un dépôt non relu et l'ensemble des membres.
-    const where: any = { statutModeration: 'PUBLIEE' };
+    const where: any = {
+      statutModeration: 'PUBLIEE',
+      // Un brouillon n'est pas une offre : il n'appartient qu'à son auteur.
+      estBrouillon: false,
+      // Publication différée : tant que la date n'est pas atteinte, l'offre
+      // reste hors catalogue. `null` couvre les offres sans programmation.
+      OR: [
+        { datePublicationPrevue: null },
+        { datePublicationPrevue: { lte: new Date() } },
+      ],
+    };
 
     // Le filtre accepte le code (liens partagés) ou l'identifiant.
     if (filterParams.typeOffreId) {
@@ -305,7 +406,7 @@ export class OffresService {
     };
   }
 
-  async findById(id: number) {
+  async findById(id: number, estConnecte = false) {
     const offre = await this.prisma.offre.findUnique({
       where: { id },
       include: {
@@ -337,7 +438,57 @@ export class OffresService {
       data: { viewCount: { increment: 1 } },
     });
 
-    return this.serialiser(offre);
+    const complete = this.serialiser(offre);
+    return estConnecte ? complete : this.enApercu(complete);
+  }
+
+  /**
+   * Version réduite servie aux visiteurs sans compte.
+   *
+   * La consultation d'une offre demande un compte. Renvoyer une redirection
+   * plutôt qu'un aperçu aurait coûté deux choses auxquelles on tient : les
+   * moteurs n'indexeraient plus rien, et un lien partagé sur WhatsApp
+   * n'afficherait plus ni titre ni image — or c'est ainsi que la plupart des
+   * offres circulent.
+   *
+   * Le tri est fait ici, côté serveur, et non masqué à l'affichage : ce qui
+   * n'est pas envoyé ne peut pas être lu dans le code source de la page.
+   */
+  private enApercu(offre: Record<string, any>) {
+    const {
+      description,
+      contenuHtml,
+      url,
+      documentUrl,
+      documentName,
+      documentType,
+      fichiers,
+      champs,
+      champsAffichables,
+      commentaires,
+      emailCandidature,
+      instructionsCandidature,
+      salaireMin,
+      salaireMax,
+      auteur,
+      ...visible
+    } = offre;
+
+    return {
+      ...visible,
+      // L'accroche est faite pour être lue de tous : c'est elle qui doit
+      // donner envie de créer un compte.
+      extrait:
+        offre.extrait ??
+        (typeof description === 'string'
+          ? `${description.replace(/\s+/g, ' ').slice(0, 220).trim()}…`
+          : null),
+      // Le nom de l'auteur reste, son profil non : il situe l'annonce sans
+      // livrer de fiche.
+      auteur: auteur ? { username: auteur.username } : null,
+      /** Marque lue par la page pour proposer la connexion. */
+      apercuSeulement: true,
+    };
   }
 
   /**
@@ -400,17 +551,33 @@ export class OffresService {
     // modification par l'administration ne change évidemment rien.
     const repasseEnRelecture = userRole !== 'ADMIN';
 
+    const contenu = await this.preparerContenu(dto, id);
+    // Une offre qui quitte l'état de brouillon entre en relecture comme une
+    // publication neuve : c'est à ce moment-là qu'elle devient une annonce.
+    const sortDeBrouillon = offre.estBrouillon && dto.estBrouillon === false;
+
     const misAJour = await this.prisma.offre.update({
       where: { id },
       data: {
         ...reste,
+        ...contenu,
         typeOffreId,
         typeEmploi: dto.typeEmploi as any,
         secteur: dto.secteur as any,
         niveauExperience: dto.niveauExperience as any,
         dateLimite: dateLimite ? new Date(dateLimite) : null,
+        ...(dto.datePublicationPrevue !== undefined
+          ? {
+              datePublicationPrevue: dto.datePublicationPrevue
+                ? new Date(dto.datePublicationPrevue)
+                : null,
+            }
+          : {}),
+        ...(dto.estBrouillon !== undefined
+          ? { estBrouillon: dto.estBrouillon }
+          : {}),
         champs,
-        ...(repasseEnRelecture
+        ...(repasseEnRelecture || sortDeBrouillon
           ? {
               statutModeration: 'EN_ATTENTE' as const,
               motifRefus: null,

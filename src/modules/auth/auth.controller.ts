@@ -87,6 +87,13 @@ export class AuthController {
     return this.authService.logout(userId);
   }
 
+  @Post('cgu')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Accepter la version en vigueur des CGU' })
+  async accepterCgu(@CurrentUser('id') userId: number) {
+    return this.authService.accepterCgu(userId);
+  }
+
   @Get('me')
   @ApiOperation({ summary: 'Obtenir l\'utilisateur connecté' })
   async getMe(@CurrentUser() user: any) {

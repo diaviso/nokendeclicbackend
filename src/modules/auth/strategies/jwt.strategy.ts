@@ -48,6 +48,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         typeHandicap: true,
         createdAt: true,
         isGoogleLogin: true,
+        // Nécessaires au frontend pour savoir si l'accord aux CGU est à jour.
+        cguVersion: true,
+        cguAccepteeLe: true,
       },
     });
 

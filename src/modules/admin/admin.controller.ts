@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
+import { DefinirMotDePasseDto } from './dto/mot-de-passe.dto';
 import { Roles, CurrentUser } from '../../common';
 import { RolesGuard } from '../../common/guards';
 
@@ -34,6 +35,13 @@ export class AdminController {
   @ApiOperation({ summary: 'Statistiques désagrégées des utilisateurs (genre, âge, handicap)' })
   async getUsersDisaggregation() {
     return this.adminService.getUsersDisaggregation();
+  }
+
+  @Get('statistics/rapport')
+  @ApiOperation({ summary: "Rapport d'activité sur une période glissante" })
+  @ApiQuery({ name: 'mois', required: false, type: Number })
+  async getRapport(@Query('mois') mois?: string) {
+    return this.adminService.getRapport(Number(mois) || 12);
   }
 
   // ==================== USERS ====================
@@ -77,6 +85,20 @@ export class AdminController {
     @Body('isActive') isActive: boolean,
   ) {
     return this.adminService.toggleUserActive(id, isActive);
+  }
+
+  @Post('users/:id/mot-de-passe')
+  @ApiOperation({ summary: "Définir le mot de passe d'un utilisateur" })
+  async definirMotDePasse(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: DefinirMotDePasseDto,
+    @CurrentUser('id') administrateurId: number,
+  ) {
+    return this.adminService.definirMotDePasse(
+      id,
+      dto.motDePasse,
+      administrateurId,
+    );
   }
 
   @Delete('users/:id')

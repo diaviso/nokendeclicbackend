@@ -136,8 +136,13 @@ export class OffresController {
   @Get(':id')
   @Public()
   @ApiOperation({ summary: 'Détails d\'une offre' })
-  async findById(@Param('id', ParseIntPipe) id: number) {
-    return this.offresService.findById(id);
+  async findById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() utilisateur?: { id: number },
+  ) {
+    // Route publique, mais la garde reconnaît un appelant porteur d'un jeton
+    // valide : un visiteur reçoit un aperçu, un membre l'offre entière.
+    return this.offresService.findById(id, Boolean(utilisateur?.id));
   }
 
   @PeutPublier()

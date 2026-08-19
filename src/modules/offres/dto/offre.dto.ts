@@ -7,6 +7,7 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
+  IsEmail,
   IsObject,
   MaxLength,
   Min,
@@ -155,8 +156,103 @@ export class CreateOffreDto extends ChampsLegacyDto {
 
   @ApiProperty({ example: 'Description du poste...' })
   @IsString()
-  @MaxLength(5000)
+  @MaxLength(20000)
   description: string;
+
+  /**
+   * Balisage produit par l'éditeur. Assaini côté serveur avant enregistrement :
+   * ce qui arrive ici n'est pas ce qui sera stocké, et encore moins affiché.
+   */
+  @ApiPropertyOptional({ description: "Contenu riche de l'annonce" })
+  @IsString()
+  @MaxLength(120000)
+  @IsOptional()
+  contenuHtml?: string;
+
+  @ApiPropertyOptional({ description: 'Accroche pour les listes et les partages' })
+  @IsString()
+  @MaxLength(400)
+  @IsOptional()
+  extrait?: string;
+
+  @ApiPropertyOptional({ description: 'Enregistrer sans publier' })
+  @IsBoolean()
+  @IsOptional()
+  estBrouillon?: boolean;
+
+  @ApiPropertyOptional({ description: 'Publier à partir de cette date' })
+  @IsDateString()
+  @IsOptional()
+  datePublicationPrevue?: string;
+
+  @ApiPropertyOptional({ description: "Texte alternatif de l'image de couverture" })
+  @IsString()
+  @MaxLength(300)
+  @IsOptional()
+  imageAlt?: string;
+
+  @ApiPropertyOptional({ description: 'Titre affiché dans les moteurs de recherche' })
+  @IsString()
+  @MaxLength(70)
+  @IsOptional()
+  metaTitre?: string;
+
+  @ApiPropertyOptional({ description: 'Description affichée dans les moteurs' })
+  @IsString()
+  @MaxLength(180)
+  @IsOptional()
+  metaDescription?: string;
+
+  @ApiPropertyOptional({ example: 250000 })
+  @IsInt()
+  @Min(0)
+  @Type(() => Number)
+  @IsOptional()
+  salaireMin?: number;
+
+  @ApiPropertyOptional({ example: 400000 })
+  @IsInt()
+  @Min(0)
+  @Type(() => Number)
+  @IsOptional()
+  salaireMax?: number;
+
+  @ApiPropertyOptional({ example: 'FCFA' })
+  @IsString()
+  @MaxLength(10)
+  @IsOptional()
+  salaireDevise?: string;
+
+  @ApiPropertyOptional({ example: 'mois' })
+  @IsString()
+  @MaxLength(20)
+  @IsOptional()
+  salairePeriode?: string;
+
+  @ApiPropertyOptional({ example: 'hybride' })
+  @IsString()
+  @MaxLength(20)
+  @IsOptional()
+  teletravail?: string;
+
+  @ApiPropertyOptional({ example: 2 })
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  @IsOptional()
+  nombrePostes?: number;
+
+  @ApiPropertyOptional({ example: 'recrutement@exemple.sn' })
+  @IsEmail()
+  @MaxLength(200)
+  @IsOptional()
+  emailCandidature?: string;
+
+  @ApiPropertyOptional({ description: 'Pièces à fournir, marche à suivre' })
+  @IsString()
+  @MaxLength(2000)
+  @IsOptional()
+  instructionsCandidature?: string;
 
   @ApiPropertyOptional({ example: 'https://example.com/offre' })
   @IsString()

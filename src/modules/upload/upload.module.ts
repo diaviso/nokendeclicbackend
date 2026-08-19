@@ -5,10 +5,12 @@ import { extname } from 'path';
 import { UploadController } from './upload.controller';
 import { UploadService } from './upload.service';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
     PrismaModule,
+    StorageModule,
     MulterModule.register({
       // En mémoire : le fichier est ensuite poussé vers R2. Le disque du
       // conteneur est éphémère, y écrire revenait à perdre les fichiers à

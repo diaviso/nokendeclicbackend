@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "npm run start:prod",
+    "startCommand": "npm run start:migre",
     "healthcheckPath": "/api/docs",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",

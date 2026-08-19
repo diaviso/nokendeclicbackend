@@ -90,63 +90,79 @@ enum Sexe {
 // ==================== MODELS ====================
 
 model User {
-  id                  Int                  @id @default(autoincrement())
-  email               String               @unique
+  id                  Int                 @id @default(autoincrement())
+  email               String              @unique
   username            String
   password            String?
-  role                Role                 @default(MEMBRE)
-  isActive            Boolean              @default(true)
-  isEmailVerified     Boolean              @default(false)
-  googleId            String?              @unique
+  role                Role                @default(MEMBRE)
+  isActive            Boolean             @default(true)
+  isEmailVerified     Boolean             @default(false)
+  googleId            String?             @unique
   pictureUrl          String?
   firstName           String?
   lastName            String?
-  isGoogleLogin       Boolean              @default(false)
-  statutProfessionnel StatutProfessionnel  @default(NON_PRECISE)
+  isGoogleLogin       Boolean             @default(false)
+  statutProfessionnel StatutProfessionnel @default(NON_PRECISE)
   pays                String?
   region              String?
   departement         String?
   commune             String?
   // New profile fields
-  sexe                Sexe                 @default(NON_PRECISE)
+  sexe                Sexe                @default(NON_PRECISE)
   dateNaissance       DateTime?
   adresse             String?
   telephone           String?
-  handicap            Boolean              @default(false)
+  handicap            Boolean             @default(false)
   typeHandicap        String?
   refreshToken        String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
+
+  /// Version des CGU acceptée par ce compte, et date de l'acceptation.
+  /// Nuls pour les comptes créés avant l'entrée en vigueur des CGU : ceux-là
+  /// se voient demander leur accord à la connexion suivante. Conserver la
+  /// version, et non un simple booléen, est ce qui permet de redemander un
+  /// accord lorsque le texte change réellement.
+  cguVersion    String?
+  cguAccepteeLe DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // Relations
-  offres              Offre[]
+  offres             Offre[]
   /// Offres dont ce compte a tranché la modération. Distincte de `offres`, qui
   /// désigne celles qu'il a rédigées.
-  offresModerees      Offre[]              @relation("OffreModeree")
-  commentaires        Commentaire[]
-  retours             Retour[]
-  messages            Message[]
-  reponseMessages     ReponseMessage[]
-  reponseRetours      ReponseRetour[]
-  cv                  CV?
-  favorites           Favorite[]
-  likes               OffreLike[]
-  alerts              Alert[]
-  conversations       Conversation[]
-  emailVerifications  EmailVerification[]
-  passwordResets      PasswordReset[]
-  
+  offresModerees     Offre[]             @relation("OffreModeree")
+  commentaires       Commentaire[]
+  retours            Retour[]
+  messages           Message[]
+  reponseMessages    ReponseMessage[]
+  reponseRetours     ReponseRetour[]
+  cv                 CV?
+  favorites          Favorite[]
+  likes              OffreLike[]
+  alerts             Alert[]
+  conversations      Conversation[]
+  emailVerifications EmailVerification[]
+  passwordResets     PasswordReset[]
+
   // Private messaging relations
-  conversationsAsUser1  PrivateConversation[] @relation("ConversationUser1")
-  conversationsAsUser2  PrivateConversation[] @relation("ConversationUser2")
-  sentPrivateMessages   PrivateMessage[]      @relation("SentPrivateMessages")
-  
+  conversationsAsUser1 PrivateConversation[] @relation("ConversationUser1")
+  conversationsAsUser2 PrivateConversation[] @relation("ConversationUser2")
+  sentPrivateMessages  PrivateMessage[]      @relation("SentPrivateMessages")
+
   // Notifications
-  notifications         Notification[]
-  
+  notifications Notification[]
+  pushSubscriptions PushSubscription[]
+
   // Feedback
-  feedbacks              Feedback[]         @relation("FeedbackAuteur")
-  feedbackReponses       FeedbackReponse[]  @relation("FeedbackReponseAuteur")
+  /// Fiche de la structure, pour un compte partenaire.
+  entreprise       EntreprisePartenaire?
+  /// Candidats mis de côté par ce partenaire.
+  candidatsFavoris FavoriCandidat[]      @relation("PartenaireFavoris")
+  /// Partenaires ayant mis ce compte en favori.
+  favoriDe         FavoriCandidat[]      @relation("CandidatFavori")
+
+  feedbacks        Feedback[]        @relation("FeedbackAuteur")
+  feedbackReponses FeedbackReponse[] @relation("FeedbackReponseAuteur")
 
   @@index([email])
   @@index([role])
@@ -159,9 +175,9 @@ model EmailVerification {
   code      String
   expiresAt DateTime
   createdAt DateTime @default(now())
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([code])
 }
@@ -172,9 +188,9 @@ model PasswordReset {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([token])
 }
@@ -199,8 +215,8 @@ model TypeOffre {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  champs      ChampTypeOffre[]
-  offres      Offre[]
+  champs ChampTypeOffre[]
+  offres Offre[]
 
   @@index([estActif, ordre])
 }
@@ -223,48 +239,95 @@ model ChampTypeOffre {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  typeOffre   TypeOffre @relation(fields: [typeOffreId], references: [id], onDelete: Cascade)
+  typeOffre TypeOffre @relation(fields: [typeOffreId], references: [id], onDelete: Cascade)
 
   @@unique([typeOffreId, code])
   @@index([typeOffreId, ordre])
 }
 
 model Offre {
-  id              Int               @id @default(autoincrement())
-  titre           String
-  description     String
+  id    Int    @id @default(autoincrement())
+  titre String
+
+  /// Texte brut de l'annonce. Reste la source de vérité pour la recherche, les
+  /// aperçus de partage et l'assistant — aucun de ces usages ne sait quoi faire
+  /// d'un balisage.
+  description String
+  /// Mise en forme riche, produite par l'éditeur et assainie côté serveur.
+  /// Nulle pour les offres antérieures à l'éditeur : l'affichage retombe alors
+  /// sur `description`.
+  contenuHtml String?
+
+  /// Accroche affichée dans les listes et les aperçus de partage. Dérivée du
+  /// contenu si l'auteur ne la rédige pas.
+  extrait String?
+
+  /// Portion d'adresse lisible : « stage-communication-ziguinchor ». Unique,
+  /// pour que deux offres homonymes ne se disputent pas la même adresse.
+  slug String? @unique
+
   url             String?
-  datePublication DateTime          @default(now())
+  datePublication DateTime  @default(now())
   dateLimite      DateTime?
 
+  /// Publication différée : tant que cette date est à venir, l'offre reste
+  /// hors catalogue même publiée.
+  datePublicationPrevue DateTime?
+
+  /// Brouillon : visible de son seul auteur, jamais soumis à modération tant
+  /// qu'il n'est pas terminé.
+  estBrouillon Boolean @default(false)
+
+  /// Mise en avant par l'administration, en tête de catalogue.
+  estEpinglee Boolean @default(false)
+
+  /// Référencement : titre et description propres aux moteurs, quand ceux de
+  /// l'offre ne conviennent pas.
+  metaTitre       String?
+  metaDescription String?
+
+  /// Texte alternatif de l'image de couverture. Sans lui, la couverture est
+  /// muette pour un lecteur d'écran et pour les moteurs.
+  imageAlt String?
+
+  /// Modalités pratiques, renseignées librement par l'auteur.
+  salaireMin      Int?
+  salaireMax      Int?
+  salaireDevise   String?
+  salairePeriode  String?
+  teletravail     String?
+  nombrePostes    Int?
+  emailCandidature String?
+  instructionsCandidature String?
+
   /// Photo de couverture (URL publique R2).
-  imageUrl        String?
+  imageUrl     String?
   /// Document principal joint à l'offre.
-  documentUrl     String?
-  documentName    String?
-  documentType    String?
+  documentUrl  String?
+  documentName String?
+  documentType String?
 
   // Categorisation — ces champs restent structurels : ils servent aux filtres
   // du catalogue et sont indexés.
-  typeOffreId     Int
-  typeEmploi      TypeEmploi?
-  secteur         Secteur?
+  typeOffreId      Int
+  typeEmploi       TypeEmploi?
+  secteur          Secteur?
   niveauExperience NiveauExperience?
-  tags            String[]
-  localisation    String?
-  entreprise      String?
+  tags             String[]
+  localisation     String?
+  entreprise       String?
 
   /// Valeurs des champs définis par le type de l'offre, indexées par le `code`
   /// du ChampTypeOffre. Remplace les anciennes colonnes spécifiques
   /// (organisme, paysBourse, typeVolontariat, salaire…), qui figeaient dans le
   /// schéma les besoins de cinq types seulement.
-  champs          Json              @default("{}")
+  champs Json @default("{}")
 
   // Stats
-  viewCount       Int               @default(0)
+  viewCount Int @default(0)
 
   // Status
-  estCloturee     Boolean           @default(false)
+  estCloturee Boolean @default(false)
 
   /// État de modération. Une offre déposée par un partenaire attend une
   /// validation de l'équipe avant d'entrer au catalogue ; une offre publiée par
@@ -275,23 +338,23 @@ model Offre {
   /// existantes du catalogue au déploiement.
   statutModeration StatutModeration @default(PUBLIEE)
   /// Renseigné uniquement en cas de refus : c'est ce que lira le partenaire.
-  motifRefus      String?
-  dateModeration  DateTime?
-  moderePar       User?             @relation("OffreModeree", fields: [modereParId], references: [id], onDelete: SetNull)
-  modereParId     Int?
+  motifRefus       String?
+  dateModeration   DateTime?
+  moderePar        User?            @relation("OffreModeree", fields: [modereParId], references: [id], onDelete: SetNull)
+  modereParId      Int?
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  auteur          User              @relation(fields: [auteurId], references: [id], onDelete: Cascade)
-  auteurId        Int
-  typeOffre       TypeOffre         @relation(fields: [typeOffreId], references: [id], onDelete: Restrict)
-  commentaires    Commentaire[]
-  retours         Retour[]
-  favorites       Favorite[]
-  likes           OffreLike[]
-  fichiers        OffreFichier[]
+  auteur       User           @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId     Int
+  typeOffre    TypeOffre      @relation(fields: [typeOffreId], references: [id], onDelete: Restrict)
+  commentaires Commentaire[]
+  retours      Retour[]
+  favorites    Favorite[]
+  likes        OffreLike[]
+  fichiers     OffreFichier[]
 
   @@index([typeOffreId])
   @@index([secteur])
@@ -300,6 +363,8 @@ model Offre {
   @@index([auteurId])
   // Le catalogue public filtre sur ce champ à chaque requête.
   @@index([statutModeration])
+  @@index([estBrouillon])
+  @@index([slug])
 }
 
 /// Cycle de vie d'une offre déposée par un partenaire.
@@ -313,49 +378,49 @@ enum StatutModeration {
 }
 
 model OffreFichier {
-  id          Int      @id @default(autoincrement())
-  nom         String
-  url         String
-  type        String
-  taille      Int
-  createdAt   DateTime @default(now())
-  
-  offre       Offre    @relation(fields: [offreId], references: [id], onDelete: Cascade)
-  offreId     Int
+  id        Int      @id @default(autoincrement())
+  nom       String
+  url       String
+  type      String
+  taille    Int
+  createdAt DateTime @default(now())
+
+  offre   Offre @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  offreId Int
 
   @@index([offreId])
 }
 
 model CV {
-  id                Int           @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
   titreProfessionnel String?
-  telephone         String?
-  adresse           String?
-  ville             String?
-  codePostal        String?
-  pays              String?
-  linkedin          String?
-  siteWeb           String?
-  github            String?
-  resume            String?
-  competences       String[]
-  langues           String[]
-  certifications    String[]
-  interets          String[]
+  telephone          String?
+  adresse            String?
+  ville              String?
+  codePostal         String?
+  pays               String?
+  linkedin           String?
+  siteWeb            String?
+  github             String?
+  resume             String?
+  competences        String[]
+  langues            String[]
+  certifications     String[]
+  interets           String[]
   /// Rubriques libres : ce qu'un CV contient et que le modèle fixe ne prévoit
   /// pas — publications, projets personnels, bénévolat, distinctions. Sans
   /// elles, l'import jetait purement et simplement ces sections. Structure :
   /// [{ titre, entrees: [{ titre, sousTitre, periode, description }] }]
-  rubriques         Json          @default("[]")
-  estPublic         Boolean       @default(false)
-  dateCreation      DateTime      @default(now())
-  dateModification  DateTime      @updatedAt
+  rubriques          Json     @default("[]")
+  estPublic          Boolean  @default(false)
+  dateCreation       DateTime @default(now())
+  dateModification   DateTime @updatedAt
 
   // Relations
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId            Int           @unique
-  experiences       Experience[]
-  formations        Formation[]
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int          @unique
+  experiences Experience[]
+  formations  Formation[]
 
   @@index([userId])
   @@index([estPublic])
@@ -372,8 +437,8 @@ model Experience {
   description String?
 
   // Relations
-  cv          CV        @relation(fields: [cvId], references: [id], onDelete: Cascade)
-  cvId        Int
+  cv   CV  @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  cvId Int
 
   @@index([cvId])
 }
@@ -389,74 +454,74 @@ model Formation {
   description   String?
 
   // Relations
-  cv            CV        @relation(fields: [cvId], references: [id], onDelete: Cascade)
-  cvId          Int
+  cv   CV  @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  cvId Int
 
   @@index([cvId])
 }
 
 model Message {
-  id          Int              @id @default(autoincrement())
-  sujet       String
-  contenu     String
-  dateEnvoi   DateTime         @default(now())
-  estLu       Boolean          @default(false)
+  id        Int      @id @default(autoincrement())
+  sujet     String
+  contenu   String
+  dateEnvoi DateTime @default(now())
+  estLu     Boolean  @default(false)
 
   // Relations
-  expediteur  User             @relation(fields: [expediteurId], references: [id], onDelete: Cascade)
+  expediteur   User             @relation(fields: [expediteurId], references: [id], onDelete: Cascade)
   expediteurId Int
-  reponses    ReponseMessage[]
+  reponses     ReponseMessage[]
 
   @@index([expediteurId])
   @@index([estLu])
 }
 
 model ReponseMessage {
-  id          Int      @id @default(autoincrement())
-  contenu     String
+  id           Int      @id @default(autoincrement())
+  contenu      String
   dateCreation DateTime @default(now())
 
   // Relations
-  message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  messageId   Int
-  auteur      User     @relation(fields: [auteurId], references: [id], onDelete: Cascade)
-  auteurId    Int
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId Int
+  auteur    User    @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId  Int
 
   @@index([messageId])
 }
 
 // Système de messagerie privée
 model PrivateConversation {
-  id            Int              @id @default(autoincrement())
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Participants
-  user1Id       Int
-  user2Id       Int
-  
+  user1Id Int
+  user2Id Int
+
   // Relations
-  user1         User             @relation("ConversationUser1", fields: [user1Id], references: [id], onDelete: Cascade)
-  user2         User             @relation("ConversationUser2", fields: [user2Id], references: [id], onDelete: Cascade)
-  messages      PrivateMessage[]
-  
+  user1    User             @relation("ConversationUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2    User             @relation("ConversationUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+  messages PrivateMessage[]
+
   @@unique([user1Id, user2Id])
   @@index([user1Id])
   @@index([user2Id])
 }
 
 model PrivateMessage {
-  id              Int                 @id @default(autoincrement())
-  content         String
-  createdAt       DateTime            @default(now())
-  isRead          Boolean             @default(false)
-  
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  isRead    Boolean  @default(false)
+
   // Relations
-  conversation    PrivateConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  conversationId  Int
-  sender          User                @relation("SentPrivateMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  senderId        Int
-  
+  conversation   PrivateConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId Int
+  sender         User                @relation("SentPrivateMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId       Int
+
   @@index([conversationId])
   @@index([senderId])
   @@index([createdAt])
@@ -468,41 +533,41 @@ model Commentaire {
   datePublication DateTime @default(now())
 
   // Relations
-  auteur          User     @relation(fields: [auteurId], references: [id], onDelete: Cascade)
-  auteurId        Int
-  offre           Offre    @relation(fields: [offreId], references: [id], onDelete: Cascade)
-  offreId         Int
+  auteur   User  @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId Int
+  offre    Offre @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  offreId  Int
 
   @@index([offreId])
   @@index([auteurId])
 }
 
 model Retour {
-  id              Int             @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   contenu         String
-  datePublication DateTime        @default(now())
+  datePublication DateTime @default(now())
 
   // Relations
-  auteur          User            @relation(fields: [auteurId], references: [id], onDelete: Cascade)
-  auteurId        Int
-  offre           Offre           @relation(fields: [offreId], references: [id], onDelete: Cascade)
-  offreId         Int
-  reponses        ReponseRetour[]
+  auteur   User            @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId Int
+  offre    Offre           @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  offreId  Int
+  reponses ReponseRetour[]
 
   @@index([offreId])
   @@index([auteurId])
 }
 
 model ReponseRetour {
-  id          Int      @id @default(autoincrement())
-  contenu     String
+  id           Int      @id @default(autoincrement())
+  contenu      String
   dateCreation DateTime @default(now())
 
   // Relations
-  retour      Retour   @relation(fields: [retourId], references: [id], onDelete: Cascade)
-  retourId    Int
-  auteur      User     @relation(fields: [auteurId], references: [id], onDelete: Cascade)
-  auteurId    Int
+  retour   Retour @relation(fields: [retourId], references: [id], onDelete: Cascade)
+  retourId Int
+  auteur   User   @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId Int
 
   @@index([retourId])
 }
@@ -517,10 +582,10 @@ model OffreLike {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-  offre     Offre    @relation(fields: [offreId], references: [id], onDelete: Cascade)
-  offreId   Int
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  Int
+  offre   Offre @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  offreId Int
 
   @@unique([userId, offreId])
   @@index([offreId])
@@ -532,52 +597,52 @@ model Favorite {
   createdAt DateTime @default(now())
 
   // Relations
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-  offre     Offre    @relation(fields: [offreId], references: [id], onDelete: Cascade)
-  offreId   Int
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  Int
+  offre   Offre @relation(fields: [offreId], references: [id], onDelete: Cascade)
+  offreId Int
 
   @@unique([userId, offreId])
   @@index([userId])
 }
 
 model Alert {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   criteria  Json
-  isActive  Boolean  @default(true)
+  isActive  Boolean   @default(true)
   lastSent  DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   // Relations
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
 
   @@index([userId])
   @@index([isActive])
 }
 
 model Conversation {
-  id        String        @id @default(uuid())
+  id        String   @id @default(uuid())
   title     String?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-  messages  ChatMessage[]
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int
+  messages ChatMessage[]
 
   @@index([userId])
 }
 
 model ChatMessage {
-  id           Int          @id @default(autoincrement())
-  role         String
-  content      String
-  timestamp    DateTime     @default(now())
+  id        Int      @id @default(autoincrement())
+  role      String
+  content   String
+  timestamp DateTime @default(now())
 
   // Relations
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   conversationId String
 
   @@index([conversationId])
@@ -606,21 +671,21 @@ enum FeedbackPriority {
 }
 
 model Feedback {
-  id          Int               @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   titre       String
   description String
   categorie   FeedbackCategory
-  statut      FeedbackStatus    @default(OUVERT)
-  priorite    FeedbackPriority  @default(MOYENNE)
+  statut      FeedbackStatus   @default(OUVERT)
+  priorite    FeedbackPriority @default(MOYENNE)
   pageUrl     String?
   capture     String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   // Relations
-  auteur      User              @relation("FeedbackAuteur", fields: [auteurId], references: [id], onDelete: Cascade)
-  auteurId    Int
-  reponses    FeedbackReponse[]
+  auteur   User              @relation("FeedbackAuteur", fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId Int
+  reponses FeedbackReponse[]
 
   @@index([auteurId])
   @@index([statut])
@@ -629,15 +694,15 @@ model Feedback {
 }
 
 model FeedbackReponse {
-  id          Int      @id @default(autoincrement())
-  contenu     String
-  createdAt   DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  contenu   String
+  createdAt DateTime @default(now())
 
   // Relations
-  feedback    Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
-  feedbackId  Int
-  auteur      User     @relation("FeedbackReponseAuteur", fields: [auteurId], references: [id], onDelete: Cascade)
-  auteurId    Int
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  feedbackId Int
+  auteur     User     @relation("FeedbackReponseAuteur", fields: [auteurId], references: [id], onDelete: Cascade)
+  auteurId   Int
 
   @@index([feedbackId])
 }
@@ -649,22 +714,113 @@ enum NotificationType {
   NEW_RETOUR
   NEW_COMMENTAIRE
   NEW_FEEDBACK_REPONSE
+  /// Message de la plateforme elle-même : sécurité du compte, changement de
+  /// mot de passe, information de service. Sans catégorie propre, ces messages
+  /// devaient emprunter celle d'un autre événement et s'affichaient sous une
+  /// icône qui ne leur correspondait pas.
+  SYSTEM
+}
+
+/// Abonnement d'un navigateur aux notifications poussées.
+///
+/// Une même personne peut en avoir plusieurs : un téléphone, un ordinateur au
+/// bureau, un navigateur en navigation privée. Chacun a son propre `endpoint`,
+/// délivré par le service de poussée du navigateur (Google, Mozilla, Apple).
+model PushSubscription {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+
+  /// Adresse fournie par le service de poussée. Unique par navigateur.
+  endpoint String @unique
+  /// Clés du destinataire, sans lesquelles le service refuse de transmettre la
+  /// charge utile chiffrée.
+  p256dh   String
+  auth     String
+
+  /// Aide à reconnaître l'appareil dans la liste des abonnements.
+  userAgent String?
+
+  createdAt        DateTime  @default(now())
+  /// Dernier envoi accepté : repère les abonnements dormants.
+  derniereReussite DateTime?
+
+  @@index([userId])
 }
 
 model Notification {
-  id          Int              @id @default(autoincrement())
-  type        NotificationType
-  title       String
-  message     String
-  link        String?
-  isRead      Boolean          @default(false)
-  createdAt   DateTime         @default(now())
-  
+  id        Int              @id @default(autoincrement())
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
   // Relations
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+
   @@index([userId])
   @@index([isRead])
   @@index([createdAt])
+}
+
+/// Fiche d'une structure partenaire.
+///
+/// Table dédiée plutôt que colonnes sur `User` : ces informations ne
+/// concernent qu'une minorité de comptes, et la vitrine publique de la page
+/// d'accueil s'y appuie — la charger ne doit pas impliquer de lire un compte
+/// utilisateur entier.
+model EntreprisePartenaire {
+  id     Int  @id @default(autoincrement())
+  /// Compte partenaire propriétaire de la fiche.
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  @unique
+
+  nom          String
+  /// Logo (URL publique R2).
+  logoUrl      String?
+  description  String?
+  secteur      Secteur?
+  siteWeb      String?
+  /// Coordonnées publiques de la structure — distinctes de celles du compte.
+  emailContact String?
+  telephone    String?
+  ville        String?
+  region       String?
+  /// Tranche d'effectif, saisie libre encadrée côté formulaire.
+  taille       String?
+
+  /// Présence sur la vitrine publique. Décidée par l'administration : une
+  /// structure ne se met pas elle-même en avant sur la page d'accueil.
+  estVisibleVitrine Boolean @default(false)
+  /// Ordre d'affichage sur la vitrine, les plus petits d'abord.
+  ordreVitrine      Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([estVisibleVitrine, ordreVitrine])
+}
+
+/// Candidat mis de côté par un partenaire.
+///
+/// Le partenaire constitue sa propre liste de profils intéressants. La note
+/// libre lui permet de se rappeler pourquoi — sans elle, une liste de vingt
+/// noms redevient vite illisible.
+model FavoriCandidat {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  partenaire   User @relation("PartenaireFavoris", fields: [partenaireId], references: [id], onDelete: Cascade)
+  partenaireId Int
+  candidat     User @relation("CandidatFavori", fields: [candidatId], references: [id], onDelete: Cascade)
+  candidatId   Int
+
+  /// Annotation privée du partenaire sur ce profil.
+  note String?
+
+  @@unique([partenaireId, candidatId])
+  @@index([partenaireId, createdAt])
 }

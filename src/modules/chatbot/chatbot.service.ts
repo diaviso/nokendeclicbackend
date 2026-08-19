@@ -5,6 +5,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { ChatMessageDto } from './dto';
 import { ChatbotToolsService } from './chatbot-tools.service';
 
+/** Ce qui transite sur le flux, du serveur vers le navigateur. */
+export type EvenementFlux =
+  | { type: 'debut'; conversationId: string }
+  | { type: 'morceau'; texte: string }
+  | { type: 'outil'; nom: string }
+  | { type: 'fin'; conversationId: string }
+  | { type: 'erreur'; message: string };
+
 @Injectable()
 export class ChatbotService {
   private openai: OpenAI;
@@ -368,6 +376,146 @@ export class ChatbotService {
       response: finalResponse,
       conversationId: conversation.id,
     };
+  }
+
+  /**
+   * Même conversation que `chat`, mais rendue au fil de l'eau.
+   *
+   * L'appel est diffusé dès le premier jeton plutôt qu'attendu en entier : sur
+   * une réponse de quinze lignes, l'utilisateur voit apparaître le texte au
+   * bout d'une seconde au lieu de fixer un indicateur pendant dix.
+   *
+   * Les appels d'outils arrivent eux aussi par fragments : ils sont accumulés
+   * par index, exécutés, puis un nouvel appel est ouvert. Seul le texte est
+   * diffusé — un outil n'a rien à montrer, sinon la mention de ce qu'il
+   * consulte.
+   */
+  async *chatEnFlux(
+    dto: ChatMessageDto,
+    userId: number,
+  ): AsyncGenerator<EvenementFlux> {
+    let conversation = dto.conversationId
+      ? await this.prisma.conversation.findUnique({
+          where: { id: dto.conversationId },
+          include: { messages: { orderBy: { timestamp: 'asc' }, take: 20 } },
+        })
+      : null;
+
+    if (!conversation) {
+      conversation = await this.prisma.conversation.create({
+        data: { userId, title: dto.message.substring(0, 50) },
+        include: { messages: true },
+      });
+    }
+
+    await this.prisma.chatMessage.create({
+      data: {
+        conversationId: conversation.id,
+        role: 'user',
+        content: dto.message,
+      },
+    });
+
+    yield { type: 'debut', conversationId: conversation.id };
+
+    const messages: any[] = [
+      { role: 'system', content: this.getSystemPrompt() },
+      ...conversation.messages.map((m) => ({ role: m.role, content: m.content })),
+      { role: 'user', content: dto.message },
+    ];
+
+    let texteFinal = '';
+
+    // Borne le nombre d'allers-retours : un modèle qui rappellerait sans fin le
+    // même outil consommerait le budget sans jamais répondre.
+    for (let tour = 0; tour < 5; tour++) {
+      const flux = await this.openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages,
+        tools: this.getTools(),
+        tool_choice: 'auto',
+        temperature: 0.7,
+        max_tokens: 2000,
+        stream: true,
+      });
+
+      let contenu = '';
+      const appels: {
+        id: string;
+        nom: string;
+        arguments: string;
+      }[] = [];
+
+      for await (const morceau of flux) {
+        const delta = morceau.choices[0]?.delta;
+        if (!delta) continue;
+
+        if (delta.content) {
+          contenu += delta.content;
+          texteFinal += delta.content;
+          yield { type: 'morceau', texte: delta.content };
+        }
+
+        // Les appels d'outils arrivent en fragments à recoller : le nom vient
+        // en général avec le premier, les arguments par morceaux ensuite.
+        for (const fragment of delta.tool_calls ?? []) {
+          const index = fragment.index ?? 0;
+          appels[index] ??= { id: '', nom: '', arguments: '' };
+          if (fragment.id) appels[index].id = fragment.id;
+          if (fragment.function?.name) appels[index].nom += fragment.function.name;
+          if (fragment.function?.arguments) {
+            appels[index].arguments += fragment.function.arguments;
+          }
+        }
+      }
+
+      const aExecuter = appels.filter((appel) => appel?.nom);
+      if (aExecuter.length === 0) break;
+
+      messages.push({
+        role: 'assistant',
+        content: contenu,
+        tool_calls: aExecuter.map((appel) => ({
+          id: appel.id,
+          type: 'function',
+          function: { name: appel.nom, arguments: appel.arguments || '{}' },
+        })),
+      });
+
+      for (const appel of aExecuter) {
+        yield { type: 'outil', nom: appel.nom };
+
+        let args: Record<string, unknown> = {};
+        try {
+          args = appel.arguments ? JSON.parse(appel.arguments) : {};
+        } catch {
+          // Arguments tronqués : l'outil est appelé sans paramètre plutôt que
+          // de faire échouer toute la réponse.
+          args = {};
+        }
+
+        const resultat = await this.executeTool(appel.nom, args, userId);
+        messages.push({
+          role: 'tool',
+          tool_call_id: appel.id,
+          content: resultat,
+        });
+      }
+    }
+
+    const reponse =
+      texteFinal.trim() ||
+      "Désolé, je n'ai pas pu générer une réponse.";
+
+    await this.prisma.chatMessage.create({
+      data: {
+        conversationId: conversation.id,
+        role: 'assistant',
+        content: reponse,
+      },
+    });
+
+    yield { type: 'fin', conversationId: conversation.id };
   }
 
   async getConversations(userId: number) {

@@ -1,11 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationType } from '../../generated/prisma';
+import { PushService } from './push.service';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private push: PushService,
+  ) {}
 
+  /**
+   * Consigne une notification et la pousse vers les appareils abonnés.
+   *
+   * La poussée est délibérément lancée sans être attendue : elle traverse un
+   * service externe, et l'action qui l'a déclenchée — publier une offre,
+   * envoyer un message — ne doit pas en dépendre. La notification reste de
+   * toute façon consultable dans l'application.
+   */
   async createNotification(
     userId: number,
     type: NotificationType,
@@ -13,15 +25,20 @@ export class NotificationsService {
     message: string,
     link?: string,
   ) {
-    return this.prisma.notification.create({
-      data: {
-        userId,
-        type,
-        title,
-        message,
-        link,
-      },
+    const notification = await this.prisma.notification.create({
+      data: { userId, type, title, message, link },
     });
+
+    void this.push.envoyerA(userId, {
+      titre: title,
+      corps: message,
+      lien: link,
+      // Une notification chasse la précédente de même nature : dix messages
+      // non lus ne doivent pas empiler dix bandeaux sur l'écran verrouillé.
+      groupe: type,
+    });
+
+    return notification;
   }
 
   async createNotificationForAllUsers(
@@ -34,7 +51,7 @@ export class NotificationsService {
       select: { id: true },
     });
 
-    return this.prisma.notification.createMany({
+    const cree = await this.prisma.notification.createMany({
       data: users.map((user) => ({
         userId: user.id,
         type,
@@ -43,6 +60,13 @@ export class NotificationsService {
         link,
       })),
     });
+
+    void this.push.envoyerAPlusieurs(
+      users.map((user) => user.id),
+      { titre: title, corps: message, lien: link, groupe: type },
+    );
+
+    return cree;
   }
 
   async createNotificationForAdmins(
@@ -56,7 +80,7 @@ export class NotificationsService {
       select: { id: true },
     });
 
-    return this.prisma.notification.createMany({
+    const cree = await this.prisma.notification.createMany({
       data: admins.map((admin) => ({
         userId: admin.id,
         type,
@@ -65,6 +89,13 @@ export class NotificationsService {
         link,
       })),
     });
+
+    void this.push.envoyerAPlusieurs(
+      admins.map((admin) => admin.id),
+      { titre: title, corps: message, lien: link, groupe: type },
+    );
+
+    return cree;
   }
 
   async getUserNotifications(userId: number, limit = 20) {

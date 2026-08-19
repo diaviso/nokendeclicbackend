@@ -1,6 +1,8 @@
 import {
+  Body,
   Controller,
   Get,
+  Headers,
   Post,
   Delete,
   Param,
@@ -8,13 +10,67 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
-import { CurrentUser } from '../../common';
+import { PushService } from './push.service';
+import { AbonnementPushDto, DesabonnementPushDto } from './dto/push.dto';
+import { CurrentUser, Public } from '../../common';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()
 @Controller('api/notifications')
 export class NotificationsController {
-  constructor(private notificationsService: NotificationsService) {}
+  constructor(
+    private notificationsService: NotificationsService,
+    private push: PushService,
+  ) {}
+
+  /* ------------------------------------------------- Notifications poussées */
+
+  @Public()
+  @Get('push/cle-publique')
+  @ApiOperation({ summary: "Clé publique VAPID, nécessaire pour s'abonner" })
+  clePublique() {
+    // Publique par nature : c'est elle que le navigateur intègre à sa demande
+    // d'abonnement. La clé privée ne quitte jamais le serveur.
+    return { cle: this.push.clePublique(), actif: this.push.estActif };
+  }
+
+  @Post('push/abonnement')
+  @ApiOperation({ summary: 'Abonner cet appareil aux notifications poussées' })
+  abonner(
+    @CurrentUser('id') userId: number,
+    @Body() dto: AbonnementPushDto,
+    @Headers('user-agent') userAgent?: string,
+  ) {
+    return this.push.enregistrer(
+      userId,
+      { endpoint: dto.endpoint, keys: dto.keys },
+      userAgent,
+    );
+  }
+
+  @Delete('push/abonnement')
+  @ApiOperation({ summary: 'Désabonner cet appareil' })
+  desabonner(@Body() dto: DesabonnementPushDto) {
+    return this.push.retirer(dto.endpoint);
+  }
+
+  @Get('push/appareils')
+  @ApiOperation({ summary: 'Appareils abonnés pour ce compte' })
+  mesAppareils(@CurrentUser('id') userId: number) {
+    return this.push.mesAppareils(userId);
+  }
+
+  @Post('push/essai')
+  @ApiOperation({ summary: "Envoyer une notification d'essai à ses appareils" })
+  async essai(@CurrentUser('id') userId: number) {
+    const envoyees = await this.push.envoyerA(userId, {
+      titre: 'Noken Declic',
+      corps: 'Les notifications fonctionnent sur cet appareil.',
+      lien: '/dashboard',
+      groupe: 'essai',
+    });
+    return { envoyees };
+  }
 
   @Get()
   @ApiOperation({ summary: 'Get user notifications' })

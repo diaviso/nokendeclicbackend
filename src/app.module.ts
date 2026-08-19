@@ -12,6 +12,7 @@ import { UsersModule } from './modules/users/users.module';
 import { OffresModule } from './modules/offres/offres.module';
 import { CVModule } from './modules/cv/cv.module';
 import { ProfilsModule } from './modules/profils/profils.module';
+import { PartenaireModule } from './modules/partenaire/partenaire.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { CommentairesModule } from './modules/commentaires/commentaires.module';
 import { RetoursModule } from './modules/retours/retours.module';
@@ -45,6 +46,7 @@ import { LikesModule } from './modules/likes/likes.module';
     OffresModule,
     CVModule,
     ProfilsModule,
+    PartenaireModule,
     MessagesModule,
     CommentairesModule,
     RetoursModule,

@@ -1,4 +1,6 @@
 import {
+  Equals,
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -59,6 +61,20 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   lastName?: string;
+
+  /**
+   * Acceptation des conditions générales.
+   *
+   * Le client transmet un accord, pas un numéro de version : c'est le serveur
+   * qui consigne la version en vigueur au moment de l'inscription. Accepter
+   * une version dictée par le client rendrait la trace inexploitable.
+   */
+  @ApiProperty({ example: true, description: 'Doit valoir true' })
+  @IsBoolean()
+  @Equals(true, {
+    message: "Vous devez accepter les conditions générales d'utilisation",
+  })
+  accepteCgu: boolean;
 }
 
 export class RefreshTokenDto {

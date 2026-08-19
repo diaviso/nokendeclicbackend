@@ -1,9 +1,18 @@
-import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AdminService {
+  private readonly journal = new Logger(AdminService.name);
+
   constructor(
     private prisma: PrismaService,
     @Inject(forwardRef(() => NotificationsService))
@@ -373,6 +382,70 @@ export class AdminService {
     });
   }
 
+  /**
+   * Définit le mot de passe d'un compte depuis la console.
+   *
+   * Sert au dépannage : une personne qui ne reçoit pas le courriel de
+   * réinitialisation — adresse erronée, boîte pleine, courrier classé en
+   * indésirable — reste autrement enfermée dehors.
+   *
+   * Trois précautions accompagnent le changement :
+   *
+   * - les sessions ouvertes sont coupées. Sans cela, un compte compromis dont
+   *   on change le mot de passe resterait accessible à qui détient encore un
+   *   jeton de rafraîchissement, et l'opération n'aurait servi à rien ;
+   * - le titulaire est prévenu dans l'application, et sur son téléphone s'il a
+   *   activé les notifications. Un mot de passe qui change sans qu'on le sache
+   *   est indiscernable d'une intrusion ;
+   * - l'ancien mot de passe n'est pas demandé — l'administration ne le connaît
+   *   pas — mais l'opération est tracée dans le journal du serveur.
+   */
+  async definirMotDePasse(
+    id: number,
+    nouveauMotDePasse: string,
+    administrateurId: number,
+  ) {
+    const utilisateur = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, email: true, username: true },
+    });
+
+    if (!utilisateur) {
+      throw new NotFoundException('Utilisateur non trouvé');
+    }
+
+    const hache = await bcrypt.hash(nouveauMotDePasse, 12);
+
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        password: hache,
+        // Coupe les sessions ouvertes ailleurs.
+        refreshToken: null,
+      },
+    });
+
+    // Les demandes de réinitialisation en cours n'ont plus lieu d'être, et
+    // laisser un lien valide rouvrirait une porte qu'on vient de fermer.
+    await this.prisma.passwordReset.deleteMany({ where: { userId: id } });
+
+    await this.notificationsService.createNotification(
+      id,
+      'SYSTEM',
+      'Votre mot de passe a été modifié',
+      "Un administrateur de Noken Declic a défini un nouveau mot de passe pour votre compte. Si vous n'êtes pas à l'origine de cette demande, signalez-le sans tarder.",
+      '/profil',
+    );
+
+    this.journal.warn(
+      `Mot de passe du compte ${utilisateur.email} redéfini par l'administrateur ${administrateurId}`,
+    );
+
+    return {
+      message: `Mot de passe redéfini. ${utilisateur.username} devra se reconnecter.`,
+    };
+  }
+
   async deleteUser(id: number) {
     await this.prisma.user.delete({ where: { id } });
     return { message: 'Utilisateur supprimé avec succès' };
@@ -524,6 +597,176 @@ export class AdminService {
     }, {});
   }
 
+  // ==================== RAPPORT DÉTAILLÉ ====================
+
+  /**
+   * Bornes des `n` derniers mois, du plus ancien au plus récent.
+   *
+   * Les mois sont posés ici plutôt que déduits des lignes trouvées : un mois
+   * sans aucune inscription doit apparaître à zéro dans la courbe, sinon le
+   * graphique relie deux points distants et laisse croire à une progression
+   * continue là où il n'y a rien eu.
+   */
+  private moisGlissants(nombre: number): { cle: string; debut: Date }[] {
+    const maintenant = new Date();
+    const mois: { cle: string; debut: Date }[] = [];
+
+    for (let recul = nombre - 1; recul >= 0; recul--) {
+      const debut = new Date(
+        Date.UTC(maintenant.getUTCFullYear(), maintenant.getUTCMonth() - recul, 1),
+      );
+      mois.push({ cle: debut.toISOString().slice(0, 7), debut });
+    }
+
+    return mois;
+  }
+
+  /**
+   * Regroupe des dates par mois.
+   *
+   * Le découpage est fait en JavaScript sur les seules dates de la période :
+   * une requête d'agrégation par mois demanderait du SQL brut, donc un couplage
+   * au moteur, pour un volume qui tient en mémoire sans difficulté. La colonne
+   * étant indexée et la période bornée, on ne lit jamais toute la table.
+   */
+  private repartirParMois(
+    dates: Date[],
+    mois: { cle: string }[],
+  ): Record<string, number> {
+    const compteurs: Record<string, number> = {};
+    for (const { cle } of mois) compteurs[cle] = 0;
+
+    for (const date of dates) {
+      const cle = date.toISOString().slice(0, 7);
+      if (cle in compteurs) compteurs[cle] += 1;
+    }
+
+    return compteurs;
+  }
+
+  /**
+   * Rapport d'activité sur une période glissante.
+   *
+   * Complète `getStatistics`, qui ne donne que des totaux : un total dit la
+   * taille de la plateforme, une série dit si elle progresse. Les deux sont
+   * nécessaires pour rendre compte à un partenaire ou à un financeur.
+   */
+  async getRapport(mois = 12) {
+    const nombreDeMois = Math.min(Math.max(Math.trunc(mois) || 12, 3), 36);
+    const periode = this.moisGlissants(nombreDeMois);
+    const debut = periode[0].debut;
+
+    const [
+      inscriptions,
+      publications,
+      retours,
+      candidaturesLikes,
+      favoris,
+      offresParStatut,
+      offresParType,
+      utilisateursParRole,
+      cvTotal,
+      cvPublics,
+      offresOuvertes,
+      partenaires,
+    ] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { createdAt: { gte: debut } },
+        select: { createdAt: true },
+      }),
+      this.prisma.offre.findMany({
+        where: { datePublication: { gte: debut } },
+        select: { datePublication: true },
+      }),
+      this.prisma.retour.findMany({
+        where: { datePublication: { gte: debut } },
+        select: { datePublication: true },
+      }),
+      this.prisma.offreLike.findMany({
+        where: { createdAt: { gte: debut } },
+        select: { createdAt: true },
+      }),
+      this.prisma.favorite.findMany({
+        where: { createdAt: { gte: debut } },
+        select: { createdAt: true },
+      }),
+      this.prisma.offre.groupBy({
+        by: ['statutModeration'],
+        _count: { statutModeration: true },
+      }),
+      this.prisma.offre.groupBy({
+        by: ['typeOffreId'],
+        _count: { typeOffreId: true },
+      }),
+      this.prisma.user.groupBy({
+        by: ['role'],
+        _count: { role: true },
+      }),
+      this.prisma.cV.count(),
+      this.prisma.cV.count({ where: { estPublic: true } }),
+      this.prisma.offre.count({ where: { estCloturee: false } }),
+      this.prisma.entreprisePartenaire.count(),
+    ]);
+
+    const cles = periode.map(({ cle }) => cle);
+
+    const serie = (dates: Date[]) => this.repartirParMois(dates, periode);
+
+    const parMois = {
+      inscriptions: serie(inscriptions.map((ligne) => ligne.createdAt)),
+      publications: serie(publications.map((ligne) => ligne.datePublication)),
+      retours: serie(retours.map((ligne) => ligne.datePublication)),
+      likes: serie(candidaturesLikes.map((ligne) => ligne.createdAt)),
+      favoris: serie(favoris.map((ligne) => ligne.createdAt)),
+    };
+
+    return {
+      periode: {
+        mois: nombreDeMois,
+        debut: debut.toISOString(),
+        cles,
+      },
+      // Une ligne par mois : le format attendu par les graphiques, plutôt que
+      // cinq objets que le client devrait recroiser lui-même.
+      evolution: cles.map((cle) => ({
+        mois: cle,
+        inscriptions: parMois.inscriptions[cle],
+        publications: parMois.publications[cle],
+        retours: parMois.retours[cle],
+        likes: parMois.likes[cle],
+        favoris: parMois.favoris[cle],
+      })),
+      offresParStatut: offresParStatut.reduce<Record<string, number>>(
+        (acc, ligne) => {
+          acc[ligne.statutModeration] = ligne._count.statutModeration;
+          return acc;
+        },
+        {},
+      ),
+      offresParType: await this.indexerParCodeDeType(offresParType),
+      utilisateursParRole: utilisateursParRole.reduce<Record<string, number>>(
+        (acc, ligne) => {
+          acc[ligne.role] = ligne._count.role;
+          return acc;
+        },
+        {},
+      ),
+      engagement: {
+        cvTotal,
+        cvPublics,
+        offresOuvertes,
+        partenaires,
+        // Sur la période, pas depuis toujours : c'est ce qui permet de
+        // comparer deux trimestres.
+        inscriptionsPeriode: inscriptions.length,
+        publicationsPeriode: publications.length,
+        retoursPeriode: retours.length,
+        likesPeriode: candidaturesLikes.length,
+        favorisPeriode: favoris.length,
+      },
+    };
+  }
+
   // ==================== STATISTICS ====================
 
   async getStatistics() {
@@ -659,7 +902,7 @@ export class AdminService {
     // Geographic distribution (by pays)
     const paysStats = await this.prisma.user.groupBy({
       by: ['pays'],
-      _count: { pays: true },
+      _count: { _all: true },
       orderBy: { _count: { pays: 'desc' } },
       take: 10,
     });
@@ -667,23 +910,26 @@ export class AdminService {
     // Commune distribution
     const communeStats = await this.prisma.user.groupBy({
       by: ['commune'],
-      _count: { commune: true },
+      _count: { _all: true },
       orderBy: { _count: { commune: 'desc' } },
       take: 15,
     });
 
     // Region distribution
+    // Pas de troncature ici : la carte des régions a besoin des quatorze, et
+    // une limite à quinze les perdait dès que les groupes « non renseigné »
+    // s'y ajoutaient. Le nombre de régions est borné par le découpage
+    // administratif, la requête ne peut pas s'emballer.
     const regionStats = await this.prisma.user.groupBy({
       by: ['region'],
-      _count: { region: true },
+      _count: { _all: true },
       orderBy: { _count: { region: 'desc' } },
-      take: 15,
     });
 
     // Departement distribution
     const departementStats = await this.prisma.user.groupBy({
       by: ['departement'],
-      _count: { departement: true },
+      _count: { _all: true },
       orderBy: { _count: { departement: 'desc' } },
       take: 15,
     });
@@ -708,19 +954,19 @@ export class AdminService {
       }, {} as Record<string, number>),
       geographic: paysStats.map((item) => ({
         pays: item.pays || 'Non précisé',
-        count: item._count.pays,
+        count: item._count._all,
       })),
       communes: communeStats.map((item) => ({
         commune: item.commune || 'Non précisé',
-        count: item._count.commune,
+        count: item._count._all,
       })),
       regions: regionStats.map((item) => ({
         region: item.region || 'Non précisé',
-        count: item._count.region,
+        count: item._count._all,
       })),
       departements: departementStats.map((item) => ({
         departement: item.departement || 'Non précisé',
-        count: item._count.departement,
+        count: item._count._all,
       })),
     };
   }

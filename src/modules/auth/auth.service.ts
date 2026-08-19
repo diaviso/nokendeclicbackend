@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RegisterDto, GoogleUser } from './dto';
 import { MailService } from '../../mail/mail.service';
+import { CGU_VERSION } from '../../common/constants/cgu';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +39,9 @@ export class AuthService {
 
     const user = await this.prisma.user.create({
       data: {
+        // Consigné au moment de l'inscription : la version vient du serveur.
+        cguVersion: CGU_VERSION,
+        cguAccepteeLe: new Date(),
         email: dto.email,
         username: dto.username || dto.email.split('@')[0],
         password: hashedPassword,
@@ -377,5 +381,21 @@ export class AuthService {
     }
 
     return { valid: true };
+  }
+
+  /**
+   * Consigne l'acceptation des CGU par un compte déjà créé.
+   *
+   * Sert aux comptes antérieurs à l'entrée en vigueur du texte, et à ceux qui
+   * doivent réaccepter après publication d'une nouvelle version. La version
+   * consignée est celle du serveur, jamais celle annoncée par le client.
+   */
+  async accepterCgu(userId: number) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { cguVersion: CGU_VERSION, cguAccepteeLe: new Date() },
+      select: { cguVersion: true, cguAccepteeLe: true },
+    });
+    return user;
   }
 }
