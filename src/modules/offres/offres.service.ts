@@ -373,6 +373,22 @@ export class OffresService {
       };
     }
     if (filterParams.tag) where.tags = { has: filterParams.tag };
+
+    if (filterParams.echeance === 'depassee') {
+      where.dateLimite = { lt: new Date() };
+    } else if (filterParams.echeance === 'ouverte') {
+      // Une offre sans date limite est ouverte : candidature spontanée,
+      // programme permanent. L'exclure la ferait disparaître du filtre le plus
+      // consulté.
+      //
+      // Passé par `AND` et non par `where.OR`, déjà pris par la recherche
+      // par mot-clé : deux `OR` sur le même objet, le second écraserait le
+      // premier et la recherche textuelle serait silencieusement perdue.
+      where.AND = [
+        ...(where.AND ?? []),
+        { OR: [{ dateLimite: null }, { dateLimite: { gte: new Date() } }] },
+      ];
+    }
     if (filterParams.keyword) {
       where.OR = [
         { titre: { contains: filterParams.keyword, mode: 'insensitive' } },

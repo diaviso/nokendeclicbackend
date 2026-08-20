@@ -2,6 +2,7 @@ import {
   IsString,
   IsOptional,
   IsEnum,
+  IsIn,
   IsInt,
   IsNumber,
   IsArray,
@@ -411,6 +412,18 @@ export class OffresFilterDto {
   @IsString()
   @IsOptional()
   localisation?: string;
+
+  /**
+   * État de l'échéance.
+   *
+   * `ouverte` retient aussi les offres sans date limite : une candidature
+   * spontanée ou un programme permanent restent ouverts, et les exclure les
+   * ferait disparaître du filtre le plus utilisé.
+   */
+  @ApiPropertyOptional({ enum: ['ouverte', 'depassee'] })
+  @IsIn(['ouverte', 'depassee'])
+  @IsOptional()
+  echeance?: 'ouverte' | 'depassee';
 
   @ApiPropertyOptional({ default: 1 })
   @IsNumber()
