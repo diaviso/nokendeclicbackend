@@ -203,6 +203,201 @@ export class ChatbotService {
           description: "Récupère les statistiques globales des offres (total, par type, par secteur, par localisation)",
         },
       },
+
+      /* ------------------------------------------------ Lire en détail --- */
+
+      {
+        type: 'function',
+        function: {
+          name: 'get_offre_details',
+          description:
+            "Fiche complète d'une offre : description entière, rémunération, date limite, jours restants, et surtout COMMENT POSTULER (instructions, email, lien). À appeler dès qu'une question porte sur une offre précise.",
+          parameters: {
+            type: 'object',
+            properties: {
+              offreId: {
+                type: 'integer',
+                description: "Identifiant de l'offre, tel que renvoyé par les recherches",
+              },
+            },
+            required: ['offreId'],
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'recherche_avancee',
+          description:
+            "Recherche en croisant plusieurs critères à la fois (mots-clés + type + secteur + lieu + niveau + échéance). À préférer aux recherches par critère unique dès que la demande en combine plusieurs. Appeler d'abord get_referentiels pour connaître les valeurs acceptées.",
+          parameters: {
+            type: 'object',
+            properties: {
+              motsCles: { type: 'string', description: 'Mots-clés libres' },
+              typeOffre: {
+                type: 'string',
+                description: "Code ou libellé du type (voir get_referentiels)",
+              },
+              secteur: {
+                type: 'string',
+                description: 'Secteur exact, en majuscules (voir get_referentiels)',
+              },
+              localisation: { type: 'string', description: 'Ville ou région' },
+              niveauExperience: {
+                type: 'string',
+                enum: ['DEBUTANT', 'JUNIOR', 'CONFIRME', 'SENIOR', 'EXPERT'],
+              },
+              typeEmploi: {
+                type: 'string',
+                enum: [
+                  'CDI',
+                  'CDD',
+                  'STAGE',
+                  'ALTERNANCE',
+                  'FREELANCE',
+                  'INTERIM',
+                  'SAISONNIER',
+                  'TEMPS_PARTIEL',
+                  'TEMPS_PLEIN',
+                ],
+              },
+              teletravailUniquement: { type: 'boolean' },
+              echeance: {
+                type: 'string',
+                enum: ['ouverte', 'depassee'],
+                description:
+                  "« ouverte » écarte les offres dont la date limite est passée — à utiliser par défaut quand la personne cherche à postuler",
+              },
+              limite: {
+                type: 'integer',
+                description: 'Nombre de résultats souhaité (1 à 40, 15 par défaut)',
+              },
+            },
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'get_offres_echeance_proche',
+          description:
+            "Offres dont la date limite approche, de la plus urgente à la moins urgente. Pour « qu'est-ce qui ferme bientôt ? » ou pour alerter sur une occasion à ne pas manquer.",
+          parameters: {
+            type: 'object',
+            properties: {
+              jours: {
+                type: 'integer',
+                description: 'Fenêtre en jours (1 à 90, 14 par défaut)',
+              },
+            },
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'get_referentiels',
+          description:
+            "Valeurs acceptées par les filtres : types d'offres, secteurs réellement présents, niveaux, types de contrat, localisations fréquentes. À appeler avant une recherche filtrée plutôt que de deviner une valeur — un secteur inventé ne renvoie rien.",
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'get_entreprises_partenaires',
+          description:
+            'Structures partenaires visibles sur la plateforme (nom, secteur, site, ville)',
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'get_retours_offre',
+          description:
+            "Retours d'expérience laissés par des candidats sur une offre",
+          parameters: {
+            type: 'object',
+            properties: {
+              offreId: { type: 'integer' },
+            },
+            required: ['offreId'],
+          },
+        },
+      },
+
+      /* --------------------------------------- Confronter au profil ------ */
+
+      {
+        type: 'function',
+        function: {
+          name: 'comparer_profil_offre',
+          description:
+            "Confronte le CV de la personne à une offre précise : compétences qui correspondent, mots-clés de l'annonce absents du CV, proximité géographique. À utiliser pour « est-ce que je peux postuler ? », « qu'est-ce qui me manque ? », « suis-je un bon profil ? ».",
+          parameters: {
+            type: 'object',
+            properties: {
+              offreId: { type: 'integer' },
+            },
+            required: ['offreId'],
+          },
+        },
+      },
+
+      /* --------------------------------------------------- Agir ---------- */
+
+      {
+        type: 'function',
+        function: {
+          name: 'ajouter_favori',
+          description:
+            "Enregistre une offre dans les favoris de la personne. N'appeler que si elle le demande explicitement.",
+          parameters: {
+            type: 'object',
+            properties: {
+              offreId: { type: 'integer' },
+            },
+            required: ['offreId'],
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'retirer_favori',
+          description: 'Retire une offre des favoris de la personne.',
+          parameters: {
+            type: 'object',
+            properties: {
+              offreId: { type: 'integer' },
+            },
+            required: ['offreId'],
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'creer_alerte',
+          description:
+            "Enregistre une alerte : la personne sera prévenue des nouvelles offres correspondant à ces critères. N'appeler que sur demande explicite, et avec au moins un critère.",
+          parameters: {
+            type: 'object',
+            properties: {
+              motsCles: { type: 'string' },
+              typeOffre: { type: 'string' },
+              secteur: { type: 'string' },
+              localisation: { type: 'string' },
+            },
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'get_mes_alertes',
+          description: 'Alertes déjà enregistrées par la personne',
+        },
+      },
     ];
   }
 
@@ -263,6 +458,53 @@ export class ChatbotService {
         break;
       case 'get_volontariats_disponibles':
         result = await this.toolsService.getVolontariatsDisponibles();
+        break;
+      case 'get_offre_details':
+        result = await this.toolsService.getOffreDetails(
+          Number(args.offreId),
+          userId,
+        );
+        break;
+      case 'recherche_avancee':
+        result = await this.toolsService.rechercheAvancee(args ?? {});
+        break;
+      case 'get_offres_echeance_proche':
+        result = await this.toolsService.getOffresEcheanceProche(
+          args?.jours ? Number(args.jours) : undefined,
+        );
+        break;
+      case 'get_referentiels':
+        result = await this.toolsService.getReferentiels();
+        break;
+      case 'get_entreprises_partenaires':
+        result = await this.toolsService.getEntreprisesPartenaires();
+        break;
+      case 'get_retours_offre':
+        result = await this.toolsService.getRetoursOffre(Number(args.offreId));
+        break;
+      case 'comparer_profil_offre':
+        result = await this.toolsService.comparerProfilOffre(
+          userId,
+          Number(args.offreId),
+        );
+        break;
+      case 'ajouter_favori':
+        result = await this.toolsService.ajouterFavori(
+          userId,
+          Number(args.offreId),
+        );
+        break;
+      case 'retirer_favori':
+        result = await this.toolsService.retirerFavori(
+          userId,
+          Number(args.offreId),
+        );
+        break;
+      case 'creer_alerte':
+        result = await this.toolsService.creerAlerte(userId, args ?? {});
+        break;
+      case 'get_mes_alertes':
+        result = await this.toolsService.getMesAlertes(userId);
         break;
       case 'get_statistiques_offres':
         result = await this.toolsService.getStatistiquesOffres();
@@ -600,40 +842,38 @@ export class ChatbotService {
   }
 
   private getSystemPrompt() {
-    return `Tu es l'assistant IA de Noken Declic, une plateforme sénégalaise d'aide à l'emploi, aux formations et aux bourses, particulièrement axée sur la région de la Casamance (Ziguinchor, Kolda, Sédhiou, Cap Skirring, Oussouye).
+    return `Tu es l'assistant de Noken, une plateforme sénégalaise d'aide à l'emploi, aux formations et aux bourses, particulièrement attentive à la Casamance (Ziguinchor, Kolda, Sédhiou, Cap Skirring, Oussouye).
 
 ## Ton rôle
-Tu es un conseiller carrière personnalisé. Tu dois:
-- Aider les utilisateurs à trouver des offres d'emploi, formations et bourses adaptées à leur profil
-- Analyser leur CV et donner des conseils d'amélioration
-- Recommander des offres basées sur leurs compétences et expériences
-- Répondre aux questions sur le marché de l'emploi au Sénégal
+Conseiller carrière. Tu connais le catalogue et le dossier de la personne à qui tu parles, et tu t'en sers pour l'aider à agir : trouver ce qui lui correspond, comprendre ce qui lui manque, et savoir quoi faire ensuite.
 
-## Outils disponibles
-Tu disposes de nombreux outils pour accéder aux informations de l'utilisateur:
-- **Profil**: Consulter les informations personnelles de l'utilisateur
-- **CV**: Accéder au CV complet, expériences, formations, compétences
-- **Recommandations**: Trouver des offres correspondant au profil
-- **Recherche**: Chercher des offres par localisation, type, secteur
-- **Analyse**: Analyser le CV et donner des conseils
+## Comment travailler
+1. **Regarde avant de répondre.** Toute affirmation sur le catalogue ou sur la personne vient d'un outil, jamais de ta mémoire. Tu n'inventes ni une offre, ni une date, ni une adresse de candidature.
+2. **Enchaîne les outils.** Une bonne réponse en demande souvent plusieurs : lire le profil, chercher, ouvrir la fiche, comparer. Ne t'arrête pas au premier résultat s'il ne suffit pas à répondre.
+3. **Vérifie tes filtres.** Avant une recherche filtrée, appelle \`get_referentiels\` : un secteur ou un type inventé ne renvoie rien, et tu conclurais à tort qu'il n'y a rien.
+4. **Croise les critères.** \`recherche_avancee\` remplace avantageusement les recherches à critère unique dès que la demande en combine plusieurs.
+5. **Écarte le périmé.** Quand la personne cherche à postuler, passe \`echeance: "ouverte"\` : proposer une offre close est une perte de temps pour elle.
+6. **Ouvre la fiche.** Dès qu'une offre précise est en jeu — « comment postuler ? », « c'est quoi exactement ? », « jusqu'à quand ? » — appelle \`get_offre_details\`. Les listes ne contiennent pas les modalités de candidature.
+7. **Confronte au profil.** Pour « est-ce que je peux postuler ? » ou « qu'est-ce qui me manque ? », utilise \`comparer_profil_offre\` plutôt que de juger au jugé.
 
-## Instructions importantes
-- **UTILISE TOUJOURS les outils** pour accéder aux données de l'utilisateur avant de répondre à des questions personnalisées
-- Quand l'utilisateur demande des recommandations, utilise d'abord get_recommandations_personnalisees ou get_offres_matching_competences
-- Quand il demande d'analyser son CV, utilise analyser_cv
-- Quand il pose des questions sur son profil, utilise get_user_profile ou get_user_cv
-- Réponds toujours en français
-- Sois concis mais informatif
-- Utilise le format Markdown pour structurer tes réponses
-- Personnalise tes réponses en fonction des données récupérées
-- Si l'utilisateur n'a pas de CV, encourage-le à en créer un
+## Agir sur le compte
+\`ajouter_favori\`, \`retirer_favori\` et \`creer_alerte\` modifient le compte de la personne. Ne les appelle que si elle le demande, et dis ensuite ce que tu as fait. Tu ne postules jamais à sa place : une candidature l'engage, elle seule la décide.
 
-## Exemples de questions auxquelles tu peux répondre
-- "Quelles offres correspondent à mon profil ?"
-- "Analyse mon CV et dis-moi comment l'améliorer"
-- "Quelles sont mes compétences ?"
-- "Montre-moi les offres à Ziguinchor"
-- "Quelles formations sont disponibles ?"
-- "Y a-t-il des bourses pour étudier en France ?"`;
+## Ta réponse
+- En français, au ton direct et chaleureux, sans jargon.
+- Courte. Trois offres bien présentées valent mieux que quinze en vrac.
+- En Markdown, avec le titre de l'offre en gras et son lien \`/offres/{id}\` pour qu'on puisse l'ouvrir.
+- Les dates limites proches se signalent : « plus que 5 jours ».
+- Termine par la prochaine action utile, quand il y en a une : compléter le CV, mettre en favori, créer une alerte.
+- Ce que tu n'as pas trouvé, dis-le. « Aucune offre ne correspond à ces critères aujourd'hui » est une réponse honnête ; en inventer une ne l'est pas. Propose alors d'élargir.
+- Sans CV, la moitié de tes outils ne peut rien dire : invite à en créer un, en expliquant ce que cela débloquera.
+
+## Exemples
+- « Quelles offres correspondent à mon profil ? »
+- « Analyse mon CV et dis-moi comment l'améliorer »
+- « Une formation en informatique à Ziguinchor, encore ouverte »
+- « Est-ce que je peux postuler à l'offre 42 ? »
+- « Qu'est-ce qui ferme dans les deux semaines ? »
+- « Mets celle-là en favori et préviens-moi des prochaines du même genre »`;
   }
 }

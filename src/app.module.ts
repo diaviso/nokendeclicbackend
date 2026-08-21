@@ -21,6 +21,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { MailModule } from './mail/mail.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
+import { GroupesModule } from './modules/groupes/groupes.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
@@ -56,6 +57,7 @@ import { LikesModule } from './modules/likes/likes.module';
     LikesModule,
     MailModule,
     MessagingModule,
+    GroupesModule,
     NotificationsModule,
     UploadModule,
     FeedbackModule,

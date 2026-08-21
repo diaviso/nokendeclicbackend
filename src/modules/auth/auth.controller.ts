@@ -152,7 +152,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Informations sur l\'authentification' })
   getAuthInfo() {
     return {
-      message: 'API d\'authentification Noken Declic',
+      message: 'API d\'authentification Noken',
       methods: ['Google OAuth2', 'Email/Password'],
       endpoints: {
         register: 'POST /auth/register',

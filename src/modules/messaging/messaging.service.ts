@@ -14,10 +14,7 @@ export class MessagingService {
   async getConversations(userId: number) {
     const conversations = await this.prisma.privateConversation.findMany({
       where: {
-        OR: [
-          { user1Id: userId },
-          { user2Id: userId },
-        ],
+        OR: [{ user1Id: userId }, { user2Id: userId }],
       },
       include: {
         user1: {
@@ -62,25 +59,47 @@ export class MessagingService {
     const result = await Promise.all(
       conversations.map(async (conv) => {
         const otherUser = conv.user1Id === userId ? conv.user2 : conv.user1;
+        const retiree = this.retireeLe(conv, userId);
+        const dernier = conv.messages[0] ?? null;
+
+        // Retirée et rien de neuf depuis : elle reste hors de la liste. Un
+        // message postérieur la fait revenir, sans rouvrir l'historique
+        // d'avant le retrait — c'est ce qu'on attend d'une discussion qu'on a
+        // supprimée puis qui reçoit une nouvelle réponse.
+        if (retiree && (!dernier || dernier.createdAt <= retiree)) {
+          return null;
+        }
+
         const unreadCount = await this.prisma.privateMessage.count({
           where: {
             conversationId: conv.id,
             senderId: { not: userId },
             isRead: false,
+            ...(retiree ? { createdAt: { gt: retiree } } : {}),
           },
         });
 
         return {
           id: conv.id,
           otherUser,
-          lastMessage: conv.messages[0] || null,
+          lastMessage: dernier,
           unreadCount,
           updatedAt: conv.updatedAt,
         };
       })
     );
 
-    return result;
+    return result.filter((conv) => conv !== null);
+  }
+
+  /** Date à laquelle l'appelant a retiré la conversation, s'il l'a fait. */
+  private retireeLe(
+    conversation: { user1Id: number; masqueePourUser1: Date | null; masqueePourUser2: Date | null },
+    userId: number,
+  ): Date | null {
+    return conversation.user1Id === userId
+      ? conversation.masqueePourUser1
+      : conversation.masqueePourUser2;
   }
 
   // Get or create a conversation between two users
@@ -239,8 +258,15 @@ export class MessagingService {
       throw new ForbiddenException('Accès non autorisé à cette conversation');
     }
 
+    const retiree = this.retireeLe(conversation, userId);
+
     const messages = await this.prisma.privateMessage.findMany({
-      where: { conversationId },
+      where: {
+        conversationId,
+        // Ce qui précède le retrait a été supprimé du point de vue de
+        // l'appelant : le lui resservir viderait la suppression de son sens.
+        ...(retiree ? { createdAt: { gt: retiree } } : {}),
+      },
       include: {
         sender: {
           select: {
@@ -252,7 +278,7 @@ export class MessagingService {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -263,6 +289,7 @@ export class MessagingService {
         conversationId,
         senderId: { not: userId },
         isRead: false,
+        ...(retiree ? { createdAt: { gt: retiree } } : {}),
       },
       data: { isRead: true },
     });
@@ -319,6 +346,21 @@ export class MessagingService {
   }
 
   // Delete a conversation
+  /**
+   * Retire une conversation de la liste de l'appelant.
+   *
+   * Elle n'est pas effacée : l'autre participant garde la sienne et tout son
+   * historique. Supprimer pour les deux ferait perdre ses échanges à quelqu'un
+   * qui n'a rien demandé — et rien ne permettrait de les retrouver.
+   *
+   * Les messages antérieurs à ce retrait restent masqués pour l'appelant. Un
+   * nouveau message fait réapparaître la conversation, sans ressusciter ce qui
+   * précède : c'est le comportement des messageries courantes, et celui qu'on
+   * attend quand on « supprime une discussion ».
+   *
+   * La conversation n'est réellement effacée que lorsque les deux l'ont
+   * retirée : plus personne ne la lira, la garder n'aurait plus de sens.
+   */
   async deleteConversation(userId: number, conversationId: number) {
     const conversation = await this.prisma.privateConversation.findUnique({
       where: { id: conversationId },
@@ -328,15 +370,41 @@ export class MessagingService {
       throw new NotFoundException('Conversation non trouvée');
     }
 
-    if (conversation.user1Id !== userId && conversation.user2Id !== userId) {
+    const estUser1 = conversation.user1Id === userId;
+    const estUser2 = conversation.user2Id === userId;
+
+    if (!estUser1 && !estUser2) {
       throw new ForbiddenException('Accès non autorisé à cette conversation');
     }
 
-    await this.prisma.privateConversation.delete({
+    const maintenant = new Date();
+    const retraitDeLAutre = estUser1
+      ? conversation.masqueePourUser2
+      : conversation.masqueePourUser1;
+
+    // Le retrait de l'autre ne suffit pas : un message reçu depuis lui a rendu
+    // la conversation, et l'effacer lui retirerait ce qu'il voit encore.
+    const messagesDepuis = retraitDeLAutre
+      ? await this.prisma.privateMessage.count({
+          where: { conversationId, createdAt: { gt: retraitDeLAutre } },
+        })
+      : 0;
+
+    if (retraitDeLAutre && messagesDepuis === 0) {
+      await this.prisma.privateConversation.delete({
+        where: { id: conversationId },
+      });
+      return { message: 'Conversation supprimée' };
+    }
+
+    await this.prisma.privateConversation.update({
       where: { id: conversationId },
+      data: estUser1
+        ? { masqueePourUser1: maintenant }
+        : { masqueePourUser2: maintenant },
     });
 
-    return { message: 'Conversation supprimée' };
+    return { message: 'Conversation retirée de votre liste' };
   }
 
   // Update a message
@@ -392,26 +460,58 @@ export class MessagingService {
   }
 
   // Get total unread messages count
+  /**
+   * Total non lu affiché sur la pastille de la messagerie.
+   *
+   * Les groupes y sont comptés au même titre que les conversations à deux :
+   * une pastille qui ignore les groupes laisse croire qu'il n'y a rien de
+   * nouveau alors qu'un message attend.
+   */
   async getUnreadCount(userId: number) {
     const conversations = await this.prisma.privateConversation.findMany({
       where: {
-        OR: [
-          { user1Id: userId },
-          { user2Id: userId },
-        ],
+        OR: [{ user1Id: userId }, { user2Id: userId }],
       },
-      select: { id: true },
+      select: { id: true, user1Id: true, masqueePourUser1: true, masqueePourUser2: true },
     });
 
-    const count = await this.prisma.privateMessage.count({
-      where: {
-        conversationId: { in: conversations.map(c => c.id) },
-        senderId: { not: userId },
-        isRead: false,
-      },
+    const compteurs = await Promise.all(
+      conversations.map((conversation) => {
+        const retiree = this.retireeLe(conversation, userId);
+        return this.prisma.privateMessage.count({
+          where: {
+            conversationId: conversation.id,
+            senderId: { not: userId },
+            isRead: false,
+            ...(retiree ? { createdAt: { gt: retiree } } : {}),
+          },
+        });
+      }),
+    );
+
+    const appartenances = await this.prisma.membreGroupe.findMany({
+      where: { userId },
+      select: { groupeId: true, luJusquA: true },
     });
 
-    return { unreadCount: count };
+    const compteursGroupes = await Promise.all(
+      appartenances.map((membre) =>
+        this.prisma.messageGroupe.count({
+          where: {
+            groupeId: membre.groupeId,
+            auteurId: { not: userId },
+            ...(membre.luJusquA ? { createdAt: { gt: membre.luJusquA } } : {}),
+          },
+        }),
+      ),
+    );
+
+    const total = [...compteurs, ...compteursGroupes].reduce(
+      (somme, valeur) => somme + valeur,
+      0,
+    );
+
+    return { unreadCount: total };
   }
 
   // Get users that can be messaged (admins for regular users, all users for admins)

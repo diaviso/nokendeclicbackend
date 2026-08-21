@@ -64,7 +64,7 @@ export class NotificationsController {
   @ApiOperation({ summary: "Envoyer une notification d'essai à ses appareils" })
   async essai(@CurrentUser('id') userId: number) {
     const envoyees = await this.push.envoyerA(userId, {
-      titre: 'Noken Declic',
+      titre: 'Noken',
       corps: 'Les notifications fonctionnent sur cet appareil.',
       lien: '/dashboard',
       groupe: 'essai',

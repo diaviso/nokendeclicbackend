@@ -150,8 +150,13 @@ model User {
   sentPrivateMessages  PrivateMessage[]      @relation("SentPrivateMessages")
 
   // Notifications
-  notifications Notification[]
-  pushSubscriptions PushSubscription[]
+  notifications       Notification[]
+  pushSubscriptions   PushSubscription[]
+  groupesCrees        GroupeDiscussion[] @relation("GroupesCrees")
+  membreDeGroupes     MembreGroupe[]
+  messagesGroupe      MessageGroupe[]    @relation("MessagesGroupe")
+  invitationsRecues   InvitationGroupe[] @relation("InvitationsRecues")
+  invitationsEnvoyees InvitationGroupe[] @relation("InvitationsEnvoyees")
 
   // Feedback
   /// Fiche de la structure, pour un compte partenaire.
@@ -291,13 +296,13 @@ model Offre {
   imageAlt String?
 
   /// Modalités pratiques, renseignées librement par l'auteur.
-  salaireMin      Int?
-  salaireMax      Int?
-  salaireDevise   String?
-  salairePeriode  String?
-  teletravail     String?
-  nombrePostes    Int?
-  emailCandidature String?
+  salaireMin              Int?
+  salaireMax              Int?
+  salaireDevise           String?
+  salairePeriode          String?
+  teletravail             String?
+  nombrePostes            Int?
+  emailCandidature        String?
   instructionsCandidature String?
 
   /// Photo de couverture (URL publique R2).
@@ -501,6 +506,16 @@ model PrivateConversation {
   user2Id Int
 
   // Relations
+  /// Date à laquelle chaque participant a retiré la conversation de sa liste.
+  ///
+  /// Suppression individuelle, et non commune : effacer pour les deux ferait
+  /// perdre son historique à quelqu'un qui n'a rien demandé. La conversation
+  /// disparaît de la liste de celui qui l'a retirée, et les messages antérieurs
+  /// à cette date lui restent masqués — mais un nouveau message la fait
+  /// réapparaître, comme sur les messageries usuelles.
+  masqueePourUser1 DateTime?
+  masqueePourUser2 DateTime?
+
   user1    User             @relation("ConversationUser1", fields: [user1Id], references: [id], onDelete: Cascade)
   user2    User             @relation("ConversationUser2", fields: [user2Id], references: [id], onDelete: Cascade)
   messages PrivateMessage[]
@@ -525,6 +540,106 @@ model PrivateMessage {
   @@index([conversationId])
   @@index([senderId])
   @@index([createdAt])
+}
+
+/// Rôle d'une personne dans un groupe de discussion.
+enum RoleGroupe {
+  ADMIN
+  MEMBRE
+}
+
+/// Suite donnée à une invitation.
+enum StatutInvitation {
+  EN_ATTENTE
+  ACCEPTEE
+  REFUSEE
+}
+
+/// Discussion à plusieurs.
+///
+/// Distincte de `PrivateConversation`, qui lie exactement deux comptes par une
+/// contrainte d'unicité : l'élargir à N participants aurait imposé de refaire
+/// sa clé, ses index et toutes les requêtes qui s'y appuient, pour un usage
+/// différent. Deux modèles séparés se lisent mieux qu'un modèle qui essaie de
+/// couvrir les deux cas.
+model GroupeDiscussion {
+  id          Int     @id @default(autoincrement())
+  nom         String
+  description String?
+  /// Image du groupe (URL publique R2).
+  imageUrl    String?
+
+  /// Conservé même si le compte disparaît : la trace de qui a ouvert le groupe
+  /// reste utile aux administrateurs restants.
+  creePar   User? @relation("GroupesCrees", fields: [creeParId], references: [id], onDelete: SetNull)
+  creeParId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  membres     MembreGroupe[]
+  messages    MessageGroupe[]
+  invitations InvitationGroupe[]
+}
+
+/// Appartenance à un groupe, avec son rôle.
+model MembreGroupe {
+  id Int @id @default(autoincrement())
+
+  groupe   GroupeDiscussion @relation(fields: [groupeId], references: [id], onDelete: Cascade)
+  groupeId Int
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int
+
+  role      RoleGroupe @default(MEMBRE)
+  rejointLe DateTime   @default(now())
+
+  /// Dernier message lu, pour compter les non-lus sans stocker un état par
+  /// message et par membre.
+  luJusquA DateTime?
+
+  @@unique([groupeId, userId])
+  @@index([userId])
+}
+
+/// Message adressé à un groupe.
+model MessageGroupe {
+  id        Int      @id @default(autoincrement())
+  contenu   String
+  createdAt DateTime @default(now())
+
+  groupe   GroupeDiscussion @relation(fields: [groupeId], references: [id], onDelete: Cascade)
+  groupeId Int
+  /// Nul si le compte a été supprimé : le message reste, signé « compte
+  /// supprimé », plutôt que de trouer la conversation des autres.
+  auteur   User?            @relation("MessagesGroupe", fields: [auteurId], references: [id], onDelete: SetNull)
+  auteurId Int?
+
+  @@index([groupeId, createdAt])
+}
+
+/// Invitation à rejoindre un groupe.
+///
+/// On n'ajoute personne d'autorité : rejoindre un groupe se décide. L'invitation
+/// garde sa trace même refusée, ce qui évite qu'un administrateur relance
+/// indéfiniment quelqu'un qui a déjà dit non.
+model InvitationGroupe {
+  id Int @id @default(autoincrement())
+
+  groupe      GroupeDiscussion @relation(fields: [groupeId], references: [id], onDelete: Cascade)
+  groupeId    Int
+  /// Personne invitée.
+  user        User             @relation("InvitationsRecues", fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  invitePar   User?            @relation("InvitationsEnvoyees", fields: [inviteParId], references: [id], onDelete: SetNull)
+  inviteParId Int?
+
+  statut     StatutInvitation @default(EN_ATTENTE)
+  createdAt  DateTime         @default(now())
+  repondueLe DateTime?
+
+  @@unique([groupeId, userId])
+  @@index([userId, statut])
 }
 
 model Commentaire {

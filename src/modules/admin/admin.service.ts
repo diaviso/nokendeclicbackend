@@ -433,7 +433,7 @@ export class AdminService {
       id,
       'SYSTEM',
       'Votre mot de passe a été modifié',
-      "Un administrateur de Noken Declic a défini un nouveau mot de passe pour votre compte. Si vous n'êtes pas à l'origine de cette demande, signalez-le sans tarder.",
+      "Un administrateur de Noken a défini un nouveau mot de passe pour votre compte. Si vous n'êtes pas à l'origine de cette demande, signalez-le sans tarder.",
       '/profil',
     );
 

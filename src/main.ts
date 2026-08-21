@@ -36,8 +36,8 @@ async function bootstrap() {
 
   // Swagger
   const config = new DocumentBuilder()
-    .setTitle('Noken Declic API')
-    .setDescription('API de la plateforme Noken Declic - Emploi, Formations, Bourses')
+    .setTitle('Noken API')
+    .setDescription('API de la plateforme Noken - Emploi, Formations, Bourses')
     .setVersion('2.0')
     .addBearerAuth()
     .build();
@@ -47,7 +47,7 @@ async function bootstrap() {
   // Start - Railway uses PORT env variable
   const port = process.env.PORT || configService.get<number>('port') || 3000;
   await app.listen(port, '0.0.0.0');
-  console.log(`🚀 Noken Declic API running on port ${port}`);
+  console.log(`🚀 Noken API running on port ${port}`);
   console.log(`📚 Swagger docs available at /api/docs`);
 }
 bootstrap();
