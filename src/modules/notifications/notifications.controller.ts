@@ -36,6 +36,13 @@ export class NotificationsController {
 
   @Post('push/abonnement')
   @ApiOperation({ summary: 'Abonner cet appareil aux notifications poussées' })
+  // Le corps reçu est la sortie de `PushSubscription.toJSON()`, dont la forme
+  // appartient au navigateur : Chrome y ajoute `expirationTime`, WebKit non.
+  // La validation globale refusant les propriétés non déclarées, ce seul champ
+  // a fait échouer en 400 la totalité des abonnements Android pendant que ceux
+  // d'iOS passaient. Le DTO le déclare donc, et le client n'envoie plus que
+  // les deux champs utiles — de sorte qu'un champ ajouté demain par un
+  // navigateur n'atteigne même pas cette route.
   abonner(
     @CurrentUser('id') userId: number,
     @Body() dto: AbonnementPushDto,
