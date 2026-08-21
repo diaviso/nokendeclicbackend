@@ -486,16 +486,17 @@ export class GroupesService {
 
   /* --------------------------------------------------------------- membres */
 
+  /** `cibleId` désigne le compte visé, non la ligne d'appartenance. */
   async changerRole(
     groupeId: number,
     userId: number,
-    membreId: number,
+    cibleId: number,
     role: RoleGroupe,
   ) {
     await this.exigerAdmin(groupeId, userId);
 
     const cible = await this.prisma.membreGroupe.findUnique({
-      where: { groupeId_userId: { groupeId, userId: membreId } },
+      where: { groupeId_userId: { groupeId, userId: cibleId } },
     });
     if (!cible) {
       throw new NotFoundException('Ce compte ne fait pas partie du groupe');
@@ -517,24 +518,25 @@ export class GroupesService {
     }
 
     await this.prisma.membreGroupe.update({
-      where: { groupeId_userId: { groupeId, userId: membreId } },
+      where: { groupeId_userId: { groupeId, userId: cibleId } },
       data: { role },
     });
 
     return { message: 'Rôle mis à jour' };
   }
 
-  async retirerMembre(groupeId: number, userId: number, membreId: number) {
+  /** `cibleId` désigne le compte visé, non la ligne d'appartenance. */
+  async retirerMembre(groupeId: number, userId: number, cibleId: number) {
     await this.exigerAdmin(groupeId, userId);
 
-    if (membreId === userId) {
+    if (cibleId === userId) {
       throw new BadRequestException(
         'Utilisez « quitter le groupe » pour vous retirer vous-même',
       );
     }
 
     const cible = await this.prisma.membreGroupe.findUnique({
-      where: { groupeId_userId: { groupeId, userId: membreId } },
+      where: { groupeId_userId: { groupeId, userId: cibleId } },
       include: { groupe: { select: { nom: true } } },
     });
     if (!cible) {
@@ -543,17 +545,17 @@ export class GroupesService {
 
     await this.prisma.$transaction([
       this.prisma.membreGroupe.delete({
-        where: { groupeId_userId: { groupeId, userId: membreId } },
+        where: { groupeId_userId: { groupeId, userId: cibleId } },
       }),
       // L'invitation part avec : sans cela, la contrainte d'unicité
       // empêcherait de réinviter la personne plus tard.
       this.prisma.invitationGroupe.deleteMany({
-        where: { groupeId, userId: membreId },
+        where: { groupeId, userId: cibleId },
       }),
     ]);
 
     await this.notifications.createNotification(
-      membreId,
+      cibleId,
       NotificationType.SYSTEM,
       'Retiré du groupe',
       `Vous ne faites plus partie du groupe « ${cible.groupe.nom} ».`,

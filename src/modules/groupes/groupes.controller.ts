@@ -123,25 +123,25 @@ export class GroupesController {
     return this.groupes.inviter(id, userId, dto);
   }
 
-  @Patch(':id/membres/:membreId')
+  @Patch(':id/membres/:cibleId')
   @ApiOperation({ summary: "Changer le rôle d'un membre (administrateurs)" })
   changerRole(
     @CurrentUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
-    @Param('membreId', ParseIntPipe) membreId: number,
+    @Param('cibleId', ParseIntPipe) cibleId: number,
     @Body() dto: RoleMembreDto,
   ) {
-    return this.groupes.changerRole(id, userId, membreId, dto.role);
+    return this.groupes.changerRole(id, userId, cibleId, dto.role);
   }
 
-  @Delete(':id/membres/:membreId')
+  @Delete(':id/membres/:cibleId')
   @ApiOperation({ summary: 'Retirer un membre (administrateurs)' })
   retirerMembre(
     @CurrentUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
-    @Param('membreId', ParseIntPipe) membreId: number,
+    @Param('cibleId', ParseIntPipe) cibleId: number,
   ) {
-    return this.groupes.retirerMembre(id, userId, membreId);
+    return this.groupes.retirerMembre(id, userId, cibleId);
   }
 
   @Get(':id/messages')
