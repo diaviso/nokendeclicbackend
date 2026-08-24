@@ -9,6 +9,17 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
 
+  // Le corps JSON est plafonné à 2 Mo, contre 100 Ko par défaut.
+  //
+  // Les annonces mises en forme dépassent facilement cette valeur, et le
+  // dépassement se présentait comme une « erreur interne » opaque. La borne
+  // reste nécessaire — un corps non plafonné est un vecteur de déni de service
+  // — mais elle appartient au transport, pas à un décompte arbitraire de
+  // caractères sur un champ. Les fichiers, eux, ne transitent pas par là :
+  // ils partent vers R2 par des routes dédiées.
+  app.useBodyParser('json', { limit: '2mb' });
+  app.useBodyParser('urlencoded', { limit: '2mb', extended: true });
+
   // Les fichiers utilisateurs sont servis par Cloudflare R2, plus depuis le
   // disque local : celui-ci est réinitialisé à chaque déploiement Railway.
 

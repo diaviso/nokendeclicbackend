@@ -155,10 +155,25 @@ export class CreateOffreDto extends ChampsLegacyDto {
   @MaxLength(200)
   titre: string;
 
-  @ApiProperty({ example: 'Description du poste...' })
+  /**
+   * Texte brut de l'annonce.
+   *
+   * Facultatif : depuis que l'éditeur riche fait foi, le serveur la dérive de
+   * `contenuHtml`. Elle était pourtant restée obligatoire, et son absence
+   * déclenchait *aussi* la contrainte de longueur — `MaxLength` échoue sur une
+   * valeur absente. D'où le message « description must be shorter than or
+   * equal to 20000 characters » alors que rien n'avait été saisi de long :
+   * l'erreur affichée n'était pas la bonne, et l'a fait chercher au mauvais
+   * endroit.
+   *
+   * Sans limite de longueur non plus. Une annonce fait la taille qu'elle fait ;
+   * la seule borne raisonnable est celle du corps de la requête, posée dans
+   * `main.ts`, qui répond clairement quand elle est atteinte.
+   */
+  @ApiPropertyOptional({ example: 'Description du poste...' })
   @IsString()
-  @MaxLength(20000)
-  description: string;
+  @IsOptional()
+  description?: string;
 
   /**
    * Balisage produit par l'éditeur. Assaini côté serveur avant enregistrement :
@@ -166,7 +181,6 @@ export class CreateOffreDto extends ChampsLegacyDto {
    */
   @ApiPropertyOptional({ description: "Contenu riche de l'annonce" })
   @IsString()
-  @MaxLength(120000)
   @IsOptional()
   contenuHtml?: string;
 

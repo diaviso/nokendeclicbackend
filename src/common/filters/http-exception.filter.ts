@@ -29,6 +29,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
           ? exceptionResponse
           : ((exceptionResponse as Record<string, any>).message as string) ||
             exception.message;
+    } else if (
+      // Les erreurs d'analyse du corps (body-parser) portent leur propre
+      // statut sans être des HttpException. Sans ce rattrapage, un corps trop
+      // volumineux ou un JSON mal formé se présentait comme une « erreur
+      // interne », ce qui envoie chercher la panne côté serveur alors que la
+      // requête est simplement à corriger.
+      typeof (exception as { status?: unknown })?.status === 'number' &&
+      (exception as { status: number }).status >= 400 &&
+      (exception as { status: number }).status < 500
+    ) {
+      status = (exception as { status: number }).status;
+      message =
+        status === HttpStatus.PAYLOAD_TOO_LARGE
+          ? 'Contenu trop volumineux. Allégez le texte ou retirez des images.'
+          : ((exception as { message?: string }).message ?? 'Requête invalide');
     }
 
     // Identifiant de corrélation : renvoyé au client ET journalisé, pour pouvoir
