@@ -8,6 +8,7 @@ import {
   Body,
   ParseIntPipe,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
@@ -51,15 +52,24 @@ export class AdminController {
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'role', required: false, enum: ['ADMIN', 'MEMBRE', 'PARTENAIRE'] })
   async getUsers(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
+    @Query('role') role?: string,
   ) {
+    // Un rôle inconnu est refusé plutôt qu'ignoré : l'ignorer renverrait tous
+    // les comptes sous un filtre qui semble actif.
+    if (role && !['ADMIN', 'MEMBRE', 'PARTENAIRE'].includes(role)) {
+      throw new BadRequestException(`Rôle inconnu : ${role}`);
+    }
+
     return this.adminService.getAllUsers(
       page ? parseInt(page) : 1,
       limit ? parseInt(limit) : 20,
       search,
+      (role || undefined) as 'ADMIN' | 'MEMBRE' | 'PARTENAIRE' | undefined,
     );
   }
 

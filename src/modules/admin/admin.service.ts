@@ -59,9 +59,27 @@ export class AdminService {
 
   // ==================== USERS ====================
 
-  async getAllUsers(page = 1, limit = 20, search?: string) {
+  /**
+   * Liste paginée des comptes, filtrable par recherche et par rôle.
+   *
+   * Le rôle était jusqu'ici filtré dans le navigateur, sur les seuls vingt
+   * comptes de la page affichée. La liste étant triée des plus récents aux
+   * plus anciens, les administrateurs — inscrits au lancement — tombaient en
+   * dernières pages : la console annonçait « 0 administrateur » à quelqu'un
+   * qui en était un. Le filtre porte désormais sur l'ensemble.
+   *
+   * Les compteurs par rôle sont calculés sur le résultat de la recherche mais
+   * *sans* le filtre de rôle : choisir « Administrateur » ne doit pas remettre
+   * à zéro les autres pastilles, qui servent justement à changer de filtre.
+   */
+  async getAllUsers(
+    page = 1,
+    limit = 20,
+    search?: string,
+    role?: 'ADMIN' | 'MEMBRE' | 'PARTENAIRE',
+  ) {
     const skip = (page - 1) * limit;
-    const where = search
+    const recherche = search
       ? {
           OR: [
             { email: { contains: search, mode: 'insensitive' as const } },
@@ -71,8 +89,9 @@ export class AdminService {
           ],
         }
       : {};
+    const where = role ? { ...recherche, role } : recherche;
 
-    const [users, total] = await Promise.all([
+    const [users, total, parRole, desactives] = await Promise.all([
       this.prisma.user.findMany({
         where,
         skip,
@@ -93,7 +112,16 @@ export class AdminService {
         },
       }),
       this.prisma.user.count({ where }),
+      this.prisma.user.groupBy({
+        by: ['role'],
+        where: recherche,
+        _count: { _all: true },
+      }),
+      this.prisma.user.count({ where: { ...recherche, isActive: false } }),
     ]);
+
+    const compte = (valeur: string) =>
+      parRole.find((ligne) => ligne.role === valeur)?._count._all ?? 0;
 
     return {
       data: users,
@@ -102,6 +130,12 @@ export class AdminService {
         page,
         limit,
         totalPages: Math.ceil(total / limit),
+      },
+      comptes: {
+        ADMIN: compte('ADMIN'),
+        MEMBRE: compte('MEMBRE'),
+        PARTENAIRE: compte('PARTENAIRE'),
+        desactives,
       },
     };
   }
