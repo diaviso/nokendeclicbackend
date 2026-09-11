@@ -1,6 +1,8 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
+import { ExportsController } from './exports.controller';
+import { ExportsService } from './exports.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 // SeedOffresController a été retiré : il exposait POST /api/admin/seed/offres et
@@ -8,8 +10,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
 // Le jeu de données de seed est conservé dans prisma/seed-offres.ts, exécuté hors ligne.
 @Module({
   imports: [forwardRef(() => NotificationsModule)],
-  controllers: [AdminController],
-  providers: [AdminService],
+  controllers: [AdminController, ExportsController],
+  providers: [AdminService, ExportsService],
   exports: [AdminService],
 })
 export class AdminModule {}

@@ -70,7 +70,7 @@ const MOTS_VIDES = new Set(
  * rien, se relit, et donne le même résultat à chaque calcul. Une question peut
  * relever de plusieurs thèmes — « une formation pour améliorer mon CV ».
  */
-const THEMES: { cle: string; libelle: string; racines: string[] }[] = [
+export const THEMES: { cle: string; libelle: string; racines: string[] }[] = [
   {
     cle: 'emploi',
     libelle: "Offres d'emploi",
@@ -225,7 +225,7 @@ function trancheAge(naissance: Date | null, maintenant: Date): string {
   return '46 ans et plus';
 }
 
-function themesDe(texte: string): string[] {
+export function themesDe(texte: string): string[] {
   const mots = cleQuestion(texte).split(' ');
   return THEMES.filter((theme) =>
     mots.some((mot) => theme.racines.some((racine) => mot.startsWith(racine))),
