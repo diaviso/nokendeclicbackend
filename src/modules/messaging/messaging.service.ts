@@ -2,6 +2,17 @@ import { Injectable, NotFoundException, ForbiddenException, Inject, forwardRef }
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
+/**
+ * Forme comparable d'un texte : minuscules, sans accents. « Touré » et
+ * « TOURE » deviennent tous deux « toure ».
+ */
+function normaliser(texte: string): string {
+  return texte
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
 @Injectable()
 export class MessagingService {
   constructor(
@@ -515,7 +526,7 @@ export class MessagingService {
   }
 
   // Get users that can be messaged (admins for regular users, all users for admins)
-  async getContactableUsers(userId: number) {
+  async getContactableUsers(userId: number, search?: string) {
     const currentUser = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { role: true },
@@ -542,22 +553,197 @@ export class MessagingService {
             }
           : { id: { not: userId }, role: 'ADMIN' as any, isActive: true };
 
-    const users = await this.prisma.user.findMany({
+    const q = search?.trim() ?? '';
+    const champs = {
+      id: true,
+      username: true,
+      firstName: true,
+      lastName: true,
+      pictureUrl: true,
+      role: true,
+    } as const;
+
+    // Sans recherche, les cinquante premiers : l'administration recevait
+    // jusqu'ici la totalité des comptes actifs d'un bloc — plus de sept cents
+    // lignes — sans aucun moyen d'en trouver une.
+    if (q.length < 2) {
+      return this.prisma.user.findMany({
+        where: whereClause,
+        select: champs,
+        orderBy: [{ role: 'asc' }, { firstName: 'asc' }],
+        take: 50,
+      });
+    }
+
+    // Avec recherche, le tri se fait ici plutôt qu'en base : PostgreSQL ignore
+    // la casse mais pas les accents, et « toure » doit trouver « Touré ». À
+    // l'échelle de la plateforme — quelques milliers de comptes au plus —
+    // charger les noms reste léger ; au-delà, l'extension `unaccent` prendrait
+    // le relais.
+    const estAdmin = currentUser.role === 'ADMIN';
+    const candidats = await this.prisma.user.findMany({
       where: whereClause,
-      select: {
-        id: true,
-        username: true,
-        firstName: true,
-        lastName: true,
-        pictureUrl: true,
-        role: true,
-      },
-      orderBy: [
-        { role: 'asc' },
-        { firstName: 'asc' },
-      ],
+      select: { ...champs, email: true },
+      orderBy: [{ role: 'asc' }, { firstName: 'asc' }],
     });
 
-    return users;
+    const termes = normaliser(q).split(/\s+/).filter(Boolean).slice(0, 5);
+    return candidats
+      .filter((candidat) => {
+        // L'adresse n'est cherchable que par l'administration : pour les
+        // autres, la recherche servirait à vérifier qu'une adresse existe.
+        const texte = normaliser(
+          [
+            candidat.firstName,
+            candidat.lastName,
+            candidat.username,
+            estAdmin ? candidat.email : null,
+          ]
+            .filter(Boolean)
+            .join(' '),
+        );
+        return termes.every((terme) => texte.includes(terme));
+      })
+      .slice(0, 30)
+      .map((candidat) => ({
+        id: candidat.id,
+        username: candidat.username,
+        firstName: candidat.firstName,
+        lastName: candidat.lastName,
+        pictureUrl: candidat.pictureUrl,
+        role: candidat.role,
+      }));
+  }
+
+  /**
+   * Recherche dans la messagerie : discussions, messages, groupes, personnes.
+   *
+   * Chaque résultat obéit aux règles de visibilité de l'écran qui l'affiche
+   * d'ordinaire — sans quoi la recherche deviendrait un moyen de relire ce
+   * qu'on a supprimé :
+   * - une conversation retirée n'y figure pas, et les messages antérieurs à
+   *   son retrait restent introuvables, comme dans le fil ;
+   * - les messages de groupe ne sont cherchés que dans les groupes dont on
+   *   est membre, avec l'historique que le fil montre à tout membre.
+   */
+  async rechercher(userId: number, requete: string) {
+    const q = requete.trim();
+    if (q.length < 2) {
+      return {
+        discussions: [],
+        messages: [],
+        groupes: [],
+        messagesGroupe: [],
+        personnes: [],
+      };
+    }
+
+    const [listees, brutes, appartenances] = await Promise.all([
+      this.getConversations(userId),
+      this.prisma.privateConversation.findMany({
+        where: { OR: [{ user1Id: userId }, { user2Id: userId }] },
+        select: {
+          id: true,
+          user1Id: true,
+          masqueePourUser1: true,
+          masqueePourUser2: true,
+        },
+      }),
+      this.prisma.membreGroupe.findMany({
+        where: { userId },
+        select: { groupe: { select: { id: true, nom: true } } },
+      }),
+    ]);
+
+    const visibles = listees.filter(
+      (conversation): conversation is NonNullable<typeof conversation> =>
+        conversation !== null,
+    );
+    const idsVisibles = new Set(visibles.map((conversation) => conversation.id));
+
+    // Une clause par conversation visible, bornée à la date de retrait s'il y
+    // en a une. Une liste vide ne renvoie rien : Prisma traite `OR: []` comme
+    // faux, ce qui dispense d'un cas particulier.
+    const portees = brutes
+      .filter((conversation) => idsVisibles.has(conversation.id))
+      .map((conversation) => {
+        const retiree = this.retireeLe(conversation, userId);
+        return {
+          conversationId: conversation.id,
+          ...(retiree ? { createdAt: { gt: retiree } } : {}),
+        };
+      });
+
+    const idsGroupes = appartenances.map((ligne) => ligne.groupe.id);
+    const contient = { contains: q, mode: 'insensitive' as const };
+
+    const [messages, messagesGroupe, personnes] = await Promise.all([
+      this.prisma.privateMessage.findMany({
+        where: { content: contient, OR: portees },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          conversationId: true,
+          senderId: true,
+          sender: {
+            select: { firstName: true, lastName: true, username: true },
+          },
+        },
+      }),
+      this.prisma.messageGroupe.findMany({
+        where: { contenu: contient, groupeId: { in: idsGroupes } },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: {
+          id: true,
+          contenu: true,
+          createdAt: true,
+          groupeId: true,
+          auteur: {
+            select: { firstName: true, lastName: true, username: true },
+          },
+          groupe: { select: { nom: true } },
+        },
+      }),
+      this.getContactableUsers(userId, q),
+    ]);
+
+    const termes = normaliser(q).split(/\s+/).filter(Boolean);
+    const correspond = (texte: string) => {
+      const cible = normaliser(texte);
+      return termes.every((terme) => cible.includes(terme));
+    };
+    const parId = new Map(
+      visibles.map((conversation) => [conversation.id, conversation]),
+    );
+
+    return {
+      discussions: visibles
+        .filter((conversation) =>
+          correspond(
+            [
+              conversation.otherUser.firstName,
+              conversation.otherUser.lastName,
+              conversation.otherUser.username,
+            ]
+              .filter(Boolean)
+              .join(' '),
+          ),
+        )
+        .slice(0, 10),
+      messages: messages.map((message) => ({
+        ...message,
+        otherUser: parId.get(message.conversationId)?.otherUser ?? null,
+      })),
+      groupes: appartenances
+        .map((ligne) => ligne.groupe)
+        .filter((groupe) => correspond(groupe.nom))
+        .slice(0, 10),
+      messagesGroupe,
+      personnes: personnes.slice(0, 8),
+    };
   }
 }

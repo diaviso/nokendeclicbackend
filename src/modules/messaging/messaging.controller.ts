@@ -76,8 +76,22 @@ export class MessagingController {
 
   @Get('contacts')
   @ApiOperation({ summary: 'Get users that can be contacted' })
-  async getContactableUsers(@CurrentUser('id') userId: number) {
-    return this.messagingService.getContactableUsers(userId);
+  async getContactableUsers(
+    @CurrentUser('id') userId: number,
+    @Query('search') search?: string,
+  ) {
+    return this.messagingService.getContactableUsers(userId, search);
+  }
+
+  @Get('recherche')
+  @ApiOperation({
+    summary: 'Rechercher dans la messagerie : discussions, messages, groupes, personnes',
+  })
+  async rechercher(
+    @CurrentUser('id') userId: number,
+    @Query('q') q?: string,
+  ) {
+    return this.messagingService.rechercher(userId, q ?? '');
   }
 
   @Post('messages/:id/update')
