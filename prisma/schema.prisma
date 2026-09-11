@@ -141,6 +141,7 @@ model User {
   likes              OffreLike[]
   alerts             Alert[]
   conversations      Conversation[]
+  extractionsCV      ExtractionCV[] @relation("ExtractionsCV")
   emailVerifications EmailVerification[]
   passwordResets     PasswordReset[]
 
@@ -938,4 +939,38 @@ model FavoriCandidat {
 
   @@unique([partenaireId, candidatId])
   @@index([partenaireId, createdAt])
+}
+
+/// Trace d'un passage de CV dans l'extracteur : qui, quand, avec quel fichier,
+/// pour quel résultat.
+///
+/// L'outil ne laissait jusqu'ici aucune trace : on ne pouvait savoir ni qui
+/// s'en sert, ni s'il réussit, ni si les photos de CV — le cas le plus courant
+/// du public visé — passent aussi bien que les PDF. Aucune donnée du CV n'est
+/// conservée ici, seulement des comptes.
+model ExtractionCV {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+
+  /// Nul si le compte a été supprimé depuis : la trace reste dans les totaux.
+  user        User?    @relation("ExtractionsCV", fields: [userId], references: [id], onDelete: SetNull)
+  userId      Int?
+
+  succes      Boolean
+  /// « apercu » : relu avant enregistrement ; « enregistrement » : enregistré
+  /// d'office.
+  mode        String
+  /// Type MIME du fichier envoyé.
+  typeFichier String
+  tailleKo    Int
+
+  /// Richesse du résultat, quand l'extraction a réussi.
+  experiences Int      @default(0)
+  formations  Int      @default(0)
+  competences Int      @default(0)
+
+  erreur      String?
+
+  @@index([createdAt])
+  @@index([userId])
 }

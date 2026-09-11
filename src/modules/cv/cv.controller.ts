@@ -1,3 +1,4 @@
+import { PrismaService } from '../../prisma/prisma.service';
 import {
   Controller,
   Get,
@@ -27,6 +28,7 @@ import { RolesGuard } from '../../common/guards';
 @Controller('api/cv')
 export class CVController {
   constructor(
+    private readonly prisma: PrismaService,
     private cvService: CVService,
     private cvExtractorService: CVExtractorService,
     private cvCorrectorService: CVCorrectorService,
@@ -128,6 +130,7 @@ export class CVController {
     try {
       // Extract CV data from PDF using AI
       const extractedData = await this.cvExtractorService.processUploadedCV(file);
+      this.journaliserExtraction(userId, file, 'apercu', extractedData);
 
       return {
         success: true,
@@ -135,6 +138,7 @@ export class CVController {
         extractedData,
       };
     } catch (error) {
+      this.journaliserExtraction(userId, file, 'apercu', null, error);
       throw new BadRequestException(`Erreur lors de l'analyse du CV: ${error.message}`);
     }
   }
@@ -174,9 +178,13 @@ export class CVController {
       throw new BadRequestException('Aucun fichier fourni');
     }
 
+    let extractedData: Awaited<
+      ReturnType<CVExtractorService['processUploadedCV']>
+    > | null = null;
     try {
       // Extract CV data from PDF using AI
-      const extractedData = await this.cvExtractorService.processUploadedCV(file);
+      extractedData = await this.cvExtractorService.processUploadedCV(file);
+      this.journaliserExtraction(userId, file, 'enregistrement', extractedData);
 
       // Save the extracted data to the database
       const savedCV = await this.cvService.update(userId, extractedData as any);
@@ -187,7 +195,52 @@ export class CVController {
         cv: savedCV,
       };
     } catch (error) {
+      // Un échec à l'enregistrement, après une extraction réussie, n'est pas
+      // un échec de l'extracteur : il n'est tracé qu'une fois, plus haut.
+      if (!extractedData) {
+        this.journaliserExtraction(userId, file, 'enregistrement', null, error);
+      }
       throw new BadRequestException(`Erreur lors de l'analyse du CV: ${error.message}`);
     }
+  }
+
+  /**
+   * Trace d'un passage dans l'extracteur, pour les statistiques de la console.
+   *
+   * Jamais bloquante : un journal indisponible ne doit priver personne de son
+   * CV. Aucune donnée du CV n'y est copiée, seulement des comptes.
+   */
+  private journaliserExtraction(
+    userId: number,
+    fichier: Express.Multer.File,
+    mode: 'apercu' | 'enregistrement',
+    donnees: {
+      experiences?: unknown[];
+      formations?: unknown[];
+      competences?: unknown[];
+    } | null,
+    erreur?: unknown,
+  ) {
+    const message = erreur
+      ? erreur instanceof Error
+        ? erreur.message
+        : String(erreur)
+      : null;
+
+    void this.prisma.extractionCV
+      .create({
+        data: {
+          userId,
+          succes: donnees !== null,
+          mode,
+          typeFichier: fichier?.mimetype ?? 'inconnu',
+          tailleKo: Math.round((fichier?.size ?? fichier?.buffer?.length ?? 0) / 1024),
+          experiences: donnees?.experiences?.length ?? 0,
+          formations: donnees?.formations?.length ?? 0,
+          competences: donnees?.competences?.length ?? 0,
+          erreur: message ? message.slice(0, 300) : null,
+        },
+      })
+      .catch(() => undefined);
   }
 }

@@ -1,3 +1,4 @@
+import { SUGGESTIONS_ASSISTANT } from './suggestions';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
@@ -570,7 +571,15 @@ export class ChatbotService {
     let assistantMessage = completion.choices[0]?.message as any;
 
     // Handle tool calls
-    while (assistantMessage?.tool_calls && assistantMessage.tool_calls.length > 0) {
+    // Même borne que le chemin en flux : sans elle, un modèle qui rappellerait
+    // sans fin le même outil ne répondrait jamais, et chaque tour est facturé.
+    let tours = 1;
+    while (
+      tours < 5 &&
+      assistantMessage?.tool_calls &&
+      assistantMessage.tool_calls.length > 0
+    ) {
+      tours += 1;
       // Add assistant message with tool calls
       messages.push({
         role: 'assistant',
@@ -790,14 +799,7 @@ export class ChatbotService {
   }
 
   getSuggestions() {
-    return [
-      'Quelles sont les offres d\'emploi disponibles ?',
-      'Montre-moi les formations récentes',
-      'Quelles bourses sont disponibles ?',
-      'Quels sont les secteurs les plus actifs ?',
-      'Comment améliorer mon CV ?',
-      'Quelles compétences sont les plus demandées ?',
-    ];
+    return [...SUGGESTIONS_ASSISTANT];
   }
 
   private async getContextData() {

@@ -28,6 +28,7 @@ import { FeedbackModule } from './modules/feedback/feedback.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { TypesOffresModule } from './modules/types-offres/types-offres.module';
 import { LikesModule } from './modules/likes/likes.module';
+import { AgentsIaModule } from './modules/agents-ia/agents-ia.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { LikesModule } from './modules/likes/likes.module';
     AdminModule,
     FavoritesModule,
     LikesModule,
+    AgentsIaModule,
     MailModule,
     MessagingModule,
     GroupesModule,
