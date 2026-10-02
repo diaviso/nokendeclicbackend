@@ -13,15 +13,22 @@ import {
   fabriquerSlug,
   htmlVersTexte,
 } from './contenu.util';
-import { CHAMPS_LEGACY, CreateOffreDto, UpdateOffreDto, OffresFilterDto } from './dto';
+import {
+  CHAMPS_LEGACY,
+  CreateOffreDto,
+  UpdateOffreDto,
+  OffresFilterDto,
+} from './dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { TypesOffresService } from '../types-offres/types-offres.service';
+import { MediasService, type Demandeur } from '../medias/medias.service';
 
 @Injectable()
 export class OffresService {
   constructor(
     private prisma: PrismaService,
     private typesOffres: TypesOffresService,
+    private medias: MediasService,
     @Inject(forwardRef(() => NotificationsService))
     private notificationsService: NotificationsService,
   ) {}
@@ -148,6 +155,9 @@ export class OffresService {
       'description',
       'estBrouillon',
       'datePublicationPrevue',
+      // La couverture se choisit dans la médiathèque, jamais par une URL libre.
+      'imageUrl',
+      'imageId',
     ]) {
       delete reste[cle];
     }
@@ -183,10 +193,12 @@ export class OffresService {
     // La description reste la source de vérité en texte : elle est reprise du
     // balisage quand l'éditeur est utilisé, pour que les deux ne divergent pas.
     if (html) donnees.description = texte;
-    else if (dto.description !== undefined) donnees.description = dto.description;
+    else if (dto.description !== undefined)
+      donnees.description = dto.description;
 
     if (dto.extrait !== undefined) {
-      donnees.extrait = dto.extrait?.trim() || (texte ? extraireAccroche(texte) : null);
+      donnees.extrait =
+        dto.extrait?.trim() || (texte ? extraireAccroche(texte) : null);
     } else if (html) {
       donnees.extrait = extraireAccroche(texte);
     }
@@ -235,6 +247,15 @@ export class OffresService {
     const contenu = await this.preparerContenu(dto);
     const brouillon = dto.estBrouillon === true;
 
+    // Choisie avant l'enregistrement : l'image est en médiathèque, il n'y a
+    // plus à attendre que l'offre existe pour lui donner sa couverture.
+    const couverture = dto.imageId
+      ? await this.medias.pourOffre(dto.imageId, {
+          id: auteurId,
+          role: auteurRole,
+        })
+      : null;
+
     const offre = await this.prisma.offre.create({
       data: {
         ...reste,
@@ -249,6 +270,13 @@ export class OffresService {
           : null,
         champs,
         auteurId,
+        ...(couverture
+          ? {
+              imageId: couverture.id,
+              imageUrl: couverture.url,
+              imageAlt: dto.imageAlt || couverture.alt || undefined,
+            }
+          : {}),
         estBrouillon: brouillon,
         // Un brouillon n'entre pas en modération : il n'est pas terminé, et
         // faire relire un texte inachevé fait perdre son temps à tout le monde.
@@ -303,7 +331,8 @@ export class OffresService {
       where: { id },
       data: {
         statutModeration: decision.statut,
-        motifRefus: decision.statut === 'REFUSEE' ? decision.motif?.trim() : null,
+        motifRefus:
+          decision.statut === 'REFUSEE' ? decision.motif?.trim() : null,
         dateModeration: new Date(),
         modereParId: moderateurId,
       },
@@ -312,11 +341,11 @@ export class OffresService {
 
     // La notification ne part qu'à la première publication : revalider une
     // offre déjà passée au catalogue ne doit pas la réannoncer à tout le monde.
-    if (
-      decision.statut === 'PUBLIEE' &&
-      offre.statutModeration !== 'PUBLIEE'
-    ) {
-      await this.notificationsService.notifyNewOffre(misAJour.id, misAJour.titre);
+    if (decision.statut === 'PUBLIEE' && offre.statutModeration !== 'PUBLIEE') {
+      await this.notificationsService.notifyNewOffre(
+        misAJour.id,
+        misAJour.titre,
+      );
     }
 
     return this.serialiser(misAJour);
@@ -392,7 +421,9 @@ export class OffresService {
     if (filterParams.keyword) {
       where.OR = [
         { titre: { contains: filterParams.keyword, mode: 'insensitive' } },
-        { description: { contains: filterParams.keyword, mode: 'insensitive' } },
+        {
+          description: { contains: filterParams.keyword, mode: 'insensitive' },
+        },
         { entreprise: { contains: filterParams.keyword, mode: 'insensitive' } },
       ];
     }
@@ -406,7 +437,9 @@ export class OffresService {
         include: {
           auteur: this.auteurSelect,
           typeOffre: this.typeSelect,
-          _count: { select: { commentaires: true, retours: true, likes: true } },
+          _count: {
+            select: { commentaires: true, retours: true, likes: true },
+          },
         },
       }),
       this.prisma.offre.count({ where }),
@@ -535,7 +568,12 @@ export class OffresService {
     return this.serialiser(offre);
   }
 
-  async update(id: number, dto: UpdateOffreDto, userId: number, userRole: string) {
+  async update(
+    id: number,
+    dto: UpdateOffreDto,
+    userId: number,
+    userRole: string,
+  ) {
     const offre = await this.prisma.offre.findUnique({ where: { id } });
 
     if (!offre) {
@@ -568,6 +606,25 @@ export class OffresService {
     const repasseEnRelecture = userRole !== 'ADMIN';
 
     const contenu = await this.preparerContenu(dto, id);
+
+    // `imageId` absent : la couverture ne change pas. `null` : elle est
+    // retirée. Un identifiant : l'image de la médiathèque la remplace.
+    let couverture: Record<string, unknown> = {};
+    if (dto.imageId === null) {
+      couverture = { imageId: null, imageUrl: null };
+    } else if (dto.imageId !== undefined) {
+      const image = await this.medias.pourOffre(dto.imageId, {
+        id: userId,
+        role: userRole,
+      });
+      couverture = {
+        imageId: image.id,
+        imageUrl: image.url,
+        ...(!dto.imageAlt && !offre.imageAlt && image.alt
+          ? { imageAlt: image.alt }
+          : {}),
+      };
+    }
     // Une offre qui quitte l'état de brouillon entre en relecture comme une
     // publication neuve : c'est à ce moment-là qu'elle devient une annonce.
     const sortDeBrouillon = offre.estBrouillon && dto.estBrouillon === false;
@@ -593,6 +650,7 @@ export class OffresService {
           ? { estBrouillon: dto.estBrouillon }
           : {}),
         champs,
+        ...couverture,
         ...(repasseEnRelecture || sortDeBrouillon
           ? {
               statutModeration: 'EN_ATTENTE' as const,
@@ -640,6 +698,49 @@ export class OffresService {
     return this.prisma.offre.update({ where: { id }, data });
   }
 
+  /**
+   * Change la couverture d'une offre existante : une image de la médiathèque,
+   * ou aucune. Le texte alternatif de l'image est repris s'il manque à l'offre.
+   *
+   * Retirer une couverture ne supprime pas le fichier : d'autres offres
+   * peuvent l'afficher, et il reste disponible en médiathèque.
+   */
+  async definirCouverture(
+    id: number,
+    mediaId: number | null,
+    demandeur: Demandeur,
+  ) {
+    const offre = await this.assurerDroit(id, demandeur);
+    if (mediaId === null) {
+      return this.prisma.offre.update({
+        where: { id },
+        data: { imageId: null, imageUrl: null },
+      });
+    }
+    const image = await this.medias.pourOffre(mediaId, demandeur);
+    return this.prisma.offre.update({
+      where: { id },
+      data: {
+        imageId: image.id,
+        imageUrl: image.url,
+        ...(!offre.imageAlt && image.alt ? { imageAlt: image.alt } : {}),
+      },
+    });
+  }
+
+  /** L'offre existe, et le demandeur en est l'auteur ou administre. */
+  async assurerDroit(id: number, demandeur: Demandeur) {
+    const offre = await this.prisma.offre.findUnique({
+      where: { id },
+      select: { auteurId: true, imageAlt: true },
+    });
+    if (!offre) throw new NotFoundException('Offre non trouvée');
+    if (offre.auteurId !== demandeur.id && demandeur.role !== 'ADMIN') {
+      throw new ForbiddenException('Vous ne pouvez pas modifier cette offre');
+    }
+    return offre;
+  }
+
   async delete(id: number, userId: number, userRole: string) {
     const offre = await this.prisma.offre.findUnique({ where: { id } });
 
@@ -664,20 +765,49 @@ export class OffresService {
     const typeOffre = await this.prisma.typeOffre.findMany({
       where: { estActif: true },
       orderBy: [{ ordre: 'asc' }, { libelle: 'asc' }],
-      select: { id: true, code: true, libelle: true, icone: true, couleur: true },
+      select: {
+        id: true,
+        code: true,
+        libelle: true,
+        icone: true,
+        couleur: true,
+      },
     });
 
     return {
       typeOffre,
       typeEmploi: [
-        'CDI', 'CDD', 'STAGE', 'ALTERNANCE', 'FREELANCE', 'INTERIM',
-        'SAISONNIER', 'TEMPS_PARTIEL', 'TEMPS_PLEIN',
+        'CDI',
+        'CDD',
+        'STAGE',
+        'ALTERNANCE',
+        'FREELANCE',
+        'INTERIM',
+        'SAISONNIER',
+        'TEMPS_PARTIEL',
+        'TEMPS_PLEIN',
       ],
       secteur: [
-        'INFORMATIQUE', 'FINANCE', 'SANTE', 'EDUCATION', 'COMMERCE', 'INDUSTRIE',
-        'AGRICULTURE', 'TOURISME', 'TRANSPORT', 'COMMUNICATION', 'ADMINISTRATION',
-        'ARTISANAT', 'CONSTRUCTION', 'ENERGIE', 'ENVIRONNEMENT', 'JURIDIQUE',
-        'MARKETING', 'RESSOURCES_HUMAINES', 'RECHERCHE', 'AUTRE',
+        'INFORMATIQUE',
+        'FINANCE',
+        'SANTE',
+        'EDUCATION',
+        'COMMERCE',
+        'INDUSTRIE',
+        'AGRICULTURE',
+        'TOURISME',
+        'TRANSPORT',
+        'COMMUNICATION',
+        'ADMINISTRATION',
+        'ARTISANAT',
+        'CONSTRUCTION',
+        'ENERGIE',
+        'ENVIRONNEMENT',
+        'JURIDIQUE',
+        'MARKETING',
+        'RESSOURCES_HUMAINES',
+        'RECHERCHE',
+        'AUTRE',
       ],
       niveauExperience: ['DEBUTANT', 'JUNIOR', 'CONFIRME', 'SENIOR', 'EXPERT'],
     };

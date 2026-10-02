@@ -14,9 +14,16 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { OffresService } from './offres.service';
 import { StorageService } from '../storage/storage.service';
+import { MediasService } from '../medias/medias.service';
+import { CouvertureDto } from '../medias/dto/media.dto';
 import {
   CreateOffreDto,
   UpdateOffreDto,
@@ -33,6 +40,7 @@ export class OffresController {
   constructor(
     private offresService: OffresService,
     private storage: StorageService,
+    private medias: MediasService,
   ) {}
 
   @PeutPublier()
@@ -125,7 +133,7 @@ export class OffresController {
    * session et ne compte pas de consultation.
    */
   @Get(':id/edition')
-  @ApiOperation({ summary: 'Détails d\'une offre pour son auteur' })
+  @ApiOperation({ summary: "Détails d'une offre pour son auteur" })
   async findPourEdition(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
@@ -135,7 +143,7 @@ export class OffresController {
 
   @Get(':id')
   @Public()
-  @ApiOperation({ summary: 'Détails d\'une offre' })
+  @ApiOperation({ summary: "Détails d'une offre" })
   async findById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() utilisateur?: { id: number },
@@ -168,7 +176,7 @@ export class OffresController {
     @CurrentUser() user: any,
   ) {
     const offre = await this.offresService.update(id, dto, user.id, user.role);
-    
+
     if (file) {
       const stored = await this.storage.upload(file, 'documents');
       await this.offresService.updateMedia(offre.id, {
@@ -177,10 +185,15 @@ export class OffresController {
         documentType: stored.mimetype,
       });
     }
-    
+
     return this.offresService.findById(offre.id);
   }
 
+  /**
+   * Envoi direct d'une couverture, conservé pour les clients déjà installés.
+   * Le fichier passe par la médiathèque : recompressé, et non dupliqué s'il y
+   * est déjà.
+   */
   @PeutPublier()
   @Post(':id/image')
   @UseInterceptors(FileInterceptor('file'))
@@ -191,33 +204,41 @@ export class OffresController {
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() user: any,
   ) {
-    if (!file) throw new BadRequestException('Aucun fichier fourni');
-    if (!file.mimetype.startsWith('image/')) {
-      throw new BadRequestException(
-        'La couverture doit être une image (JPEG, PNG ou WebP)',
-      );
-    }
+    const demandeur = { id: user.id, role: user.role };
+    // Le droit sur l'offre d'abord : inutile de stocker une image pour une
+    // offre qu'on ne peut pas modifier.
+    await this.offresService.assurerDroit(id, demandeur);
+    const { media } = await this.medias.deposer(file, demandeur);
+    return this.offresService.definirCouverture(id, media.id, demandeur);
+  }
 
-    const stored = await this.storage.upload(file, 'couvertures');
-    return this.offresService.updateMedia(
-      id,
-      { imageUrl: stored.url },
-      { userId: user.id, userRole: user.role },
-    );
+  @PeutPublier()
+  @Put(':id/image')
+  @ApiOperation({ summary: 'Choisir la couverture dans la médiathèque' })
+  async choisirImage(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CouvertureDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.offresService.definirCouverture(id, dto.mediaId, {
+      id: user.id,
+      role: user.role,
+    });
   }
 
   @PeutPublier()
   @Delete(':id/image')
-  @ApiOperation({ summary: 'Retirer la photo de couverture' })
+  @ApiOperation({
+    summary: 'Retirer la photo de couverture (le fichier reste en médiathèque)',
+  })
   async removeImage(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
   ) {
-    return this.offresService.updateMedia(
-      id,
-      { imageUrl: null },
-      { userId: user.id, userRole: user.role },
-    );
+    return this.offresService.definirCouverture(id, null, {
+      id: user.id,
+      role: user.role,
+    });
   }
 
   @PeutPublier()
@@ -264,7 +285,10 @@ export class OffresController {
   @PeutPublier()
   @Delete(':id')
   @ApiOperation({ summary: 'Supprimer une offre' })
-  async delete(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any) {
+  async delete(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
     return this.offresService.delete(id, user.id, user.role);
   }
 

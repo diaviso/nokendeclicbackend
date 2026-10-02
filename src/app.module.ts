@@ -29,6 +29,7 @@ import { StorageModule } from './modules/storage/storage.module';
 import { TypesOffresModule } from './modules/types-offres/types-offres.module';
 import { LikesModule } from './modules/likes/likes.module';
 import { AgentsIaModule } from './modules/agents-ia/agents-ia.module';
+import { MediasModule } from './modules/medias/medias.module';
 
 @Module({
   imports: [
@@ -36,10 +37,12 @@ import { AgentsIaModule } from './modules/agents-ia/agents-ia.module';
       isGlobal: true,
       load: [configuration],
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     PrismaModule,
     StorageModule,
     AuthModule,
@@ -57,6 +60,7 @@ import { AgentsIaModule } from './modules/agents-ia/agents-ia.module';
     FavoritesModule,
     LikesModule,
     AgentsIaModule,
+    MediasModule,
     MailModule,
     MessagingModule,
     GroupesModule,

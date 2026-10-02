@@ -142,6 +142,7 @@ model User {
   alerts             Alert[]
   conversations      Conversation[]
   extractionsCV      ExtractionCV[] @relation("ExtractionsCV")
+  medias             Media[]        @relation("MediasDeposes")
   emailVerifications EmailVerification[]
   passwordResets     PasswordReset[]
 
@@ -306,8 +307,13 @@ model Offre {
   emailCandidature        String?
   instructionsCandidature String?
 
-  /// Photo de couverture (URL publique R2).
+  /// Photo de couverture (URL publique R2). Recopiée depuis la médiathèque
+  /// (`image`) : une clé R2 ne change jamais, la copie ne peut donc pas se
+  /// désynchroniser, et tout l'affichage continue de lire ce seul champ.
   imageUrl     String?
+  /// Image de la médiathèque utilisée en couverture.
+  image        Media?  @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  imageId      Int?
   /// Document principal joint à l'offre.
   documentUrl  String?
   documentName String?
@@ -371,6 +377,49 @@ model Offre {
   @@index([statutModeration])
   @@index([estBrouillon])
   @@index([slug])
+  @@index([imageId])
+}
+
+/// Médiathèque : les images de couverture, réutilisables d'une offre à l'autre.
+///
+/// Une image n'appartient plus à une offre : plusieurs annonces peuvent
+/// afficher la même, et la supprimer d'une offre ne la supprime pas du
+/// stockage. Elle ne quitte le bucket que retirée explicitement de la
+/// médiathèque, et seulement quand plus aucune offre ne l'utilise.
+model Media {
+  id        Int      @id @default(autoincrement())
+  /// Clé de l'objet dans le bucket R2, ex. `medias/8f3c….jpg`.
+  cle       String   @unique
+  /// URL publique, recopiée sur chaque offre qui utilise l'image.
+  url       String
+  /// SHA-256 du fichier envoyé. Un second envoi du même fichier réutilise
+  /// l'image existante au lieu d'en stocker une copie. Non unique : deux
+  /// partenaires peuvent détenir chacun leur exemplaire privé.
+  empreinte String?
+  /// Libellé de recherche : nom du fichier, ou titre de l'offre d'origine
+  /// pour les couvertures reprises de l'existant.
+  nom       String
+  /// Texte alternatif proposé par défaut quand l'image est choisie.
+  alt       String?
+  largeur   Int?
+  hauteur   Int?
+  /// Poids en octets, tel que stocké.
+  taille    Int?
+  typeMime  String?
+  /// Banque commune : visible des partenaires, au choix de l'administration.
+  /// Par défaut, un partenaire ne voit que ses propres images — sinon il
+  /// pourrait reprendre le logo ou les visuels d'une autre structure.
+  commune   Boolean  @default(false)
+  auteur    User?    @relation("MediasDeposes", fields: [auteurId], references: [id], onDelete: SetNull)
+  auteurId  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  offres Offre[]
+
+  @@index([empreinte])
+  @@index([auteurId])
+  @@index([createdAt])
 }
 
 /// Cycle de vie d'une offre déposée par un partenaire.

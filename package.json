@@ -63,6 +63,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "sanitize-html": "^2.17.7",
+    "sharp": "^0.34.5",
     "stripe": "^20.4.0",
     "swagger-ui-express": "^5.0.1",
     "web-push": "^3.6.7"

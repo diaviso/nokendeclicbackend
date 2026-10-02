@@ -184,7 +184,9 @@ export class CreateOffreDto extends ChampsLegacyDto {
   @IsOptional()
   contenuHtml?: string;
 
-  @ApiPropertyOptional({ description: 'Accroche pour les listes et les partages' })
+  @ApiPropertyOptional({
+    description: 'Accroche pour les listes et les partages',
+  })
   @IsString()
   @MaxLength(400)
   @IsOptional()
@@ -200,13 +202,17 @@ export class CreateOffreDto extends ChampsLegacyDto {
   @IsOptional()
   datePublicationPrevue?: string;
 
-  @ApiPropertyOptional({ description: "Texte alternatif de l'image de couverture" })
+  @ApiPropertyOptional({
+    description: "Texte alternatif de l'image de couverture",
+  })
   @IsString()
   @MaxLength(300)
   @IsOptional()
   imageAlt?: string;
 
-  @ApiPropertyOptional({ description: 'Titre affiché dans les moteurs de recherche' })
+  @ApiPropertyOptional({
+    description: 'Titre affiché dans les moteurs de recherche',
+  })
   @IsString()
   @MaxLength(70)
   @IsOptional()
@@ -279,7 +285,10 @@ export class CreateOffreDto extends ChampsLegacyDto {
   @IsOptional()
   dateLimite?: string;
 
-  @ApiPropertyOptional({ example: 1, description: "Identifiant du type d'offre" })
+  @ApiPropertyOptional({
+    example: 1,
+    description: "Identifiant du type d'offre",
+  })
   @IsInt()
   @Min(1)
   @Type(() => Number)
@@ -309,10 +318,28 @@ export class CreateOffreDto extends ChampsLegacyDto {
   @IsOptional()
   champs?: Record<string, unknown>;
 
-  @ApiPropertyOptional({ description: 'URL de la photo de couverture' })
+  /**
+   * Toléré pour ne pas rejeter les anciens clients, mais ignoré : une
+   * couverture se choisit dans la médiathèque (`imageId`). Accepter une URL
+   * libre permettait d'afficher n'importe quelle image venue d'ailleurs.
+   */
+  @ApiPropertyOptional({
+    description: 'Ignoré — utiliser imageId',
+    deprecated: true,
+  })
   @IsString()
   @IsOptional()
   imageUrl?: string;
+
+  @ApiPropertyOptional({
+    description: 'Image de la médiathèque en couverture ; null pour la retirer',
+    type: Number,
+    nullable: true,
+  })
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  imageId?: number | null;
 
   @ApiPropertyOptional({ enum: TypeEmploi })
   @IsEnum(TypeEmploi)
@@ -344,7 +371,6 @@ export class CreateOffreDto extends ChampsLegacyDto {
   @IsString()
   @IsOptional()
   entreprise?: string;
-
 }
 
 /**

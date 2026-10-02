@@ -7,11 +7,29 @@ import {
 import { ConfigService } from '@nestjs/config';
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import { extname } from 'path';
+
+/**
+ * Rétablit un nom de fichier lu de travers.
+ *
+ * Multer lit le nom envoyé par le navigateur en latin1, alors qu'il arrive en
+ * UTF-8 : « é » devient « Ã© », « — » devient « â\u0080\u0094 ». Les noms de
+ * PDF joints s'affichaient ainsi abîmés sur les offres. On ne relit en UTF-8
+ * que ce qui en porte la signature — un octet de tête suivi d'octets de
+ * continuation — pour ne jamais abîmer un nom déjà correct.
+ */
+export function reparerNomFichier(nom: string): string {
+  if (!/[\u00c2-\u00f4][\u0080-\u00bf]/.test(nom)) return nom;
+  const repare = Buffer.from(nom, 'latin1').toString('utf8');
+  return repare.includes('\uFFFD') ? nom : repare;
+}
 
 export interface StoredFile {
   /** Clé de l'objet dans le bucket, ex. `offres/8f3c….pdf`. */
@@ -46,7 +64,8 @@ export class StorageService implements OnModuleInit {
   onModuleInit() {
     const accountId = this.configService.get<string>('r2.accountId');
     const accessKeyId = this.configService.get<string>('r2.accessKeyId');
-    const secretAccessKey = this.configService.get<string>('r2.secretAccessKey');
+    const secretAccessKey =
+      this.configService.get<string>('r2.secretAccessKey');
     const bucket = this.configService.get<string>('r2.bucket');
     const publicUrl = this.configService.get<string>('r2.publicUrl');
 
@@ -111,10 +130,7 @@ export class StorageService implements OnModuleInit {
    * Le nom d'origine n'est jamais utilisé comme clé : il est conservé
    * séparément en base, ce qui évite toute traversée de chemin.
    */
-  async upload(
-    file: Express.Multer.File,
-    folder: string,
-  ): Promise<StoredFile> {
+  async upload(file: Express.Multer.File, folder: string): Promise<StoredFile> {
     const client = this.assertReady();
 
     if (!file?.buffer) {
@@ -123,7 +139,8 @@ export class StorageService implements OnModuleInit {
       );
     }
 
-    const extension = extname(file.originalname).toLowerCase();
+    const nomOrigine = reparerNomFichier(file.originalname);
+    const extension = extname(nomOrigine).toLowerCase();
     const key = `${folder}/${randomUUID()}${extension}`;
 
     await client.send(
@@ -135,7 +152,7 @@ export class StorageService implements OnModuleInit {
         // Le nom d'origine part en métadonnée, encodé : les en-têtes S3
         // n'acceptent pas les caractères non ASCII.
         Metadata: {
-          'original-name': encodeURIComponent(file.originalname),
+          'original-name': encodeURIComponent(nomOrigine),
         },
       }),
     );
@@ -145,8 +162,95 @@ export class StorageService implements OnModuleInit {
       url: this.urlFor(key),
       size: file.size,
       mimetype: file.mimetype,
-      originalName: file.originalname,
+      originalName: nomOrigine,
     };
+  }
+
+  /**
+   * Dépose des octets déjà préparés (une image recompressée, par exemple) sous
+   * une clé neuve. Le contenu d'une clé ne change jamais : il peut donc être
+   * mis en cache sans limite par les navigateurs et le réseau de Cloudflare.
+   */
+  async deposerOctets(params: {
+    dossier: string;
+    extension: string;
+    octets: Buffer;
+    typeMime: string;
+    nomOrigine?: string;
+  }): Promise<StoredFile> {
+    const client = this.assertReady();
+    const key = `${params.dossier}/${randomUUID()}${params.extension}`;
+
+    await client.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: params.octets,
+        ContentType: params.typeMime,
+        CacheControl: 'public, max-age=31536000, immutable',
+        Metadata: params.nomOrigine
+          ? { 'original-name': encodeURIComponent(params.nomOrigine) }
+          : undefined,
+      }),
+    );
+
+    return {
+      key,
+      url: this.urlFor(key),
+      size: params.octets.length,
+      mimetype: params.typeMime,
+      originalName: params.nomOrigine ?? key,
+    };
+  }
+
+  /** Lit un objet en entier. Réservé à de petits fichiers (images). */
+  async lire(keyOrUrl: string): Promise<Buffer> {
+    const client = this.assertReady();
+    const key = this.keyFrom(keyOrUrl);
+    if (!key) throw new InternalServerErrorException('Clé de fichier invalide');
+    const reponse = await client.send(
+      new GetObjectCommand({ Bucket: this.bucket, Key: key }),
+    );
+    if (!reponse.Body) {
+      throw new InternalServerErrorException(`Objet « ${key} » vide`);
+    }
+    return Buffer.from(await reponse.Body.transformToByteArray());
+  }
+
+  /** Nom d'origine d'un objet, conservé en métadonnée lors de l'envoi. */
+  async nomOrigine(key: string): Promise<string | null> {
+    const client = this.assertReady();
+    const reponse = await client.send(
+      new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
+    );
+    const brut = reponse.Metadata?.['original-name'];
+    if (!brut) return null;
+    try {
+      return decodeURIComponent(brut);
+    } catch {
+      return brut;
+    }
+  }
+
+  /** Clés et poids des objets d'un dossier. */
+  async lister(prefixe: string): Promise<{ key: string; size: number }[]> {
+    const client = this.assertReady();
+    const objets: { key: string; size: number }[] = [];
+    let jeton: string | undefined;
+    do {
+      const page = await client.send(
+        new ListObjectsV2Command({
+          Bucket: this.bucket,
+          Prefix: prefixe,
+          ContinuationToken: jeton,
+        }),
+      );
+      for (const objet of page.Contents ?? []) {
+        if (objet.Key) objets.push({ key: objet.Key, size: objet.Size ?? 0 });
+      }
+      jeton = page.IsTruncated ? page.NextContinuationToken : undefined;
+    } while (jeton);
+    return objets;
   }
 
   async delete(keyOrUrl: string): Promise<void> {

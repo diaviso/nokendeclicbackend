@@ -5,11 +5,13 @@ import { OffresController } from './offres.controller';
 import { OffresService } from './offres.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { TypesOffresModule } from '../types-offres/types-offres.module';
+import { MediasModule } from '../medias/medias.module';
 
 @Module({
   imports: [
     forwardRef(() => NotificationsModule),
     TypesOffresModule,
+    MediasModule,
     MulterModule.register({
       // En mémoire, puis envoi vers R2 (voir StorageService).
       storage: memoryStorage(),
