@@ -18,14 +18,37 @@ import sanitizeHtml from 'sanitize-html';
  */
 const REGLES: sanitizeHtml.IOptions = {
   allowedTags: [
-    'p', 'br', 'hr',
-    'h2', 'h3', 'h4',
-    'strong', 'b', 'em', 'i', 'u', 's', 'code', 'mark', 'sup', 'sub',
-    'ul', 'ol', 'li',
-    'blockquote', 'pre',
-    'a', 'img',
-    'table', 'thead', 'tbody', 'tr', 'th', 'td',
-    'span', 'div',
+    'p',
+    'br',
+    'hr',
+    'h2',
+    'h3',
+    'h4',
+    'strong',
+    'b',
+    'em',
+    'i',
+    'u',
+    's',
+    'code',
+    'mark',
+    'sup',
+    'sub',
+    'ul',
+    'ol',
+    'li',
+    'blockquote',
+    'pre',
+    'a',
+    'img',
+    'table',
+    'thead',
+    'tbody',
+    'tr',
+    'th',
+    'td',
+    'span',
+    'div',
   ],
   allowedAttributes: {
     a: ['href', 'title', 'target', 'rel'],
@@ -80,11 +103,42 @@ export function htmlVersTexte(html?: string | null): string {
   const espace = html
     .replace(/<\/(p|div|li|h[1-6]|tr|blockquote)>/gi, '\n')
     .replace(/<br\s*\/?>/gi, '\n');
-  return sanitizeHtml(espace, { allowedTags: [], allowedAttributes: {} })
-    .replace(/&nbsp;/g, ' ')
+  return decoderEntites(
+    sanitizeHtml(espace, { allowedTags: [], allowedAttributes: {} }),
+  )
     .replace(/\n{3,}/g, '\n\n')
     .replace(/[ \t]+/g, ' ')
     .trim();
+}
+
+const ENTITES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+};
+
+/**
+ * Rend au texte ses caractères. `sanitize-html` produit du HTML, même sans
+ * balise : « & » en sort sous la forme « &amp; ». Ce texte-là est affiché tel
+ * quel — aperçus, cartes, partages —, et « Facturation &amp; Recouvrement »
+ * apparaissait ainsi à l'écran. Un seul passage : « &amp;lt; » redevient
+ * « &lt; », pas « < ».
+ */
+export function decoderEntites(texte: string): string {
+  return texte.replace(
+    /&(?:#(\d+)|#x([0-9a-f]+)|([a-z]+));/gi,
+    (brut, decimal?: string, hexa?: string, nom?: string) => {
+      if (decimal || hexa) {
+        const code = decimal ? Number(decimal) : parseInt(hexa!, 16);
+        // Un code hors de l'Unicode ferait lever `fromCodePoint`.
+        return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : brut;
+      }
+      return ENTITES[nom!.toLowerCase()] ?? brut;
+    },
+  );
 }
 
 /** Accroche tirée du texte, coupée sur un mot entier. */
